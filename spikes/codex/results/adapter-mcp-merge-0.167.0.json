@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-16T14:57:29.011Z",
+  "cliVersion": "codex-cli 0.167.0",
+  "checks": [
+    {
+      "name": "aut.fixture",
+      "toolNames": [
+        "fixture_echo"
+      ]
+    },
+    {
+      "name": "aut_inherited_fixture",
+      "toolNames": [
+        "inherited_fixture"
+      ]
+    },
+    {
+      "name": "aut_override_fixture",
+      "toolNames": [
+        "override_fixture"
+      ]
+    }
+  ]
+}

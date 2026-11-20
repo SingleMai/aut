@@ -1,0 +1,22 @@
+{
+  "scrollTop": 1045.5,
+  "item": "qa-parity-live-command",
+  "inContainer": true,
+  "control": {
+    "top": 225,
+    "bottom": 257
+  },
+  "host": {
+    "top": 40,
+    "bottom": 442
+  },
+  "expandedGroups": 1,
+  "afterRefresh": {
+    "expanded": "false",
+    "targetPresent": false
+  },
+  "repeatedFocus": {
+    "focused": "qa-parity-live-command",
+    "inContainer": true
+  }
+}

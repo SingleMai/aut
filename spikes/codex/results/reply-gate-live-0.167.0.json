@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-16T15:36:58.234Z",
+  "cliVersion": "codex-cli 0.167.0",
+  "model": "gpt-6.1-sol",
+  "sourceCharacters": 432,
+  "delivered": "三个测试均已通过，结果可以使用，未发现阻塞问题。这是一份合成测试报告。",
+  "rewrites": 1,
+  "originalTranscriptUnchanged": true,
+  "path": [
+    "length",
+    "budget",
+    "rewrite",
+    "length",
+    "readability",
+    "readable",
+    "deliver"
+  ],
+  "classifierCalls": [
+    {
+      "backend": "jev",
+      "model": "jev-1.14.0",
+      "response": {
+        "answers": {
+          "readable": {
+            "type": "noul",
+            "noul": 0.74
+          }
+        },
+        "latencyMs": 479,
+        "usage": {
+          "inputTokens": 334
+        }
+      }
+    }
+  ],
+  "childProcessesAfterScope": []
+}

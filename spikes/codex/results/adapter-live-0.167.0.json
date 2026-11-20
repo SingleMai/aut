@@ -1,0 +1,238 @@
+{
+  "at": "2026-11-16T14:42:12.458Z",
+  "cliVersion": "codex-cli 0.167.0",
+  "model": "gpt-6.1-sol",
+  "checks": [
+    "native question",
+    "explicit synthetic answer",
+    "completed report",
+    "fork independent scope",
+    "parent survives fork closure",
+    "fork transcript isolation",
+    "cross-process resume",
+    "no child processes after scope"
+  ],
+  "childPids": [
+    83360,
+    85192,
+    87215
+  ],
+  "alive": [],
+  "cursor": {
+    "kind": "codex",
+    "data": {
+      "threadId": "01a1e4ce-947a-7973-a032-0f353c3b4b29"
+    }
+  },
+  "events": [
+    {
+      "kind": "turn.started",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7"
+    },
+    {
+      "kind": "request.opened",
+      "request": {
+        "id": "65ae1595-e820-4d48-875f-a3ae3e8c3e2e",
+        "taskId": "adapter-live-synthetic",
+        "openedAt": 1794840114213,
+        "raw": {
+          "method": "item/tool/requestUserInput",
+          "id": 0,
+          "params": {
+            "threadId": "01a1e4ce-947a-7973-a032-0f353c3b4b29",
+            "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+            "itemId": "call_8f1cb6d4736c4422a0b07d39425a50c7",
+            "questions": [
+              {
+                "id": "adapter_color",
+                "header": "Fixture",
+                "question": "Which adapter fixture color?",
+                "isOther": true,
+                "isSecret": false,
+                "options": [
+                  {
+                    "label": "Blue",
+                    "description": "Synthetic blue"
+                  },
+                  {
+                    "label": "Green",
+                    "description": "Synthetic green"
+                  }
+                ]
+              }
+            ],
+            "isBlocking": false,
+            "autoResolutionMs": null
+          }
+        },
+        "kind": "question",
+        "questions": [
+          {
+            "id": "adapter_color",
+            "text": "Which adapter fixture color?",
+            "options": [
+              {
+                "id": "0",
+                "label": "Blue",
+                "description": "Synthetic blue"
+              },
+              {
+                "id": "1",
+                "label": "Green",
+                "description": "Synthetic green"
+              }
+            ],
+            "multiSelect": false,
+            "allowFreeText": true
+          }
+        ]
+      }
+    },
+    {
+      "kind": "request.closed",
+      "requestId": "65ae1595-e820-4d48-875f-a3ae3e8c3e2e",
+      "reason": "answered"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+      "text": "AD"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+      "text": "APTER"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+      "text": "_BLUE"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+      "text": "_OK"
+    },
+    {
+      "kind": "turn.completed",
+      "turnId": "01a1e4ce-95ad-71a1-aab9-f991d928ebf7",
+      "ok": true,
+      "finalReport": "ADAPTER_BLUE_OK"
+    },
+    {
+      "kind": "turn.started",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "F"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "ORK"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "_ONLY"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "_SENT"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "IN"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "EL"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "_"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "text": "712"
+    },
+    {
+      "kind": "turn.completed",
+      "turnId": "01a1e4ce-bbaa-70e0-9427-fe7367042234",
+      "ok": true,
+      "finalReport": "FORK_ONLY_SENTINEL_712"
+    },
+    {
+      "kind": "turn.started",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "text": "P"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "text": "ARENT"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "text": "_AL"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "text": "IVE"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "text": "_OK"
+    },
+    {
+      "kind": "turn.completed",
+      "turnId": "01a1e4ce-d308-7793-a9f9-efdc86e7f161",
+      "ok": true,
+      "finalReport": "PARENT_ALIVE_OK"
+    },
+    {
+      "kind": "turn.started",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c",
+      "text": "RES"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c",
+      "text": "UME"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c",
+      "text": "_OK"
+    },
+    {
+      "kind": "message.delta",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c",
+      "text": "."
+    },
+    {
+      "kind": "turn.completed",
+      "turnId": "01a1e4ce-e8e8-7fb2-b770-3e2299a39c7c",
+      "ok": true,
+      "finalReport": "RESUME_OK."
+    }
+  ]
+}

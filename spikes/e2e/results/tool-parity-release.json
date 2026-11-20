@@ -1,0 +1,18 @@
+{
+  "archive": "/Users/liying/mine/aut/deliverables/aut-macos-arm64-omb-tools.zip",
+  "bytes": 121650430,
+  "sha256": "788bb06523b0f1900ee526567756973d9712d0a06206f34af1bbc025159fb57b",
+  "appAsarSha256": "4bb2550dd8adff1113e75704f03bafdd39d49b94b02747eb6e64b2b31ba8f667",
+  "nativeBundleMatches": true,
+  "symlinks": 14,
+  "configAndSecretsExcluded": true,
+  "licenseFilesPresent": true,
+  "verification": {
+    "fullSuitePassed": 1063,
+    "additionalBuildRegressionsPassed": 2,
+    "skippedExternalTest": 1,
+    "typecheck": true,
+    "lint": true,
+    "browserAndNative": true
+  }
+}

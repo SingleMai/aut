@@ -1,0 +1,7 @@
+{
+  "workspace": "/Users/liying/mine/aut",
+  "sourceCopy": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/desktop",
+  "profile": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/profile-visible-tools",
+  "scope": "isolated real Electron renderer and real preload with synthetic IPC responses; no daemon, native harness or ~/.aut access",
+  "evidence": "/Users/liying/mine/aut/.artifacts/question-preferences-native-20261117-qJRvFj"
+}

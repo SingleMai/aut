@@ -1,0 +1,96 @@
+{
+  "at": "2026-11-16T16:27:52.335772+00:00",
+  "kind": "partial-failed-probe",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-e2e-07Gp1T",
+  "failure": {
+    "type": "HTTP TimeoutError",
+    "clientDeadlineMs": 15000,
+    "requestPath": "not instrumented in first attempt",
+    "stage": "after sync card was read"
+  },
+  "facts": {
+    "tasks": [
+      {
+        "id": "task:3b417e6f-3384-4bdc-966c-88003dee32b7",
+        "botId": "slow-brain",
+        "status": "running",
+        "origin": {
+          "kind": "slow-brain",
+          "decisionLogId": "3b417e6f-3384-4bdc-966c-88003dee32b7"
+        }
+      }
+    ],
+    "requests": [
+      {
+        "id": "c382e29f-23ba-4d4e-9fab-cc8208c30577",
+        "state": "answered",
+        "answerState": "delivered"
+      }
+    ],
+    "decisionLogs": [
+      {
+        "id": "3b417e6f-3384-4bdc-966c-88003dee32b7",
+        "tree": "inbound",
+        "output": {
+          "op": "escalate",
+          "reason": "The deterministic inbound tree requires the slow brain",
+          "decisionLogId": "3b417e6f-3384-4bdc-966c-88003dee32b7",
+          "messageIds": [
+            "e2e-question-sync"
+          ]
+        },
+        "execution": {
+          "ok": true
+        }
+      },
+      {
+        "id": "9a232355-a515-4361-9138-1c5b6316cf30",
+        "tree": "handoff-prune",
+        "output": {
+          "excerpts": []
+        },
+        "execution": {
+          "ok": true
+        }
+      },
+      {
+        "id": "request:c382e29f-23ba-4d4e-9fab-cc8208c30577",
+        "tree": "request",
+        "output": {
+          "request": "relay"
+        },
+        "execution": {
+          "ok": true
+        }
+      },
+      {
+        "id": "54a12b2b-2b6b-4d51-bfc0-404d502b7598",
+        "tree": "inbound",
+        "output": {
+          "op": "answer",
+          "requestId": "c382e29f-23ba-4d4e-9fab-cc8208c30577",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "probe_color",
+                "optionIds": [
+                  "0"
+                ]
+              },
+              {
+                "questionId": "probe_shape",
+                "optionIds": [
+                  "0"
+                ]
+              }
+            ]
+          }
+        },
+        "execution": {
+          "ok": true
+        }
+      }
+    ]
+  },
+  "limitation": "Native answer was confirmed delivered; final worker report and async scenario did not complete before the probe aborted. No answer was automatically resent."
+}

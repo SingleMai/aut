@@ -1,0 +1,247 @@
+/* Adapted from OpenMausBot src/styles.css and desktop components at
+ * 738ec88472a3b888ff7b7793755d89da613ed301. Copyright 2026 Milind Soni
+ * and contributors. Apache-2.0. See NOTICE. */
+.task-detail-view {
+  width: 100%;
+  max-width: 1000px;
+}
+.detail-card {
+  align-self: start;
+}
+.task-detail h2 {
+  min-width: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.task-detail .section-heading > .task-status {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.task-detail .section-heading {
+  align-items: flex-start;
+}
+.task-actions {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--edge);
+  margin: 0 0 16px;
+}
+.task-workspace {
+  max-width: var(--chat-width);
+  margin: 0 auto;
+}
+.task-workspace > .task-detail {
+  margin-bottom: 16px;
+  padding: 8px 0 12px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--edge);
+  border-radius: 0;
+}
+.task-workspace .section-heading {
+  margin-bottom: 8px;
+}
+.task-workspace .task-actions {
+  align-items: center;
+  padding: 8px 0 0;
+  border: 0;
+  margin: 0;
+}
+.task-metadata {
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+.task-actions > .task-metadata {
+  margin-right: auto;
+}
+.task-actions > .task-metadata[open] {
+  flex-basis: 100%;
+}
+.task-metadata > summary {
+  cursor: pointer;
+  padding: 4px 0;
+}
+.task-metadata .task-metadata {
+  margin: 12px 0;
+}
+.task-stats {
+  margin: 0 0 10px;
+}
+.report-text {
+  font: 12px / 1.8 var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--panel);
+  padding: 20px;
+  border-radius: var(--radius-control);
+  max-height: 60vh;
+  overflow: auto;
+  color: var(--ink);
+}
+.detail-card h3 {
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+.task-session-view {
+  width: 100%;
+  max-width: var(--chat-width);
+  margin: 0 auto;
+  padding: 8px 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.task-session-earlier {
+  align-self: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+.task-session-notice,
+.task-session-pending {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  font-size: var(--text-label);
+  line-height: 1.6;
+}
+.task-session-pending {
+  background: var(--panel);
+  padding: 8px 12px;
+}
+.task-session-muted,
+.task-session-loading {
+  color: var(--secondary);
+  font-size: var(--text-small);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.task-session-error,
+.task-session-turn-error {
+  color: var(--danger);
+  font-size: var(--text-label);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.task-session-item-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.task-session-time {
+  color: var(--secondary);
+  font-size: var(--text-caption);
+  line-height: 1.5;
+}
+
+.task-session-items {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+  min-width: 0;
+}
+.task-session-item {
+  min-width: 0;
+}
+.task-session-item-label {
+  color: var(--secondary);
+  font-size: var(--text-caption);
+  font-weight: 500;
+}
+.task-session-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body);
+  line-height: 1.75;
+}
+.task-session-item-user {
+  align-self: flex-end;
+  width: fit-content;
+  max-width: min(100%, 720px);
+  padding: 12px 16px;
+  background: var(--user-bubble);
+  color: var(--user-bubble-text);
+  border-radius: var(--radius-panel);
+}
+.task-session-item-user :is(.task-session-item-label, .task-session-time) {
+  color: color-mix(in srgb, var(--user-bubble-text) 75%, var(--user-bubble));
+}
+.task-session-item-note {
+  padding-left: 12px;
+  border-left: 2px solid var(--edge);
+  color: var(--secondary);
+}
+.task-session-final {
+  padding-top: 4px;
+}
+.task-session-running {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+
+.task-session-view-controls {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.task-session-items[data-session-simple] {
+  gap: 16px;
+}
+[data-session-simple] .task-session-item:not(.task-session-item-note) {
+  width: fit-content;
+  max-width: min(var(--bubble-width), 80%, calc(100% - 82px));
+  min-width: 36px;
+  padding: 7px 12px;
+  border-radius: var(--radius-bubble);
+}
+[data-session-simple] .task-session-item-assistant {
+  align-self: flex-start;
+  background: var(--card);
+  color: var(--ink);
+}
+[data-session-simple] .task-session-text {
+  font-size: var(--text-message);
+  line-height: var(--message-leading);
+}
+[data-session-simple] .task-session-item[data-joined-above],
+.task-session-running[data-under-bubble] {
+  margin-top: -12px;
+}
+[data-session-simple] .task-session-item-assistant[data-joined-above] {
+  border-start-start-radius: var(--radius-sm);
+}
+[data-session-simple] .task-session-item-assistant[data-joined-below] {
+  border-end-start-radius: var(--radius-sm);
+}
+[data-session-simple] .task-session-item-user[data-joined-above] {
+  border-start-end-radius: var(--radius-sm);
+}
+[data-session-simple] .task-session-item-user[data-joined-below] {
+  border-end-end-radius: var(--radius-sm);
+}
+.task-session-tucked {
+  margin-top: -4px;
+}
+.task-session-stamp {
+  align-self: center;
+  color: var(--secondary);
+  font-size: var(--text-small);
+  line-height: 18px;
+}

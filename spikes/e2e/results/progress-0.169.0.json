@@ -1,0 +1,312 @@
+{
+  "cliVersion": "codex-cli 0.169.0",
+  "at": "2026-11-17T04:41:03.369Z",
+  "model": "codex/gpt-6.1-sol",
+  "temporaryDataDirectory": true,
+  "elapsedMs": 29503,
+  "sourceReport": {
+    "characters": 432,
+    "sha256": "5225b06eaf9179437e68df46fefa12ed4af7914db12217b64f4a4704b6aec537",
+    "fullReportRef": "event:session:task:62571d02-ee7c-491c-8957-b115ee42a263:bb36f761-bbd5-434e-b17e-85be5fe58551",
+    "exactFixturePreserved": true
+  },
+  "delivered": {
+    "text": "三个测试均已通过，结果可以使用，未发现阻塞问题。这是一份合成测试报告。",
+    "characters": 35,
+    "rewrites": 1
+  },
+  "deep": {
+    "text": "已完成的报告声称：三个测试均已通过，结果可以使用，未发现阻塞问题。\n\n但本次任务要求原样回声输出预设文本，因此实际能确认的是：助手已输出指定报告。会话中没有三个测试的名称、执行记录、判定标准或验证数据，无法据此确认它们确实运行并通过，也无法判断“结果可以使用”的具体范围。",
+    "originalReport": "已完成的报告声称：三个测试均已通过，结果可以使用，未发现阻塞问题。\n\n但本次任务要求原样回声输出预设文本，因此实际能确认的是：助手已输出指定报告。会话中没有三个测试的名称、执行记录、判定标准或验证数据，无法据此确认它们确实运行并通过，也无法判断“结果可以使用”的具体范围。",
+    "fullReportRef": "event:progress:f08bf548-98ef-45e1-a86b-069faf0ea9ec:d7bf6ab3-3517-4220-9c20-d910f707dcaa",
+    "decisionLogId": "f08bf548-98ef-45e1-a86b-069faf0ea9ec",
+    "source": {
+      "botId": "echo-fixture",
+      "taskId": "task:62571d02-ee7c-491c-8957-b115ee42a263"
+    }
+  },
+  "isolation": {
+    "taskUnchanged": true,
+    "originalReportUnchanged": true,
+    "originalTranscriptUnchanged": true,
+    "originalTurnCount": 1,
+    "beforeSha256": "83347a4b9ec02ad8ead47889807154c3cafd9b73f9518e8d18e37b3b21e24cf1",
+    "afterSha256": "83347a4b9ec02ad8ead47889807154c3cafd9b73f9518e8d18e37b3b21e24cf1",
+    "auditMethods": [
+      "initialize",
+      "initialized",
+      "thread/read"
+    ]
+  },
+  "decisionLogs": [
+    {
+      "id": "62571d02-ee7c-491c-8957-b115ee42a263",
+      "tree": "inbound",
+      "path": [
+        "ui",
+        "classify",
+        "intent",
+        "new_work"
+      ],
+      "output": {
+        "op": "new",
+        "botId": "echo-fixture",
+        "requestMessageIds": [
+          "e2e-long-report"
+        ]
+      },
+      "execution": {
+        "ok": true
+      },
+      "classifierCalls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "latencyMs": 455,
+          "response": {
+            "answers": {
+              "op": {
+                "type": "choice",
+                "choice": "new_work",
+                "confidence": 0.76,
+                "probabilities": {
+                  "new_work": 0.76,
+                  "ask_progress": 0.01,
+                  "talk_to_task": 0.02,
+                  "control_task": 0.01,
+                  "other": 0.2
+                }
+              },
+              "target": {
+                "type": "choice",
+                "choice": "none",
+                "confidence": 1,
+                "probabilities": {
+                  "none": 1
+                }
+              },
+              "bot": {
+                "type": "choice",
+                "choice": "echo-fixture",
+                "confidence": 0.98,
+                "probabilities": {
+                  "general": 0.02,
+                  "echo-fixture": 0.98
+                }
+              },
+              "control": {
+                "type": "choice",
+                "choice": "retry",
+                "confidence": 0.53,
+                "probabilities": {
+                  "cancel": 0.1,
+                  "retry": 0.53,
+                  "resume": 0.22,
+                  "archive": 0.15
+                }
+              },
+              "delivery": {
+                "type": "choice",
+                "choice": "restart",
+                "confidence": 0.5,
+                "probabilities": {
+                  "queue": 0.18,
+                  "steer": 0.32,
+                  "restart": 0.5
+                }
+              },
+              "status_only": {
+                "type": "noul",
+                "noul": 0.07
+              },
+              "multi_intent": {
+                "type": "noul",
+                "noul": 0.2
+              }
+            },
+            "latencyMs": 451,
+            "usage": {
+              "inputTokens": 1281
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "9295f246-33ab-4809-8b7a-c0415a39ebdb",
+      "tree": "handoff-prune",
+      "path": [
+        "empty",
+        "none"
+      ],
+      "output": {
+        "excerpts": []
+      },
+      "execution": {
+        "ok": true
+      },
+      "classifierCalls": []
+    },
+    {
+      "id": "6cbf5b37-972e-49b0-a745-1d351f0e7840",
+      "tree": "reply-gate",
+      "path": [
+        "length",
+        "budget",
+        "rewrite",
+        "length",
+        "readability",
+        "readable",
+        "deliver"
+      ],
+      "output": {
+        "gate": "deliver"
+      },
+      "execution": {
+        "ok": true
+      },
+      "classifierCalls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "latencyMs": 445,
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.75
+              }
+            },
+            "latencyMs": 444,
+            "usage": {
+              "inputTokens": 334
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "f08bf548-98ef-45e1-a86b-069faf0ea9ec",
+      "tree": "inbound",
+      "path": [
+        "ui",
+        "classify",
+        "intent",
+        "ask_progress"
+      ],
+      "output": {
+        "op": "ask",
+        "taskId": "task:62571d02-ee7c-491c-8957-b115ee42a263",
+        "mode": "deep",
+        "messageId": "quote:cbdbf0c7-a7bf-4194-b80e-997e1c289097"
+      },
+      "execution": {
+        "ok": true
+      },
+      "classifierCalls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "latencyMs": 285,
+          "response": {
+            "answers": {
+              "op": {
+                "type": "choice",
+                "choice": "ask_progress",
+                "confidence": 0.97,
+                "probabilities": {
+                  "new_work": 0,
+                  "ask_progress": 0.97,
+                  "talk_to_task": 0.02,
+                  "control_task": 0,
+                  "other": 0.01
+                }
+              },
+              "bot": {
+                "type": "choice",
+                "choice": "echo-fixture",
+                "confidence": 0.83,
+                "probabilities": {
+                  "general": 0.17,
+                  "echo-fixture": 0.83
+                }
+              },
+              "control": {
+                "type": "choice",
+                "choice": "archive",
+                "confidence": 0.64,
+                "probabilities": {
+                  "cancel": 0.05,
+                  "retry": 0.09,
+                  "resume": 0.22,
+                  "archive": 0.64
+                }
+              },
+              "delivery": {
+                "type": "choice",
+                "choice": "steer",
+                "confidence": 0.5,
+                "probabilities": {
+                  "queue": 0.42,
+                  "steer": 0.5,
+                  "restart": 0.08
+                }
+              },
+              "status_only": {
+                "type": "noul",
+                "noul": 0.02
+              },
+              "multi_intent": {
+                "type": "noul",
+                "noul": 0.41
+              }
+            },
+            "latencyMs": 280,
+            "usage": {
+              "inputTokens": 1254
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "09c6c81f-303a-44e4-ad22-ba617c64a3f2",
+      "tree": "reply-gate",
+      "path": [
+        "length",
+        "readability",
+        "readable",
+        "deliver"
+      ],
+      "output": {
+        "gate": "deliver"
+      },
+      "execution": {
+        "ok": true
+      },
+      "classifierCalls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "latencyMs": 480,
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.63
+              }
+            },
+            "latencyMs": 479,
+            "usage": {
+              "inputTokens": 434
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "queryCompletedEvents": [
+    "progress:f08bf548-98ef-45e1-a86b-069faf0ea9ec:d7bf6ab3-3517-4220-9c20-d910f707dcaa"
+  ],
+  "childProcessesAfterScope": []
+}

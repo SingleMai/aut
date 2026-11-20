@@ -1,0 +1,121 @@
+:root[data-appearance="light"] {
+  color-scheme: light;
+}
+:root[data-appearance="dark"] {
+  color-scheme: dark;
+}
+:root {
+  color-scheme: light dark;
+  --canvas: light-dark(#fbfaf7, #1b1c19);
+  --panel: light-dark(#f2efe9, #23241f);
+  --card: light-dark(#f1eee8, #2c2d28);
+  --raised: light-dark(#e6e1d7, #393b34);
+  --surface: light-dark(#fff, #262722);
+  --surface-warm: color-mix(in srgb, var(--canvas) 45%, var(--surface));
+  --ink: light-dark(#25231f, #efece4);
+  --secondary: light-dark(#6b665e, #b7b3a7);
+  --shadow-ink: light-dark(var(--ink), #000);
+  --on-accent: light-dark(#fff, #172a21);
+  --on-ink: var(--surface);
+  --user-bubble: light-dark(var(--ink), #394c42);
+  --user-bubble-text: light-dark(var(--on-ink), var(--ink));
+  --accent: light-dark(#35675b, #93cdb7);
+  --aut-character-accent: var(--accent);
+  --success: light-dark(#42725a, #9bc6a5);
+  --danger: light-dark(#a3393a, #f19b94);
+  --warning: light-dark(#835515, #e4b779);
+
+  --edge: color-mix(in srgb, var(--ink) 14%, transparent);
+  --edge-strong: color-mix(in srgb, var(--ink) 21%, var(--surface));
+  --hover: color-mix(in srgb, var(--ink) 5%, transparent);
+  --primary-hover: color-mix(in srgb, var(--ink) 87%, var(--surface));
+  --selection: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  --accent-tint: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  --danger-tint: color-mix(in srgb, var(--danger) 5%, transparent);
+  --warning-border: color-mix(in srgb, var(--warning) 42%, var(--surface));
+  --scrollbar: color-mix(in srgb, var(--secondary) 40%, var(--canvas));
+  --pattern: color-mix(in srgb, var(--secondary) 47%, var(--canvas));
+  --backdrop: light-dark(rgb(37 35 31 / 31%), rgb(0 0 0 / 60%));
+
+  --focus-ring: 2px solid var(--accent);
+  --shadow-focus: 0 0 0 2px color-mix(in srgb, var(--accent) 14%, transparent);
+  --shadow-composer:
+    0 3px 12px color-mix(in srgb, var(--shadow-ink) 8%, transparent),
+    0 1px 3px color-mix(in srgb, var(--shadow-ink) 8%, transparent);
+  --shadow-floating: 0 6px 20px color-mix(in srgb, var(--shadow-ink) 18%, transparent);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --radius-bubble: 18px;
+  --radius-composer: 22px;
+  --radius-pill: 999px;
+
+  --font-sans:
+    "Geist Variable", -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", "SF Mono", SFMono-Regular, ui-monospace, monospace;
+  --text-caption: 11px;
+  --text-small: 12px;
+  --text-label: 13px;
+  --text-body: 14px;
+  --text-message: 15px;
+  --message-leading: 22px;
+  --chat-width: 960px;
+  --bubble-width: 560px;
+
+  --syntax-keyword: light-dark(#883857, #f0a7c1);
+  --syntax-string: var(--accent);
+  --syntax-title: light-dark(#674e83, #cbb4e5);
+  --syntax-comment: var(--secondary);
+  --syntax-number: light-dark(#35627d, #9ac9e1);
+}
+
+/* Themes also mounts a theme root on each portalled surface. */
+.radix-themes {
+  --default-font-family: var(--font-sans);
+  --code-font-family: var(--font-mono);
+  --cursor-button: pointer;
+  --cursor-menu-item: pointer;
+  --color-background: var(--canvas);
+  --color-panel-solid: var(--surface);
+  --color-surface: var(--surface);
+  --color-overlay: var(--backdrop);
+  --radius-1: var(--radius-xs);
+  --radius-2: var(--radius-control);
+  --radius-3: var(--radius-card);
+  --radius-4: var(--radius-panel);
+  --radius-5: var(--radius-bubble);
+  --radius-6: var(--radius-composer);
+  --sand-1: var(--canvas);
+  --sand-3: var(--card);
+  --sand-4: var(--raised);
+  --sand-9: var(--ink);
+  --sand-10: var(--primary-hover);
+  --sand-11: var(--secondary);
+  --sand-12: var(--ink);
+  --sand-contrast: var(--on-ink);
+  --teal-contrast: var(--on-accent);
+  --red-contrast: light-dark(#fff, #321713);
+  --teal-3: var(--accent-tint);
+  --teal-8: color-mix(in srgb, var(--accent) 80%, white);
+  --teal-9: var(--accent);
+  --teal-10: color-mix(in srgb, var(--accent) 84%, var(--ink));
+  --teal-11: var(--accent);
+  --teal-12: color-mix(in srgb, var(--accent) 40%, var(--ink));
+  --teal-a3: color-mix(in srgb, var(--accent) 9%, transparent);
+  --teal-a4: color-mix(in srgb, var(--accent) 15%, transparent);
+  --teal-a5: var(--selection);
+  --teal-a8: var(--teal-8);
+  --teal-a11: var(--accent);
+  --red-9: var(--danger);
+  --red-11: var(--danger);
+  --red-a11: var(--danger);
+  --red-a3: var(--danger-tint);
+}
+
+.radix-themes[data-is-root-theme="true"] {
+  font-size: var(--text-body);
+  line-height: 1.5;
+}

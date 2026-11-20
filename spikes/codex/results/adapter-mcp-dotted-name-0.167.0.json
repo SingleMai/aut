@@ -1,0 +1,42 @@
+{
+  "at": "2026-11-16T14:53:47.265Z",
+  "cliVersion": "codex-cli 0.167.0",
+  "check": "per-thread stdio MCP override discovers fixture_echo",
+  "result": {
+    "data": [
+      {
+        "name": "aut.fixture",
+        "runtimeStatus": "connected",
+        "pluginId": null,
+        "httpOrigin": null,
+        "serverInfo": {
+          "name": "aut-fixture",
+          "title": null,
+          "version": "1",
+          "description": null,
+          "icons": null,
+          "websiteUrl": null
+        },
+        "serverCapabilities": {
+          "tools": {}
+        },
+        "toolListMeta": null,
+        "tools": {
+          "fixture_echo": {
+            "name": "fixture_echo",
+            "description": "Synthetic fixture",
+            "inputSchema": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "toolsError": null,
+        "resources": [],
+        "resourceTemplates": [],
+        "authStatus": "unsupported"
+      }
+    ],
+    "nextCursor": null
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "source": "recorded_projection",
+    "cli": "codex-cli 0.167.0",
+    "recordedAt": "2026-11-16",
+    "description": "Read-only config/read and model/list. Only model/provider/effort fields and the reported default model were retained. Seven non-default models, all other config fields, credentials and environment were omitted."
+  },
+  "config": {
+    "config": {
+      "model": null,
+      "model_provider": null,
+      "model_reasoning_effort": "xhigh"
+    }
+  },
+  "models": {
+    "data": [{ "model": "gpt-6.1-sol", "isDefault": true, "defaultReasoningEffort": "low" }],
+    "nextCursor": null
+  }
+}

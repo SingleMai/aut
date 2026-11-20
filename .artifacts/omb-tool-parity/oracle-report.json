@@ -1,0 +1,64 @@
+{
+  "referenceCommit": "738ec88472a3b888ff7b7793755d89da613ed301",
+  "sharedInterfaces": [
+    "i18n catalog",
+    "mode context",
+    "tool-output reader",
+    "generated tool CSS"
+  ],
+  "viewport": {
+    "width": 1040,
+    "height": 900
+  },
+  "runningSimple": {
+    "equal": true,
+    "upstreamElements": 24,
+    "copiedElements": 24,
+    "differences": []
+  },
+  "runningExpanded": {
+    "equal": true,
+    "upstreamElements": 65,
+    "copiedElements": 65,
+    "differences": []
+  },
+  "runningAdvanced": {
+    "equal": true,
+    "upstreamElements": 65,
+    "copiedElements": 65,
+    "differences": []
+  },
+  "completedAdvanced": {
+    "equal": true,
+    "upstreamElements": 20,
+    "copiedElements": 20,
+    "differences": []
+  },
+  "completedSimple": {
+    "equal": true,
+    "upstreamElements": 20,
+    "copiedElements": 20,
+    "differences": []
+  },
+  "focusExpanded": {
+    "equal": true,
+    "upstreamElements": 69,
+    "copiedElements": 69,
+    "differences": []
+  },
+  "keyboardDetail": {
+    "equal": true,
+    "upstreamElements": 69,
+    "copiedElements": 69,
+    "differences": []
+  },
+  "hiddenTools": {
+    "equal": true,
+    "upstreamElements": 4,
+    "copiedElements": 4,
+    "differences": [],
+    "visibleTools": 0,
+    "text": "Inspect the synthetic fixture.\n\nPARITY_PROGRESS: progress stays visible.\n\nPARITY_PROGRESS_2: failure and unknown remain visible.\n\nPARITY_FINAL: successful tools fold; all narration remains visible."
+  },
+  "noHorizontalOverflow": true
+}

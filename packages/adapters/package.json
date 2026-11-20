@@ -1,0 +1,27 @@
+{
+  "name": "@aut/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./interface": {
+      "types": "./dist/interface.d.ts",
+      "import": "./dist/interface.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build"
+  },
+  "dependencies": {
+    "@aut/protocol": "workspace:*",
+    "effect": "catalog:"
+  }
+}

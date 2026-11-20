@@ -1,0 +1,95 @@
+{
+  "liveRefresh": {
+    "sameFirst": true,
+    "sameLive": true,
+    "firstOpen": true,
+    "liveOpen": true,
+    "sameFocus": true,
+    "scrollBefore": 500,
+    "scrollAfter": 500,
+    "liveItems": 1
+  },
+  "focus": {
+    "item": "qa-parity-command-1",
+    "focusVisible": true,
+    "outline": "2px",
+    "offset": "2px"
+  },
+  "completed": {
+    "text": "显示工具调用\n详细模式\n本轮输入\n11月17日 19:25\n请检查工具展示：成功步骤要聚合，失败原因保持可见，最终回答留在外面。\n助手\n11月17日 19:25\nPARITY_PROGRESS：我会先检查成功步骤的分组，然后保留失败与未确认项。以下全是合成数据。\n已工作 1m 54s\nPARITY_PROBLEM：文档不存在，请检查文档 ID 后重试。\nUnknown result\n助手\n11月17日 19:26\nPARITY_PROGRESS_2：失败原因与未确认状态应留在成功步骤组之外。\n结果\n11月17日 19:27\nPARITY_FINAL：成功步骤已归组，进度、失败原因、未确认状态和最终结果仍在外面。",
+    "details": 2,
+    "progress": true,
+    "progress2": true,
+    "final": true,
+    "failure": true,
+    "unknown": true,
+    "running": 0
+  },
+  "hidden": {
+    "tools": 0,
+    "text": "显示工具调用\n详细模式\n本轮输入\n11月17日 19:25\n请检查工具展示：成功步骤要聚合，失败原因保持可见，最终回答留在外面。\n助手\n11月17日 19:25\nPARITY_PROGRESS：我会先检查成功步骤的分组，然后保留失败与未确认项。以下全是合成数据。\n助手\n11月17日 19:26\nPARITY_PROGRESS_2：失败原因与未确认状态应留在成功步骤组之外。\n结果\n11月17日 19:27\nPARITY_FINAL：成功步骤已归组，进度、失败原因、未确认状态和最终结果仍在外面。"
+  },
+  "narrow": {
+    "width": 1040,
+    "overflow": false
+  },
+  "pagination": {
+    "turns": [
+      "qa-turn-01",
+      "qa-turn-02",
+      "qa-turn-03",
+      "qa-turn-04",
+      "qa-turn-05",
+      "qa-turn-06",
+      "qa-turn-07",
+      "qa-turn-08",
+      "qa-turn-09",
+      "qa-turn-10",
+      "qa-turn-11",
+      "qa-turn-12"
+    ],
+    "earlierVisible": false,
+    "scriptExecuted": false,
+    "rootSize": "14px"
+  },
+  "main": {
+    "questions": 1,
+    "composer": true,
+    "island": 0,
+    "rootSize": "14px"
+  },
+  "hover": {
+    "before": "rgba(0, 0, 0, 0)",
+    "after": "rgb(228, 228, 228)",
+    "changed": true
+  },
+  "loadedFonts": [
+    {
+      "family": "Geist Variable",
+      "status": "loaded"
+    },
+    {
+      "family": "Geist Mono Variable",
+      "status": "loaded"
+    }
+  ],
+  "finalGeometry": {
+    "viewport": 1280,
+    "toolWidth": 608,
+    "labelMaxWidth": "480px",
+    "inputMaxHeight": "208px",
+    "outputMaxHeight": "256px",
+    "summaryPadding": "6px 12px",
+    "font": "\"Geist Variable\", -apple-system, \"system-ui\", \"Segoe UI\", system-ui, sans-serif",
+    "fontSize": "13px",
+    "iconWidth": 13,
+    "stroke": "1.75px",
+    "rootFont": "14px",
+    "overflow": false
+  },
+  "finalNarrow": {
+    "width": 1040,
+    "toolWidth": 608,
+    "overflow": false
+  }
+}

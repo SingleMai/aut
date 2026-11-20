@@ -1,0 +1,80 @@
+{
+  "at": "2026-11-18T17:58:49.949Z",
+  "cliVersion": "codex-cli 0.169.0",
+  "model": "codex/gpt-6.1-sol",
+  "dispatchAcknowledgementMs": 535,
+  "creationReceipts": {
+    "undone": {
+      "id": "c7a2ac77-d1c9-41dc-bcca-52f6680417de",
+      "at": 1795024696974,
+      "author": "chief",
+      "kind": "notice",
+      "text": "已创建 Bot「潮汐助手」。",
+      "taskId": "task:db38453c-d7d8-4e83-9977-2f64552b126d",
+      "botCreation": {
+        "botId": "tide-tables",
+        "status": "undone"
+      }
+    },
+    "repeatedStatus": "undone",
+    "used": {
+      "id": "2c14dbca-14ec-447c-9e81-df7c0c84c01b",
+      "at": 1795024661898,
+      "author": "chief",
+      "kind": "notice",
+      "text": "已创建 Bot「星表助手」。",
+      "taskId": "task:310dbe19-39f7-417f-9d47-a45f7b923fc5",
+      "botCreation": {
+        "botId": "star-catalog",
+        "status": "used"
+      }
+    }
+  },
+  "nativeCreationCalls": [
+    {
+      "taskId": "task:310dbe19-39f7-417f-9d47-a45f7b923fc5",
+      "itemId": "call_SRYj24gnvnwrO5ByDHcdLqV9",
+      "tool": "aut.create_bot"
+    },
+    {
+      "taskId": "task:db38453c-d7d8-4e83-9977-2f64552b126d",
+      "itemId": "call_LqEQk04zLXdOXTxsjzhMr39d",
+      "tool": "aut.create_bot"
+    }
+  ],
+  "packagedSmoke": {
+    "at": "2026-11-18T18:07:28.960Z",
+    "architecture": "arm64",
+    "isolatedDataAndProfile": true,
+    "renderer": {
+      "title": "aut · 主会话",
+      "connected": true,
+      "bridge": true
+    },
+    "creationUndo": {
+      "botId": "packaged-observations",
+      "status": "undone"
+    },
+    "windowClosed": true,
+    "ownedDaemonStoppedAfterSmoke": true
+  },
+  "check": {
+    "command": "AUT_RUN_JEV_SMOKE=1 pnpm check",
+    "testFiles": 69,
+    "passedTests": 1146
+  },
+  "archive": {
+    "name": "aut-macos-arm64-bot-undo.zip",
+    "sha256": "53cea17053733b2d652f2f177878b9c8c0e592dddb382f4183cf565f5e2bde24",
+    "bytes": 120834096,
+    "matchingPackagedFiles": [
+      "app.asar",
+      "daemon/main.mjs",
+      "daemon/stdio.js",
+      "NOTICE",
+      "LICENSE",
+      "renderer-LICENSES.txt"
+    ],
+    "zipIntegrity": true
+  }
+}

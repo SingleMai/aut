@@ -1,0 +1,11 @@
+{
+  "archive": "/Users/liying/mine/aut/deliverables/aut-macos-arm64.zip",
+  "bytes": 121319924,
+  "sha256": "a8eda9c267aab23fc95e35304bd36aef996128e2809e3e942c116541adf3778f",
+  "archiveIntegrity": "passed",
+  "appAndDaemonBytesMatchSmoke": true,
+  "privateDataEntries": [],
+  "symlinkCount": 14,
+  "licenseEntries": 8,
+  "fileEntries": 1487
+}

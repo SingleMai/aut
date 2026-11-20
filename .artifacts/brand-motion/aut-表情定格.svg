@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="890" height="194" viewBox="0 0 890 194" role="img" aria-labelledby="title desc">
+  <title id="title">aut 会话表情</title>
+  <desc id="desc">角色在待命时头顶留白，思考时浮现省略号，提问时出现问号。回答确认后画勾，报告就绪时闪出星光。</desc>
+  <rect width="890" height="194" fill="#fbfaf7"/>
+<g id="idle"><title>待命</title><svg x="23" y="9" width="132" height="140" viewBox="-11 -39 140 148">
+<defs>
+        <clipPath id="idle-eye"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z"/></clipPath>
+        <mask id="idle-cut" maskUnits="userSpaceOnUse" x="-15" y="-22" width="160" height="160">
+          <rect x="-15" y="-22" width="160" height="160" fill="white"/>
+          <g transform="translate(53 63) rotate(-18) scale(1 1.100) rotate(18) translate(-53 -63)"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z" fill="black"/><g clip-path="url(#idle-eye)">
+          <path d="M56.1 53.6 C55.3 58.6 58.1 62.7 62.1 62.7 C67.1 62.7 69.3 57.3 66.1 51.9 L66 37 H56Z" fill="white" transform="translate(1.200 0.100)"/>
+          </g></g>
+        </mask></defs>
+        <g transform="translate(47 96.000) rotate(-4.400) scale(1.000 1.000) translate(-47 -96)"><path fill="#25231f" d="         M .2 62.6 C -1.1 43.1 15.2 22.2 40.8 17.1         C 61.1 13 74.2 22.4 80.5 40.7 C 84.2 51.5 88.4 74.4 90.1 84.4         C 92.2 94.3 86.7 98.2 79.1 98.2 C 70.5 98.2 66.9 95 66.4 86.4         C 54.5 95.1 43.3 100 31.8 100 C 14.1 100 2.8 89.3 .7 72.2         Q .5 71 1.9 70.6 C 22.3 65.6 31 65.5 45.4 55.7         C 54.9 49.1 59.7 46.5 66.5 47.5 C 61.8 41.4 56 38.7 48 38.7         C 34 38.7 25.2 48.8 23.9 57.9 Q 23.7 59 22.7 59.2         L 1.9 64 Q .2 64.5 .2 62.6 Z" mask="url(#idle-cut)"/></g>
+        
+<g id="idle-mark"></g></svg></g>
+<text x="89" y="178" fill="#25231f" text-anchor="middle" font-size="16" font-family="PingFang SC,Hiragino Sans GB,system-ui,sans-serif">待命</text>
+<g id="thinking"><title>思考</title><svg x="201" y="9" width="132" height="140" viewBox="-11 -39 140 148">
+<defs>
+        <clipPath id="thinking-eye"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z"/></clipPath>
+        <mask id="thinking-cut" maskUnits="userSpaceOnUse" x="-15" y="-22" width="160" height="160">
+          <rect x="-15" y="-22" width="160" height="160" fill="white"/>
+          <g transform="translate(53 63) rotate(-18) scale(1 1.010) rotate(18) translate(-53 -63)"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z" fill="black"/><g clip-path="url(#thinking-eye)">
+          <path d="M56.1 53.6 C55.3 58.6 58.1 62.7 62.1 62.7 C67.1 62.7 69.3 57.3 66.1 51.9 L66 37 H56Z" fill="white" transform="translate(1.200 -2.000)"/>
+          </g></g>
+        </mask></defs>
+        <g transform="translate(47 96.000) rotate(-2.500) scale(1.000 1.000) translate(-47 -96)"><path fill="#25231f" d="         M .2 62.6 C -1.1 43.1 15.2 22.2 40.8 17.1         C 61.1 13 74.2 22.4 80.5 40.7 C 84.2 51.5 88.4 74.4 90.1 84.4         C 92.2 94.3 86.7 98.2 79.1 98.2 C 70.5 98.2 66.9 95 66.4 86.4         C 54.5 95.1 43.3 100 31.8 100 C 14.1 100 2.8 89.3 .7 72.2         Q .5 71 1.9 70.6 C 22.3 65.6 31 65.5 45.4 55.7         C 54.9 49.1 59.7 46.5 66.5 47.5 C 61.8 41.4 56 38.7 48 38.7         C 34 38.7 25.2 48.8 23.9 57.9 Q 23.7 59 22.7 59.2         L 1.9 64 Q .2 64.5 .2 62.6 Z" mask="url(#thinking-cut)"/></g>
+        
+<g id="thinking-mark"><ellipse cx="62.000" cy="-1.000" rx="3.150" ry="3.150" fill="#25231f" transform="rotate(-0.000 62.000 -1.000)"/><ellipse cx="76.000" cy="-1.400" rx="3.150" ry="3.150" fill="#25231f" transform="rotate(-0.000 76.000 -1.400)"/><ellipse cx="90.000" cy="-2.100" rx="3.150" ry="3.150" fill="#25231f" transform="rotate(-0.000 90.000 -2.100)"/></g></svg></g>
+<text x="267" y="178" fill="#25231f" text-anchor="middle" font-size="16" font-family="PingFang SC,Hiragino Sans GB,system-ui,sans-serif">思考</text>
+<g id="question"><title>发问</title><svg x="379" y="9" width="132" height="140" viewBox="-11 -39 140 148">
+<defs>
+        <clipPath id="question-eye"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z"/></clipPath>
+        <mask id="question-cut" maskUnits="userSpaceOnUse" x="-15" y="-22" width="160" height="160">
+          <rect x="-15" y="-22" width="160" height="160" fill="white"/>
+          <g transform="translate(53 63) rotate(-18) scale(1 1.290) rotate(18) translate(-53 -63)"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z" fill="black"/><g clip-path="url(#question-eye)">
+          <path d="M56.1 53.6 C55.3 58.6 58.1 62.7 62.1 62.7 C67.1 62.7 69.3 57.3 66.1 51.9 L66 37 H56Z" fill="white" transform="translate(2.800 0.650)"/>
+          </g></g>
+        </mask></defs>
+        <g transform="translate(47 95.650) rotate(-7.200) scale(0.985 1.022) translate(-47 -96)"><path fill="#25231f" d="         M .2 62.6 C -1.1 43.1 15.2 22.2 40.8 17.1         C 61.1 13 74.2 22.4 80.5 40.7 C 84.2 51.5 88.4 74.4 90.1 84.4         C 92.2 94.3 86.7 98.2 79.1 98.2 C 70.5 98.2 66.9 95 66.4 86.4         C 54.5 95.1 43.3 100 31.8 100 C 14.1 100 2.8 89.3 .7 72.2         Q .5 71 1.9 70.6 C 22.3 65.6 31 65.5 45.4 55.7         C 54.9 49.1 59.7 46.5 66.5 47.5 C 61.8 41.4 56 38.7 48 38.7         C 34 38.7 25.2 48.8 23.9 57.9 Q 23.7 59 22.7 59.2         L 1.9 64 Q .2 64.5 .2 62.6 Z" mask="url(#question-cut)"/></g>
+        
+<g id="question-mark"><ellipse cx="88.700" cy="12.400" rx="3.480" ry="3.480" fill="#25231f" transform="rotate(0.000 88.700 12.400)"/><path d="M76.00 -16.00 L76.05 -17.10 L76.18 -18.17 L76.40 -19.18 L76.71 -20.16 L77.09 -21.08 L77.54 -21.97 L78.06 -22.80 L78.65 -23.59 L79.30 -24.32 L80.00 -25.01 L80.76 -25.64 L81.56 -26.23 L82.41 -26.75 L83.30 -27.23 L84.23 -27.65 L85.19 -28.01 L86.17 -28.32 L87.18 -28.57 L88.21 -28.76 L89.25 -28.89 L90.31 -28.96 L91.37 -28.97 L92.44 -28.92 L93.50 -28.80 L94.77 -28.64 L95.97 -28.40 L97.09 -28.09 L98.12 -27.71 L99.08 -27.28 L99.96 -26.78 L100.77 -26.23 L101.49 -25.64 L102.13 -25.00 L102.70 -24.32 L103.18 -23.60 L103.59 -22.85 L103.91 -22.07 L104.16 -21.28 L104.33 -20.46 L104.41 -19.63 L104.42 -18.79 L104.34 -17.94 L104.19 -17.10 L103.95 -16.25 L103.63 -15.42 L103.24 -14.59 L102.76 -13.79 L102.20 -13.00 L101.78 -12.45 L101.33 -11.93 L100.84 -11.44 L100.32 -10.97 L99.78 -10.52 L99.22 -10.09 L98.65 -9.67 L98.06 -9.26 L97.46 -8.86 L96.85 -8.47 L96.24 -8.08 L95.64 -7.69 L95.04 -7.30 L94.45 -6.90 L93.87 -6.49 L93.31 -6.07 L92.77 -5.64 L92.26 -5.20 L91.77 -4.73 L91.32 -4.24 L90.90 -3.72 L90.52 -3.18 L90.19 -2.61 L89.90 -2.00 L89.81 -1.81 L89.73 -1.63 L89.65 -1.44 L89.58 -1.25 L89.50 -1.07 L89.44 -0.88 L89.37 -0.70 L89.31 -0.52 L89.25 -0.34 L89.20 -0.16 L89.16 0.01 L89.11 0.19 L89.07 0.36 L89.04 0.53 L89.01 0.69 L88.99 0.85 L88.97 1.01 L88.96 1.16 L88.95 1.31 L88.95 1.46 L88.95 1.60 L88.96 1.74 L88.98 1.87 L89.00 2.00" fill="none" stroke="#25231f" stroke-width="6.10" stroke-linecap="round" stroke-linejoin="round"/></g></svg></g>
+<text x="445" y="178" fill="#25231f" text-anchor="middle" font-size="16" font-family="PingFang SC,Hiragino Sans GB,system-ui,sans-serif">发问</text>
+<g id="received"><title>答案已送达</title><svg x="557" y="9" width="132" height="140" viewBox="-11 -39 140 148">
+<defs>
+        <clipPath id="received-eye"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z"/></clipPath>
+        <mask id="received-cut" maskUnits="userSpaceOnUse" x="-15" y="-22" width="160" height="160">
+          <rect x="-15" y="-22" width="160" height="160" fill="white"/>
+          <g transform="translate(53 63) rotate(-18) scale(1 1.069) rotate(18) translate(-53 -63)"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z" fill="black"/><g clip-path="url(#received-eye)">
+          <path d="M56.1 53.6 C55.3 58.6 58.1 62.7 62.1 62.7 C67.1 62.7 69.3 57.3 66.1 51.9 L66 37 H56Z" fill="white" transform="translate(0.964 0.310)"/>
+          </g></g>
+        </mask></defs>
+        <g transform="translate(47 96.000) rotate(-3.719) scale(1.005 0.994) translate(-47 -96)"><path fill="#25231f" d="         M .2 62.6 C -1.1 43.1 15.2 22.2 40.8 17.1         C 61.1 13 74.2 22.4 80.5 40.7 C 84.2 51.5 88.4 74.4 90.1 84.4         C 92.2 94.3 86.7 98.2 79.1 98.2 C 70.5 98.2 66.9 95 66.4 86.4         C 54.5 95.1 43.3 100 31.8 100 C 14.1 100 2.8 89.3 .7 72.2         Q .5 71 1.9 70.6 C 22.3 65.6 31 65.5 45.4 55.7         C 54.9 49.1 59.7 46.5 66.5 47.5 C 61.8 41.4 56 38.7 48 38.7         C 34 38.7 25.2 48.8 23.9 57.9 Q 23.7 59 22.7 59.2         L 1.9 64 Q .2 64.5 .2 62.6 Z" mask="url(#received-cut)"/></g>
+        
+<g id="received-mark"><g transform="translate(0.00 -0.00)" opacity="1.000"><path d="M77.00 -1.10 L77.37 -1.03 L77.73 -0.89 L78.09 -0.69 L78.43 -0.44 L78.78 -0.14 L79.11 0.21 L79.45 0.60 L79.78 1.03 L80.11 1.49 L80.43 1.98 L80.76 2.50 L81.09 3.03 L81.42 3.57 L81.75 4.12 L82.08 4.68 L82.42 5.23 L82.77 5.78 L83.12 6.32 L83.47 6.85 L83.84 7.36 L84.21 7.84 L84.60 8.30 L84.99 8.72 L85.40 9.10 L86.07 8.37 L86.81 7.52 L87.64 6.56 L88.53 5.51 L89.49 4.36 L90.52 3.14 L91.60 1.86 L92.73 0.53 L93.91 -0.85 L95.13 -2.25 L96.39 -3.67 L97.69 -5.10 L99.01 -6.52 L100.36 -7.92 L101.72 -9.29 L103.10 -10.63 L104.49 -11.90 L105.89 -13.12 L107.28 -14.26 L108.68 -15.31 L110.06 -16.26 L111.43 -17.10 L112.77 -17.82 L114.10 -18.40" fill="none" stroke="#35675b" stroke-width="5.90" stroke-linecap="round" stroke-linejoin="round"/></g></g></svg></g>
+<text x="623" y="178" fill="#25231f" text-anchor="middle" font-size="16" font-family="PingFang SC,Hiragino Sans GB,system-ui,sans-serif">答案已送达</text>
+<g id="report"><title>报告就绪</title><svg x="735" y="9" width="132" height="140" viewBox="-11 -39 140 148">
+<defs>
+        <clipPath id="report-eye"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z"/></clipPath>
+        <mask id="report-cut" maskUnits="userSpaceOnUse" x="-15" y="-22" width="160" height="160">
+          <rect x="-15" y="-22" width="160" height="160" fill="white"/>
+          <g transform="translate(53 63) rotate(-18) scale(1 1.132) rotate(18) translate(-53 -63)"><path d="M26.9 69.1 C38.7 66.2 48.6 56.8 56.1 53.6 Q61.5 50.9 66.1 51.9 L69.1 52.6 C73.6 61.6 69.7 68.7 61.9 73.3 C48.7 81.1 33.5 78.5 26.9 69.1Z" fill="black"/><g clip-path="url(#report-eye)">
+          <path d="M56.1 53.6 C55.3 58.6 58.1 62.7 62.1 62.7 C67.1 62.7 69.3 57.3 66.1 51.9 L66 37 H56Z" fill="white" transform="translate(2.742 -0.900)"/>
+          </g></g>
+        </mask></defs>
+        <g transform="translate(47 96.000) rotate(-5.459) scale(1.001 0.998) translate(-47 -96)"><path fill="#25231f" d="         M .2 62.6 C -1.1 43.1 15.2 22.2 40.8 17.1         C 61.1 13 74.2 22.4 80.5 40.7 C 84.2 51.5 88.4 74.4 90.1 84.4         C 92.2 94.3 86.7 98.2 79.1 98.2 C 70.5 98.2 66.9 95 66.4 86.4         C 54.5 95.1 43.3 100 31.8 100 C 14.1 100 2.8 89.3 .7 72.2         Q .5 71 1.9 70.6 C 22.3 65.6 31 65.5 45.4 55.7         C 54.9 49.1 59.7 46.5 66.5 47.5 C 61.8 41.4 56 38.7 48 38.7         C 34 38.7 25.2 48.8 23.9 57.9 Q 23.7 59 22.7 59.2         L 1.9 64 Q .2 64.5 .2 62.6 Z" mask="url(#report-cut)"/></g>
+        
+<g id="report-mark"><g fill="#35675b" transform="translate(88.50 -7.00) rotate(0.00) scale(1.000)"><path d="M .5 -19 Q 2 -19.5 2.4 -16 C 4.0 -6.3 6.3 -3.6 15.2 -2 Q 17.6 -1.5 15.6 -.2 C 5.8 3.9 4.8 6.0 2.0 18 Q 1.3 20.2 .3 18.3 C -2.4 8.7 -5.3 4.1 -14 2.4 Q -17 1.8 -14.2 .5 C -3.1 -2.7 -1.6 -6.8 -.2 -17.2 Q 0 -18.8 .5 -19 Z"/><path d="M 18 -20 Q 19 -14 24 -14 Q 20 -12 19 -7 Q 18 -12 13 -12.9 Q 17 -14.5 18 -20Z"/></g></g></svg></g>
+<text x="801" y="178" fill="#25231f" text-anchor="middle" font-size="16" font-family="PingFang SC,Hiragino Sans GB,system-ui,sans-serif">报告就绪</text>
+</svg>

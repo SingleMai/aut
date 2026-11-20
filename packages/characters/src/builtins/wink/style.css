@@ -1,0 +1,251 @@
+/* The pose pivots at the foot of the a. Its ink is drawn in brow-local coordinates. */
+.aut-eye-pose {
+  transform-origin: 47px 96px;
+  transform: rotate(-4.4deg);
+}
+.aut-eye-aperture {
+  transform: scaleY(1.1);
+}
+.aut-eye-pupil {
+  transform: translate(1.2px, 0.1px);
+}
+.aut-eye-ink {
+  transform: rotate(6.4deg);
+}
+[data-expression="thinking"] .aut-eye-pose {
+  transform: rotate(-2.5deg);
+}
+[data-expression="thinking"] .aut-eye-aperture {
+  transform: scaleY(1.01);
+}
+[data-expression="thinking"] .aut-eye-pupil {
+  transform: translate(1.2px, -2px);
+}
+[data-expression="question"] .aut-eye-pose {
+  transform: translateY(-0.35px) rotate(-7.2deg) scale(0.985, 1.022);
+}
+[data-expression="question"] .aut-eye-aperture {
+  transform: scaleY(1.29);
+}
+[data-expression="question"] .aut-eye-pupil {
+  transform: translate(2.8px, 0.65px);
+}
+[data-expression="question"] .aut-eye-ink {
+  transform: scale(1.015, 0.978) rotate(7.2deg);
+}
+[data-expression="report"] .aut-eye-pose {
+  transform: rotate(-5.6deg);
+}
+[data-expression="report"] .aut-eye-aperture {
+  transform: scaleY(1.14);
+}
+[data-expression="report"] .aut-eye-pupil {
+  transform: translate(2.75px, -0.9px);
+}
+.aut-eye-check,
+.aut-eye-star {
+  color: var(--aut-character-accent, #35675b);
+  fill: currentColor;
+}
+.aut-wink-small .aut-eye-check {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.aut-eye-gather,
+.aut-eye-nib,
+.aut-eye-lift {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-animate] .aut-eye-pose {
+    animation: aut-eye-head 880ms ease-in-out;
+  }
+  [data-animate] .aut-eye-ink {
+    animation: aut-eye-follow 620ms ease-out;
+  }
+  [data-animate] .aut-eye-dots ellipse {
+    animation: aut-eye-bead 470ms ease-out backwards;
+  }
+  [data-animate] .aut-eye-dots > :nth-child(2) ellipse {
+    animation-delay: 140ms;
+  }
+  [data-animate] .aut-eye-dots > :nth-child(3) ellipse {
+    animation-delay: 280ms;
+  }
+  [data-animate] .aut-eye-dot {
+    animation: aut-eye-collect 460ms ease-in-out;
+  }
+  [data-animate] .aut-eye-gather {
+    animation: aut-eye-gather 430ms ease-in-out;
+  }
+  [data-animate] .aut-eye-nib {
+    animation: aut-eye-nib 330ms ease-in-out;
+  }
+  [data-animate] .aut-eye-trace {
+    stroke-dasharray: 1;
+    animation: aut-eye-write 500ms 330ms ease-in-out backwards;
+  }
+  [data-animate][data-expression="received"] .aut-eye-trace {
+    animation-duration: 380ms;
+    animation-delay: 200ms;
+  }
+  [data-animate] .aut-eye-lift {
+    animation: aut-eye-lift 240ms ease-out;
+  }
+  [data-animate] .aut-eye-transfer {
+    animation: aut-eye-transfer 200ms ease-in;
+  }
+  [data-animate][data-expression="received"] .aut-eye-aperture {
+    animation: aut-eye-blink 440ms ease-in-out;
+  }
+  [data-animate] .aut-eye-check {
+    animation: aut-eye-clear 510ms 1130ms ease-in both;
+  }
+  [data-animate] .aut-eye-star {
+    animation: aut-eye-spark 1870ms ease-in-out both;
+  }
+}
+@keyframes aut-eye-head {
+  0% {
+    transform: rotate(-4.4deg);
+  }
+  16% {
+    transform: translateY(0.6px) rotate(1.1deg) scale(1.054, 0.936);
+  }
+  42% {
+    transform: translateY(-1.8px) rotate(-9.6deg) scale(0.968, 1.055);
+  }
+  70% {
+    transform: rotate(-5.9deg) scale(1.015, 0.99);
+  }
+}
+@keyframes aut-eye-follow {
+  24% {
+    transform: translate(-0.5px, -0.6px) rotate(3deg);
+  }
+  59% {
+    transform: translate(0.3px, 0.5px) rotate(8deg);
+  }
+}
+@keyframes aut-eye-bead {
+  from {
+    opacity: 0;
+    transform: translate(-2px, 5px) scale(0.2);
+  }
+  60% {
+    transform: translate(-1px, -2px);
+  }
+}
+@keyframes aut-eye-collect {
+  from {
+    transform: translate(4px, -7px) scale(0.8);
+  }
+}
+@keyframes aut-eye-gather {
+  from {
+    opacity: 1;
+    transform: translate(-4px, -8.7px);
+  }
+  to {
+    opacity: 0;
+    transform: translate(0);
+  }
+}
+@keyframes aut-eye-nib {
+  0% {
+    opacity: 1;
+    transform: translate(10.1px, -11.1px);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(10px, -23px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(var(--nib-x, -0.7px), var(--nib-y, -20px));
+  }
+}
+.aut-wink-small {
+  --nib-x: -3.3px;
+  --nib-y: -23.7px;
+}
+@keyframes aut-eye-write {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  1% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes aut-eye-blink {
+  0% {
+    transform: scaleY(1.29);
+  }
+  48% {
+    transform: scaleY(0.15);
+  }
+}
+@keyframes aut-eye-lift {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes aut-eye-transfer {
+  from {
+    transform: rotate(-31deg);
+  }
+  to {
+    transform: translate(-8.2px, -6.8px);
+  }
+}
+@keyframes aut-eye-clear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(2.2px, -4.3px);
+  }
+}
+@keyframes aut-eye-spark {
+  0% {
+    transform: scale(0) rotate(-19deg);
+    opacity: 0;
+  }
+  15% {
+    transform: scale(1.12) rotate(7deg);
+    opacity: 1;
+  }
+  32%,
+  76% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-4px) scale(0.03) rotate(12deg);
+    opacity: 0;
+  }
+}
+
+[data-blink="still"] .aut-eye-aperture {
+  transform: scaleY(0.2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-blink="moving"] .aut-eye-aperture {
+    animation: aut-eye-wink 650ms ease-in-out;
+  }
+}
+@keyframes aut-eye-wink {
+  34%,
+  46% {
+    transform: scaleY(0.12);
+  }
+}

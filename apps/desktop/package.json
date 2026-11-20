@@ -1,0 +1,50 @@
+{
+  "name": "@aut/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
+    "bundle": "node scripts/build.mjs",
+    "icons:mac": "node scripts/build-icons.mjs",
+    "start": "pnpm bundle && electron .",
+    "package:mac": "pnpm bundle && node scripts/package.mjs",
+    "preview": "pnpm bundle && node scripts/preview.mjs",
+    "preview:components": "pnpm build && node scripts/preview-components.mjs"
+  },
+  "dependencies": {
+    "@aut/characters": "workspace:*",
+    "@aut/protocol": "workspace:*",
+    "@fontsource-variable/geist": "5.3.0",
+    "@fontsource-variable/geist-mono": "5.3.0",
+    "@radix-ui/themes": "3.3.0",
+    "effect": "catalog:",
+    "lowlight": "3.3.0",
+    "lucide-react": "0.539.0",
+    "mdast-util-from-markdown": "2.1.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "@types/node": "24.19.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "electron": "45.3.3",
+    "esbuild": "0.28.2",
+    "happy-dom": "21.0.4"
+  },
+  "main": "dist/main.cjs"
+}

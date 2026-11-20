@@ -1,0 +1,118 @@
+.aut-paper-bird {
+  --bird-ink: var(--aut-character-accent, #35675b);
+}
+.aut-bird-dark {
+  fill: color-mix(in srgb, var(--bird-ink) 65%, #16221e);
+}
+.aut-bird-shadow {
+  fill: var(--bird-ink);
+}
+.aut-bird-paper {
+  fill: color-mix(in srgb, var(--bird-ink) 47%, #fffaf0);
+}
+.aut-bird-fold {
+  fill: color-mix(in srgb, var(--bird-ink) 21%, #fffaf0);
+}
+.aut-bird-beak {
+  fill: #ab7845;
+}
+.aut-bird-letter {
+  fill: #fffaf0;
+  stroke: var(--bird-ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.aut-bird-letter path {
+  fill: none;
+}
+.aut-bird-body {
+  transform-origin: 54px 81px;
+}
+.aut-bird-head {
+  transform-origin: 66px 66px;
+}
+.aut-bird-wing {
+  transform-origin: 59px 67px;
+}
+[data-state="thinking"] .aut-bird-head {
+  transform: rotate(12deg);
+}
+[data-state="thinking"] .aut-bird-wing {
+  transform: rotate(-12deg);
+}
+[data-state="question"] .aut-bird-body {
+  transform: rotate(-6deg);
+}
+[data-state="question"] .aut-bird-head {
+  transform: rotate(-14deg);
+}
+[data-state="resting"] .aut-bird-head {
+  transform: translate(-3px, 4px) rotate(24deg);
+}
+[data-state="resting"] .aut-bird-wing {
+  transform: rotate(-18deg) scaleY(0.72);
+}
+[data-expression="received"] .aut-bird-head {
+  transform: rotate(18deg);
+}
+[data-expression="report"] .aut-bird-wing,
+[data-expression="flutter"] .aut-bird-wing {
+  transform: rotate(21deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-animate][data-expression="question"] .aut-bird-head {
+    animation: aut-bird-listen 760ms ease-in-out;
+  }
+  [data-animate][data-expression="thinking"] .aut-bird-wing {
+    animation: aut-bird-fold 850ms ease-in-out;
+  }
+  [data-animate][data-expression="received"] .aut-bird-head {
+    animation: aut-bird-nod 680ms ease-in-out;
+  }
+  [data-animate][data-expression="report"] .aut-bird-body {
+    animation: aut-bird-arrive 720ms ease-out;
+  }
+  [data-animate][data-expression="flutter"] .aut-bird-wing {
+    animation: aut-bird-flutter 460ms ease-in-out 2;
+  }
+}
+@keyframes aut-bird-listen {
+  from {
+    transform: rotate(0);
+  }
+  55% {
+    transform: rotate(-21deg);
+  }
+}
+@keyframes aut-bird-fold {
+  from {
+    transform: rotate(7deg);
+  }
+  65% {
+    transform: rotate(-17deg);
+  }
+}
+@keyframes aut-bird-nod {
+  from {
+    transform: rotate(-14deg);
+  }
+  48% {
+    transform: rotate(26deg);
+  }
+  78% {
+    transform: rotate(10deg);
+  }
+}
+@keyframes aut-bird-arrive {
+  from {
+    transform: translate(-7px, 3px) rotate(-9deg);
+  }
+  55% {
+    transform: translate(1px, -5px) rotate(3deg);
+  }
+}
+@keyframes aut-bird-flutter {
+  52% {
+    transform: rotate(-28deg) scaleY(0.62);
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+dist/
+out/
+.DS_Store
+*.log
+.env
+.env.*
+coverage/
+deliverables/
+*.tsbuildinfo
+/.tmp/
+/.artifacts/**/aut-darwin-*/
+/.artifacts/**/profile/
+/.artifacts/desktop-preview/aut-components.html

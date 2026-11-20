@@ -1,0 +1,92 @@
+{
+  "cli": "codex-cli",
+  "version": "0.169.0",
+  "recordedAt": "2026-11-17T04:38:33.486Z",
+  "source": "Full daemon main-thread acceptance, isolated synthetic questions; copied from persisted SessionRequest.raw without changing fields.",
+  "note": "SessionRequest.raw uses id:null for notifications with no JSON-RPC id. This is a diagnostic request projection, not a complete bidirectional RPC recording.",
+  "requests": [
+    {
+      "kind": "question",
+      "raw": {
+        "method": "item/tool/requestUserInput",
+        "id": 0,
+        "params": {
+          "threadId": "01a1e7ca-8737-7fd0-aa53-8c4ab67ef703",
+          "turnId": "01a1e7ca-87de-7a03-aa2b-8288909e6909",
+          "itemId": "call_729e867ff503413da313978b69d1ced7",
+          "questions": [
+            {
+              "id": "probe_color",
+              "header": "Color",
+              "question": "Which fixture color?",
+              "isOther": true,
+              "isSecret": false,
+              "options": [
+                {
+                  "label": "Blue",
+                  "description": "Blue fixture color."
+                },
+                {
+                  "label": "Red",
+                  "description": "Red fixture color."
+                }
+              ]
+            },
+            {
+              "id": "probe_shape",
+              "header": "Shape",
+              "question": "Which fixture shape?",
+              "isOther": true,
+              "isSecret": false,
+              "options": [
+                {
+                  "label": "Circle",
+                  "description": "Circle fixture shape."
+                },
+                {
+                  "label": "Square",
+                  "description": "Square fixture shape."
+                }
+              ]
+            }
+          ],
+          "isBlocking": false,
+          "autoResolutionMs": null
+        }
+      }
+    },
+    {
+      "kind": "question",
+      "raw": {
+        "method": "item/completed",
+        "id": null,
+        "params": {
+          "item": {
+            "type": "agentMessage",
+            "moderation": null,
+            "id": "call_4bb055b91c0c4401ab7c2f3832549d98",
+            "text": "Which fixture color?\n- Blue\n- Red",
+            "phase": "final_answer",
+            "memoryCitation": null,
+            "delivery": "async",
+            "questions": [
+              {
+                "title": "Which fixture color?",
+                "options": [
+                  "Blue",
+                  "Red"
+                ]
+              }
+            ],
+            "startedAtMs": 1794890221674,
+            "completedAtMs": 1794890221675
+          },
+          "threadId": "01a1e7cb-1559-79f2-aa79-7aec0516ad23",
+          "turnId": "01a1e7cb-171b-7d21-bcbd-81acdfb59424",
+          "contentTokenCount": null,
+          "completedAtMs": 1794890221675
+        }
+      }
+    }
+  ]
+}

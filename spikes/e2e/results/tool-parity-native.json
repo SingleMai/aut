@@ -1,0 +1,36 @@
+{
+  "at": "2026-11-18T03:35:20.939Z",
+  "appPid": 57975,
+  "debugPort": 49741,
+  "taskIds": [
+    "task:0e4f1ec6-456a-4ca2-9ab8-ca99ea5087ce"
+  ],
+  "actual": {
+    "title": "aut · 主会话",
+    "connected": true,
+    "toolCount": 1,
+    "open": true,
+    "width": 608,
+    "font": "\"Geist Variable\", -apple-system, \"system-ui\", \"Segoe UI\", system-ui, sans-serif",
+    "fontSize": "13px",
+    "radius": "12px",
+    "background": "rgb(245, 245, 245)",
+    "inputLength": 265,
+    "outputLength": 671,
+    "bodyWidth": 944,
+    "bodyScrollWidth": 944,
+    "finalCount": 1,
+    "stylesheet": true,
+    "fontReady": true,
+    "composerCount": 0
+  },
+  "advanced": {
+    "pressed": "true",
+    "summary": "js"
+  },
+  "hiddenToolsKeepFinal": true,
+  "tasksPreserved": true,
+  "configPreserved": true,
+  "screenshot": "/Users/liying/mine/aut/spikes/e2e/results/tool-parity-native.png",
+  "appAsarSha256": "4bb2550dd8adff1113e75704f03bafdd39d49b94b02747eb6e64b2b31ba8f667"
+}

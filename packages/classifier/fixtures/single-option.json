@@ -1,0 +1,38 @@
+{
+  "source": "live-typesafe-api",
+  "recordedAt": "2026-11-16T14:31:06.622Z",
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "model": "jev-1.14.0",
+  "scenario": "single-option",
+  "latencyMs": 296,
+  "request": {
+    "model": "jev-1.14.0",
+    "state": "Research competitors.",
+    "questions": {
+      "route": {
+        "type": "choice",
+        "instructions": "Select the available bot.",
+        "criteria": {
+          "research": "Research work"
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.14.0",
+    "answers": {
+      "route": {
+        "type": "choice",
+        "choice": "research",
+        "confidence": 1,
+        "probabilities": {
+          "research": 1
+        }
+      }
+    },
+    "usage": {
+      "input_tokens": 297,
+      "output_tokens": 24
+    }
+  }
+}

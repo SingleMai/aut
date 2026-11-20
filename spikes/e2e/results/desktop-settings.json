@@ -1,0 +1,39 @@
+{
+  "at": "2026-11-16",
+  "surface": "ego-browser, actual desktop renderer and real DaemonApiLive HTTP/WS, isolated temporary data directory",
+  "externalModelCalls": false,
+  "secretChecks": {
+    "passwordInput": true,
+    "savedInputCleared": true,
+    "referenceFilled": "secret:primary",
+    "statusOnly": true,
+    "saveAllPersistedReference": true,
+    "replaceSameName": true,
+    "reloadPreservedReference": true,
+    "plaintextAbsentFromPublicConfig": true,
+    "fileMode": "0600",
+    "directoryMode": "0700"
+  },
+  "questionChecks": {
+    "fixture": "registered synthetic single question",
+    "normalSubmitInitiallyDisabled": true,
+    "explicitRetryEnabledEditing": true,
+    "newUiActions": 1,
+    "wholeQuestionAnswer": true,
+    "automaticAnswer": false
+  },
+  "tests": {
+    "secretStoreAndHttp": 9,
+    "desktopConnection": 11,
+    "apiBoundarySchemas": 32
+  },
+  "screenshot": "desktop-settings.png",
+  "cleanup": {
+    "browserTaskSpaceFinished": 16,
+    "ownedFixtureAndPreviewProcessesStopped": true
+  },
+  "limitations": [
+    "The question fixture uses API-only admission; native answer delivery is covered by the separate end-to-end question probe.",
+    "Credential verification does not contact external services."
+  ]
+}

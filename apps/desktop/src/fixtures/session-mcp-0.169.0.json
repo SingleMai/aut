@@ -1,0 +1,29 @@
+{
+  "source": "spikes/codex/fixtures/session-mcp-0.169.0.jsonl",
+  "cli": "Codex",
+  "version": "0.169.0",
+  "normalization": "Existing SessionHistoryCache projection; captured for protocol-only desktop tests.",
+  "history": {
+    "turns": [
+      {
+        "id": "01a1ea53-af69-7f52-941b-92dc89e9d6d0",
+        "status": "running",
+        "items": [
+          {
+            "id": "exec-acfbdbd0-fe7f-45c5-8e62-0e9fafaa5b9d",
+            "status": "completed",
+            "startedAt": 1794932731497,
+            "completedAt": 1794932731567,
+            "kind": "tool",
+            "text": "aut_session_view.fixture_echo",
+            "tool": {
+              "name": "aut_session_view.fixture_echo",
+              "input": "{\n  \"text\": \"aut-session-ui-mcp-probe\"\n}",
+              "output": "{\n  \"content\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"MCP_FIXTURE:aut-session-ui-mcp-probe\"\n    }\n  ],\n  \"structuredContent\": {\n    \"echo\": \"aut-session-ui-mcp-probe\"\n  },\n  \"_meta\": null\n}"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

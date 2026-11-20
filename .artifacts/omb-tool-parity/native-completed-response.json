@@ -1,0 +1,180 @@
+{
+  "ok": true,
+  "data": {
+    "task": {
+      "id": "qa-tool-parity",
+      "botId": "qa-session-bot",
+      "title": "工具规则一致性 · 单轮",
+      "status": "running",
+      "createdAt": 1794971474029,
+      "updatedAt": 1794972374029,
+      "lastActivityAt": 1794972374029,
+      "session": {
+        "instanceId": "qa-supported",
+        "cursor": {
+          "kind": "fixture",
+          "data": "parity"
+        }
+      },
+      "pendingRequestIds": [],
+      "queue": [],
+      "origin": {
+        "kind": "user"
+      }
+    },
+    "history": {
+      "turns": [
+        {
+          "id": "qa-parity-turn-1",
+          "status": "completed",
+          "startedAt": 1794972354029,
+          "completedAt": 1794972468447,
+          "items": [
+            {
+              "id": "qa-parity-input",
+              "kind": "user",
+              "status": "completed",
+              "text": "请检查工具展示：成功步骤要聚合，失败原因保持可见，最终回答留在外面。",
+              "startedAt": 1794972354029
+            },
+            {
+              "id": "qa-parity-progress",
+              "kind": "assistant",
+              "status": "completed",
+              "text": "PARITY_PROGRESS：我会先检查成功步骤的分组，然后保留失败与未确认项。以下全是合成数据。",
+              "startedAt": 1794972355029,
+              "phase": "commentary"
+            },
+            {
+              "id": "qa-parity-command-1",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972356029,
+              "tool": {
+                "name": "commandExecution",
+                "input": "pnpm test -- synthetic-first",
+                "output": "Synthetic verification output; no command was executed.\ncheck 001: passed\ncheck 002: passed\ncheck 003: passed\ncheck 004: passed\ncheck 005: passed\ncheck 006: passed\ncheck 007: passed\ncheck 008: passed\ncheck 009: passed\ncheck 010: passed\ncheck 011: passed\ncheck 012: passed\ncheck 013: passed\ncheck 014: passed\ncheck 015: passed\ncheck 016: passed\ncheck 017: passed\ncheck 018: passed\ncheck 019: passed\ncheck 020: passed\ncheck 021: passed\ncheck 022: passed\ncheck 023: passed\ncheck 024: passed\ncheck 025: passed\ncheck 026: passed\ncheck 027: passed\ncheck 028: passed\ncheck 029: passed\ncheck 030: passed\ncheck 031: passed\ncheck 032: passed\ncheck 033: passed\ncheck 034: passed\ncheck 035: passed\ncheck 036: passed\ncheck 037: passed\ncheck 038: passed\ncheck 039: passed\ncheck 040: passed\ncheck 041: passed\ncheck 042: passed\ncheck 043: passed\ncheck 044: passed\ncheck 045: passed\ncheck 046: passed\ncheck 047: passed\ncheck 048: passed\ncheck 049: passed\ncheck 050: passed\ncheck 051: passed\ncheck 052: passed\ncheck 053: passed\ncheck 054: passed\ncheck 055: passed\ncheck 056: passed\ncheck 057: passed\ncheck 058: passed\ncheck 059: passed\ncheck 060: passed\ncheck 061: passed\ncheck 062: passed\ncheck 063: passed\ncheck 064: passed\ncheck 065: passed\ncheck 066: passed\ncheck 067: passed\ncheck 068: passed\ncheck 069: passed\ncheck 070: passed\ncheck 071: passed\ncheck 072: passed\ncheck 073: passed\ncheck 074: passed\ncheck 075: passed\ncheck 076: passed\ncheck 077: passed\ncheck 078: passed\ncheck 079: passed\ncheck 080: passed\ncheck 081: passed\ncheck 082: passed\ncheck 083: passed\ncheck 084: passed\ncheck 085: passed\ncheck 086: passed\ncheck 087: passed\ncheck 088: passed\ncheck 089: passed\ncheck 090: passed\ncheck 091: passed\ncheck 092: passed\ncheck 093: passed\ncheck 094: passed\ncheck 095: passed\ncheck 096: passed\ncheck 097: passed\ncheck 098: passed\ncheck 099: passed\ncheck 100: passed\nEND_OF_COMMAND_OUTPUT"
+              }
+            },
+            {
+              "id": "qa-parity-command-2",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972357029,
+              "tool": {
+                "name": "commandExecution",
+                "input": "pnpm test -- synthetic-second",
+                "output": "SYNTHETIC_SUCCESS: no tool was executed."
+              }
+            },
+            {
+              "id": "qa-parity-edit",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972358029,
+              "tool": {
+                "name": "fileChange",
+                "input": "fixture/readonly.ts",
+                "output": "SYNTHETIC_SUCCESS: no tool was executed."
+              }
+            },
+            {
+              "id": "qa-parity-search",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972359029,
+              "tool": {
+                "name": "webSearch",
+                "input": "{\"query\":\"synthetic local fixture\"}",
+                "output": "SYNTHETIC_SUCCESS: no tool was executed."
+              }
+            },
+            {
+              "id": "qa-parity-read",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972360029,
+              "tool": {
+                "name": "Read",
+                "input": "fixture/README.md",
+                "output": "SYNTHETIC_SUCCESS: no tool was executed."
+              }
+            },
+            {
+              "id": "qa-parity-write",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972361029,
+              "tool": {
+                "name": "Write",
+                "input": "fixture/result.txt",
+                "output": "SYNTHETIC_SUCCESS: no tool was executed."
+              }
+            },
+            {
+              "id": "qa-parity-failed",
+              "kind": "tool",
+              "status": "failed",
+              "text": "",
+              "startedAt": 1794972363029,
+              "tool": {
+                "name": "mcp__fixture__read_document",
+                "input": "{\"documentId\":\"synthetic-plan\"}",
+                "output": "{\"error\":\"PARITY_PROBLEM：文档不存在，请检查文档 ID 后重试。\",\"code\":\"NOT_FOUND\"}"
+              }
+            },
+            {
+              "id": "qa-parity-unknown",
+              "kind": "tool",
+              "status": "unknown",
+              "text": "",
+              "startedAt": 1794972364029,
+              "tool": {
+                "name": "mcp__fixture__unknown_result",
+                "input": "{\"check\":\"honest-status\"}",
+                "output": ""
+              }
+            },
+            {
+              "id": "qa-parity-progress-2",
+              "kind": "assistant",
+              "status": "completed",
+              "text": "PARITY_PROGRESS_2：失败原因与未确认状态应留在成功步骤组之外。",
+              "startedAt": 1794972365029,
+              "phase": "commentary"
+            },
+            {
+              "id": "qa-parity-live-command",
+              "kind": "tool",
+              "status": "completed",
+              "text": "",
+              "startedAt": 1794972366029,
+              "tool": {
+                "name": "commandExecution",
+                "input": "synthetic-live-parity --watch",
+                "output": "Synthetic verification output; no command was executed.\ncheck 001: passed\ncheck 002: passed\ncheck 003: passed\ncheck 004: passed\ncheck 005: passed\ncheck 006: passed\ncheck 007: passed\ncheck 008: passed\ncheck 009: passed\ncheck 010: passed\ncheck 011: passed\ncheck 012: passed\ncheck 013: passed\ncheck 014: passed\ncheck 015: passed\ncheck 016: passed\ncheck 017: passed\ncheck 018: passed\ncheck 019: passed\ncheck 020: passed\ncheck 021: passed\ncheck 022: passed\ncheck 023: passed\ncheck 024: passed\ncheck 025: passed\ncheck 026: passed\ncheck 027: passed\ncheck 028: passed\ncheck 029: passed\ncheck 030: passed\ncheck 031: passed\ncheck 032: passed\ncheck 033: passed\ncheck 034: passed\ncheck 035: passed\ncheck 036: passed\ncheck 037: passed\ncheck 038: passed\ncheck 039: passed\ncheck 040: passed\ncheck 041: passed\ncheck 042: passed\ncheck 043: passed\ncheck 044: passed\ncheck 045: passed\ncheck 046: passed\ncheck 047: passed\ncheck 048: passed\ncheck 049: passed\ncheck 050: passed\ncheck 051: passed\ncheck 052: passed\ncheck 053: passed\ncheck 054: passed\ncheck 055: passed\ncheck 056: passed\ncheck 057: passed\ncheck 058: passed\ncheck 059: passed\ncheck 060: passed\ncheck 061: passed\ncheck 062: passed\ncheck 063: passed\ncheck 064: passed\ncheck 065: passed\ncheck 066: passed\ncheck 067: passed\ncheck 068: passed\ncheck 069: passed\ncheck 070: passed\ncheck 071: passed\ncheck 072: passed\ncheck 073: passed\ncheck 074: passed\ncheck 075: passed\ncheck 076: passed\ncheck 077: passed\ncheck 078: passed\ncheck 079: passed\ncheck 080: passed\ncheck 081: passed\ncheck 082: passed\ncheck 083: passed\ncheck 084: passed\ncheck 085: passed\ncheck 086: passed\ncheck 087: passed\ncheck 088: passed\ncheck 089: passed\ncheck 090: passed\ncheck 091: passed\ncheck 092: passed\ncheck 093: passed\ncheck 094: passed\ncheck 095: passed\ncheck 096: passed\ncheck 097: passed\ncheck 098: passed\ncheck 099: passed\ncheck 100: passed\nEND_OF_COMMAND_OUTPUT\nPARITY_LIVE_UPDATE_2",
+                "exitCode": 0
+              }
+            },
+            {
+              "id": "qa-parity-final",
+              "kind": "assistant",
+              "status": "completed",
+              "text": "PARITY_FINAL：成功步骤已归组，进度、失败原因、未确认状态和最终结果仍在外面。",
+              "completedAt": 1794972468447,
+              "phase": "final"
+            }
+          ]
+        }
+      ]
+    },
+    "availability": "available",
+    "hasEarlier": false
+  }
+}

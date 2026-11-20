@@ -1,0 +1,32 @@
+{
+  "name": "@aut/daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc --build",
+    "typecheck": "tsc --build"
+  },
+  "dependencies": {
+    "@aut/protocol": "workspace:*",
+    "@aut/classifier": "workspace:*",
+    "@aut/adapters": "workspace:*",
+    "@aut/mcp-bridge": "workspace:*",
+    "@aut/core": "workspace:*",
+    "effect": "catalog:",
+    "ws": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.18.2"
+  }
+}

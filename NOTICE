@@ -1,0 +1,158 @@
+aut
+Copyright 2026 The aut Authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party attributions
+------------------------
+Code adapted from other projects must be listed here, and the adapted files must
+carry a header comment naming the source project, file path and commit.
+
+Desktop Simple / Daylight conversation design and interaction adaptations:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0. Sources: src/styles.css;
+  src/components/ChatView.tsx, Sidebar.tsx, SidebarThreadRow.tsx,
+  MessageActions.tsx (message actions), ReplyQuote.tsx, Composer.tsx, QuestionCard.tsx,
+  AskCard.tsx, ToolActivity.tsx, ActivityRun.tsx, TurnNarrationRun.tsx and chat-bubble.ts; src/lib/send-key.ts, replies.ts,
+  drafts.ts, bottom-follow.ts, transcript-follow.ts; src/hooks/use-transcript-viewport.ts.
+  Adapted in apps/desktop/src/{desktop-sidebar,conversation-page,conversation-message,conversation-card,
+  question-card,task-session-view}.tsx, {composer-input,
+  conversation-viewport,question-answer,chat-layout}.ts and styles/*.css for the React
+  desktop client. The task session view renders the tool components listed below.
+  No enterprise-directory code, branding or mascot assets are included.
+
+Codex adapter lifecycle and question-delivery design:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Source: server/drivers/codex.ts and server/drivers/codex-questions.ts
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in packages/adapters/src/codex/.
+  No enterprise-directory code is included.
+
+Planned sources (Apache-2.0 portions only; never the enterprise/ directory):
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors,
+  https://github.com/milind-soni/OpenMausBot, Apache License 2.0.
+
+Jev response validation and HTTP hygiene:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Source: server/decider/jev.ts, types.ts and room-routing.ts
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in packages/classifier/src/jev.ts.
+  No enterprise-directory code is included.
+
+Agent-created bot receipt and conditional undo design reference:
+- OpenMausBot, server/team-setup-requests.ts at 738ec88472a3b888ff7b7793755d89da613ed301.
+  Copyright 2026 Milind Soni and OpenMausBot contributors. Apache-2.0.
+  The receipt lifecycle in packages/core/src/bot-creation.ts is independently implemented.
+
+MCP session identity and tool-authorization design reference:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Source: server/drivers/agents-mcp.ts and server/harness-mcp-request.ts
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Apache License 2.0. Design reference only; packages/mcp-bridge was implemented
+  independently with Effect and the official MCP SDK. No source code was copied.
+  No enterprise-directory code is included.
+
+Session delivery admission, queue draining and execution ownership:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Source: server/admission.ts, server/steer-queue.ts and server/runtime/runtime.ts
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in
+  packages/core/src/session-manager/{manager,registration,execution,model}.ts.
+  No enterprise-directory code is included.
+
+Directly reused OpenMausBot task-session tool UI:
+- Copyright 2026 Milind Soni and OpenMausBot contributors. Apache-2.0.
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Source -> apps/desktop/src/openmausbot/:
+  src/components/{ToolActivity,ActivityRun,TurnNarrationRun,PlaceIcon}.tsx
+    -> components/ (original interaction and grouping behavior, styled with the aut theme).
+  src/components/WorkingIndicator.tsx -> components/WorkingIndicator.tsx
+    (WorkingDots and WorkingTimer).
+  src/lib/{activity-runs,tool-step-label,activity-text,working-time,place}.ts
+    -> lib/ (original pure rules and utilities).
+  src/lib/{approval-summary,verify-steps,transcript-derivations}.ts
+    -> lib/ (composioActionPhrase, nameIsCommand, localDay extracted).
+  packages/phone-protocol/src/{server-text,failed-turn}.ts and
+  shared/{tool-name,client-cancel,tool-surface}.ts -> shared/ (UI helpers only; client-cancel retains the stopped activity marker).
+  src/state/store.tsx -> types.ts (UI view field subset).
+  src/lib/i18n.ts and src/locales/{en,zh,pt-br,es}.json -> lib/i18n.ts and
+    locales.ts (tool-related strings and static locale boundary).
+  src/styles.css and component layout rules -> ../styles/ (aut theme and native CSS).
+  Associated component and helper regression tests are copied alongside sources.
+  Adaptations: local module imports, strict TypeScript annotations, formatting,
+  aut view preferences and Effect API port. previewHint alone is reworded to
+  accurately describe aut's complete input/output records, without claiming
+  upstream clipping/redaction. No enterprise-directory sources are included.
+  src/components/chat-bubble.ts -> openmausbot/components/chat-bubble.ts (bubbleJoins,
+  cardTucks and needsStamp). chat-layout.ts and session-row-layout.ts supply slots
+  with the native author, task, turn and tool-visibility boundaries.
+  ChatView.tsx tool-row composition is adapted in session-transcript.tsx;
+  server/drivers/codex.ts title mapping informs session-presentation.ts.
+
+Bundled UI dependencies:
+- React and React DOM, Copyright Meta Platforms, Inc. and affiliates. MIT.
+- Lucide React, Copyright Lucide Contributors. ISC (with Feather MIT portions).
+- Geist and Geist Mono, Copyright The Geist Project Authors. SIL OFL 1.1.
+  Full license texts accompany the distributable.
+
+Directly reused OpenMausBot expandable question text:
+- Copyright 2026 Milind Soni and OpenMausBot contributors. Apache-2.0.
+  Commit: 738ec88472a3b888ff7b7793755d89da613ed301
+  Source: src/components/ExpandableText.tsx and ExpandableText.test.ts.
+  Copied to apps/desktop/src/openmausbot/components/ with local ESM imports.
+  Original length/line thresholds, four-line collapse and toggle behavior remain.
+  src/components/QuestionCard.tsx supplies the 160-character title boundary;
+  question.showFull/showLess are copied from src/locales/{en,zh,pt-br,es}.json.
+  aut's question-card.tsx renders the copied component beside AskChoices and AskReply.
+
+OpenMausBot desktop conversation controls, same commit and Apache-2.0 attribution:
+  Paths below are relative to apps/desktop/src/openmausbot/.
+  src/components/AskCard.tsx -> components/AskCard.tsx (AskChoices, moveChoiceFocus
+  and AskReply). aut supplies native option IDs, group submission and delivery state.
+  src/components/ReplyQuote.tsx -> components/ReplyQuote.tsx; src/lib/replies.ts ->
+  lib/replies.ts (plain-text excerpts and Escape). The caller supplies the author;
+  the chat.reply strings come from the matching upstream locale catalogs.
+  src/components/composer-wrap.ts -> components/composer-wrap.ts (useTallPill).
+  src/lib/send-key.ts -> lib/send-key.ts (imeComposing and sendsMessage).
+  src/lib/{bottom-follow,transcript-follow}.ts -> lib/ (end tolerance, following,
+  growth and row anchors). The anchor reads aut's persisted message ID attribute.
+  src/components/MessageActions.tsx -> ../message-actions.tsx (available message actions).
+  aut positions the sheet inside the viewport and restores trigger focus before invoking the action.
+  src/components/{SidebarSimpleTop.tsx,elevated.ts,SidebarThreadRow.tsx} -> components/
+  (framed search controls, read-only panel row, relative time and shared visible-window clock).
+  desktop-sidebar.tsx supplies aut's task identity, title, bot, status and selection.
+  Menu, search-close and relative-time strings come from the matching upstream locale catalogs.
+
+apps/desktop/src/session-display-preferences.ts adapts src/lib/interface-mode.ts from the OpenMausBot revision credited above.
+
+OpenMausBot, same Apache-2.0 commit and attribution as above:
+  src/components/{ChatMarkdown,CodeBlock,ChatView}.tsx, src/lib/{markdown-tables,copy-text}.ts
+  and the matching Daylight and locale entries are copied or adapted in
+  apps/desktop/src/{conversation-body.tsx,openmausbot/components/Conversation{Markdown,Fence}.tsx,
+  openmausbot/lib/{markdown-tables,copy-feedback}.ts,openmausbot/locales.ts,styles/{conversation,markdown}.css}.
+  aut retains the Markdown/soft-break, table-repair, direction, spoiler, copy-feedback,
+  and user disclosure rules. Code tokens use lowlight for compatibility with desktop CSP.
+  Remote image, attachment, math, diagram and thread-reference renderers are not imported.
+  react-markdown, remark-gfm, mdast-util-from-markdown and lowlight: MIT.
+  highlight.js: BSD-3-Clause.
+
+apps/desktop/src/settled-question.tsx adapts the read-only answer presentation of
+OpenMausBot src/components/{QuestionCard,AskCard}.tsx at the Apache-2.0 revision above.
+
+OpenMausBot, same commit and Apache-2.0 attribution above:
+  Composer.tsx: conditionally showing the send action; OptionsCardRow.tsx and
+  src/locales/zh.json: subdued past questions and read-only answer wording.
+  ReplyBlocks.tsx and src/lib/formatted-reply.ts: prose/table segmentation and presentation.
+  src/components/chat-bubble.ts and WorkingIndicator.tsx: visible-row grouping and running time.
+
+Radix Themes and Radix Primitives provide the desktop controls, menus and dialogs (MIT).
+The desktop bundle includes renderer-LICENSES.txt with the linked packages' license texts.
+The upstream license for react-remove-scroll-bar is available at
+https://github.com/theKashey/react-remove-scroll-bar/blob/7301c160fda44cb8cf2b9fdfde61efad35736196/LICENSE

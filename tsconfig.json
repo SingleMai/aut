@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/characters" },
+    { "path": "packages/protocol" },
+    { "path": "packages/classifier" },
+    { "path": "packages/adapters" },
+    { "path": "packages/mcp-bridge" },
+    { "path": "packages/core" },
+    { "path": "packages/daemon" },
+    { "path": "apps/desktop" }
+  ]
+}

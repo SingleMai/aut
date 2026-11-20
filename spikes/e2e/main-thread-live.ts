@@ -1,0 +1,65 @@
+// Uses an isolated aut data directory and the existing CLI provider configuration.
+import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { Effect } from "effect";
+import { AcceptedResponse, ConfigResponse, MessageResponse, ReportResponse, RouteTestResponse, type MainThreadMessage } from "../../packages/protocol/dist/index.js";
+import { assert, configure, fixtureDirectory, withDaemon, writeEvidence } from "./support.ts";
+
+if (!process.env.TYPESAFE_API_KEY) throw new Error("TYPESAFE_API_KEY is required for this opt-in live acceptance probe");
+const dataDirectory = fixtureDirectory();
+const cliVersion = execFileSync("codex", ["--version"], { encoding: "utf8" }).trim();
+console.log(JSON.stringify({ stage: "starting", dataDirectory, cliVersion }));
+const result = await Effect.runPromise(withDaemon(dataDirectory, (api) => Effect.gen(function* () {
+  const bot = yield* configure(api, dataDirectory);
+  console.log(JSON.stringify({ stage: "configured", dataDirectory, model: bot.modelSelection.model }));
+  const routing = yield* api.request("/v1/route-test", RouteTestResponse, "POST", { text: "请回声助手执行集成测试并回复测试结果。" });
+  yield* assert(routing.selectedBotId === bot.id, "The real classifier selected a different bot in the routing test");
+  const started = Date.now();
+  const submitted = yield* api.request("/v1/messages", MessageResponse, "POST", { id: "e2e-new", text: "请回声助手执行回声集成测试，回复：集成测试通过。" });
+  const admittedMs = Date.now() - started;
+  const firstMessages = yield* api.wait(api.messages, (messages) => messages.some((message) => message.author === "chief"));
+  const acknowledgedMs = Date.now() - started;
+  console.log(JSON.stringify({ stage: "acknowledged", admittedMs, acknowledgedMs, text: firstMessages.at(-1)?.text }));
+  const completed = yield* api.wait(api.messages, (messages) => messages.some((message) => message.kind === "reply"));
+  const first = completed.find((message) => message.kind === "reply");
+  yield* assert(first?.taskId && first.fullReportRef, "The worker reply has no task or full report reference");
+  const task = (yield* api.tasks).find((task) => task.id === first!.taskId);
+  yield* assert(task?.botId === bot.id && task.status === "idle", "The task was routed to the wrong bot or did not become idle");
+  const report = yield* api.request(`/v1/reports/${encodeURIComponent(first!.fullReportRef!)}`, ReportResponse);
+  yield* assert(report.text.includes("集成测试通过"), "The original report did not contain the fixture result");
+  console.log(JSON.stringify({ stage: "first-report", delivered: first!.text }));
+  console.log(JSON.stringify({ stage: "sending-followup" }));
+  yield* api.request("/v1/actions", AcceptedResponse, "POST", { type: "quote-reply", quotedMessageId: first!.id, text: "继续这个回声测试，只回复：后续测试通过。" });
+  console.log(JSON.stringify({ stage: "followup-admitted" }));
+  const continued = yield* api.wait(api.messages, (messages) => messages.some((message) => message.kind === "reply" && message.id !== first!.id));
+  const followup = continued.find((message) => message.kind === "reply" && message.id !== first!.id);
+  yield* assert(followup !== undefined && followup.taskId === first!.taskId && followup.text.includes("后续测试通过"), "A quoted follow-up did not continue the same task");
+  console.log(JSON.stringify({ stage: "sending-fast-query", followup: followup!.text }));
+  yield* api.request("/v1/actions", AcceptedResponse, "POST", { type: "quote-reply", quotedMessageId: followup!.id, text: "这个任务现在是空闲还是正在运行？只查询状态。" });
+  console.log(JSON.stringify({ stage: "fast-query-admitted" }));
+  const progress = yield* api.wait(api.messages, (messages) => messages.some((message) => message.id.startsWith("progress:")));
+  const fast = progress.find((message) => message.id.startsWith("progress:"));
+  yield* assert(fast?.author === "chief", "A state-only question did not use the fast template");
+  console.log(JSON.stringify({ stage: "fast-query-completed", text: fast!.text }));
+  const settings = yield* api.request("/v1/config", ConfigResponse);
+  const taskCount = (yield* api.tasks).length;
+  yield* api.request("/v1/config", ConfigResponse, "PUT", { ...settings, classifier: { primary: { ...settings.classifier!.primary, backend: "unavailable-fixture" } } });
+  const fallbackCards: MainThreadMessage[] = [];
+  for (const id of ["e2e-unavailable-first", "e2e-unavailable-second"]) {
+    yield* api.request("/v1/messages", MessageResponse, "POST", { id, text: "请处理一个新的回声测试。" });
+    const count = fallbackCards.length;
+    const fallback = yield* api.wait(api.messages, (messages) => messages.filter((message) => message.kind === "clarify-card").length > count);
+    fallbackCards.push(fallback.filter((message) => message.kind === "clarify-card").at(-1)!);
+  }
+  yield* assert((yield* api.tasks).length === taskCount, "Unavailable classification dispatched an unconfirmed task");
+  yield* api.request("/v1/config", ConfigResponse, "PUT", settings);
+  const logs = yield* api.logs;
+  const inbound = logs.filter((log) => log.tree === "inbound" && !log.input.eventRef.startsWith("route-test:"));
+  yield* assert(inbound.length === 5 && inbound.every((log) => log.execution.ok), "Inbound routing is missing a successful decision log");
+  const unavailable = inbound.filter((log) => log.path.includes("unavailable"));
+  yield* assert(unavailable.length === 2 && unavailable.every((log) => log.classifierCalls.some((call) => call.error)), "Classifier failures did not produce audited clarification without blocking later messages");
+  return { at: new Date().toISOString(), cliVersion, dataDirectory, model: bot.modelSelection.model, routing, admittedMs, acknowledgedMs, firstReply: first, followup, fast, fallbackCards, fullReport: report, submittedMessageId: submitted.message.id, decisionLogs: logs };
+})).pipe(Effect.timeout("8 minutes")));
+const output = process.env.AUT_E2E_RESULT ?? join(dataDirectory, "main-thread-result.json");
+await Effect.runPromise(writeEvidence(output, result));
+console.log(JSON.stringify({ stage: "complete", output, admittedMs: result.admittedMs, acknowledgedMs: result.acknowledgedMs }));

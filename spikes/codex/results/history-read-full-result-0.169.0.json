@@ -1,0 +1,140 @@
+{
+  "at": "2026-11-17T16:48:09.434Z",
+  "cliVersion": "codex-cli 0.169.0",
+  "methods": [
+    "initialize",
+    "thread/read",
+    "initialize",
+    "thread/read"
+  ],
+  "childPids": [
+    31492,
+    31527
+  ],
+  "alive": [],
+  "runs": [
+    {
+      "name": "session-view",
+      "threadId": "01a1ea51-d8d3-7e70-89fd-6ff728c1007c",
+      "history": {
+        "turns": [
+          {
+            "id": "01a1ea51-d9cf-76e2-83fc-ec68d4c3fc3e",
+            "status": "completed",
+            "startedAt": 1794932595000,
+            "completedAt": 1794932617000,
+            "items": [
+              {
+                "id": "01a1ea51-e73d-7971-a533-601dfba89d38",
+                "kind": "user",
+                "status": "completed",
+                "text": "Synthetic UI protocol fixture: first call apply_patch to create the file aut-session-ui-probe.txt in the current temporary working directory with exactly the line 'fixture file content'. Then execute this exact harmless shell command: printf 'aut-session-ui-probe\\n'; sleep 2; printf 'aut-session-ui-done\\n'. Do not inspect other files or use external services. Do not ask questions. After both tools succeed, reply exactly AUT_SESSION_UI_OK.",
+                "startedAt": 1794932598590,
+                "completedAt": 1794932598590
+              },
+              {
+                "id": "msg_0ed7639ee54ef630016afc7f7a7ba887d2be44788c4b81add9",
+                "kind": "assistant",
+                "status": "completed",
+                "text": "I’ll create the probe file, then run the exact shell command.",
+                "startedAt": 1794932602629,
+                "completedAt": 1794932602792,
+                "phase": "commentary"
+              },
+              {
+                "id": "exec-c3c05e7e-41c5-46a7-8f67-6aaba5c5141e",
+                "kind": "tool",
+                "status": "completed",
+                "text": "add: /var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-codex-probe-czTr52/aut-session-ui-probe.txt",
+                "startedAt": 1794932603221,
+                "completedAt": 1794932603221,
+                "tool": {
+                  "name": "fileChange",
+                  "input": "add: /var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-codex-probe-czTr52/aut-session-ui-probe.txt",
+                  "output": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-codex-probe-czTr52/aut-session-ui-probe.txt\nfixture file content\n"
+                }
+              },
+              {
+                "id": "exec-63ffe230-cf11-4607-8380-ceca5985a6ee",
+                "kind": "tool",
+                "status": "completed",
+                "text": "/bin/zsh -c \"printf 'aut-session-ui-probe\\\\n'; sleep 2; printf 'aut-session-ui-done\\\\n'\"",
+                "startedAt": 1794932610708,
+                "completedAt": 1794932612635,
+                "tool": {
+                  "name": "commandExecution",
+                  "input": "/bin/zsh -c \"printf 'aut-session-ui-probe\\\\n'; sleep 2; printf 'aut-session-ui-done\\\\n'\"",
+                  "output": "aut-session-ui-probe\naut-session-ui-done\n",
+                  "exitCode": 0
+                }
+              },
+              {
+                "id": "msg_07b33e4c55ab5a1e016afc7f89be6c87d1876e3e6b35c2cc21",
+                "kind": "assistant",
+                "status": "completed",
+                "text": "AUT_SESSION_UI_OK",
+                "startedAt": 1794932616614,
+                "completedAt": 1794932616771,
+                "phase": "final"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "session-mcp",
+      "threadId": "01a1ea53-aefd-72c0-8233-ccf87b163cb7",
+      "history": {
+        "turns": [
+          {
+            "id": "01a1ea53-af69-7f52-941b-92dc89e9d6d0",
+            "status": "completed",
+            "startedAt": 1794932715000,
+            "completedAt": 1794932748000,
+            "items": [
+              {
+                "id": "01a1ea53-bd18-7440-a7ae-69fc8010c325",
+                "kind": "user",
+                "status": "completed",
+                "text": "Synthetic UI protocol fixture: call the MCP tool mcp__aut_session_view__fixture_echo exactly once with text='aut-session-ui-mcp-probe'. It is a local synthetic server, not an external service. Do not use any other tool and do not ask questions. Then reply exactly AUT_SESSION_MCP_OK.",
+                "startedAt": 1794932718872,
+                "completedAt": 1794932718872
+              },
+              {
+                "id": "rs_0ff24468e43afad1016afc7ff2f7a487d1b99c8cc51128dd09",
+                "kind": "note",
+                "status": "completed",
+                "text": "**Preparing fixture probe**\n**Preparing fixture check**",
+                "startedAt": 1794932727604,
+                "completedAt": 1794932731194
+              },
+              {
+                "id": "exec-acfbdbd0-fe7f-45c5-8e62-0e9fafaa5b9d",
+                "kind": "tool",
+                "status": "completed",
+                "text": "aut_session_view.fixture_echo",
+                "startedAt": 1794932731497,
+                "completedAt": 1794932731567,
+                "tool": {
+                  "name": "aut_session_view.fixture_echo",
+                  "input": "{\n  \"text\": \"aut-session-ui-mcp-probe\"\n}",
+                  "output": "{\n  \"content\": [\n    {\n      \"type\": \"text\",\n      \"text\": \"MCP_FIXTURE:aut-session-ui-mcp-probe\"\n    }\n  ],\n  \"structuredContent\": {\n    \"echo\": \"aut-session-ui-mcp-probe\"\n  },\n  \"_meta\": null\n}"
+                }
+              },
+              {
+                "id": "msg_089a4cb4210c2b1c016afc8003247487d1b1805f833d3f0d9f",
+                "kind": "assistant",
+                "status": "completed",
+                "text": "AUT_SESSION_MCP_OK",
+                "startedAt": 1794932744329,
+                "completedAt": 1794932744484,
+                "phase": "final"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

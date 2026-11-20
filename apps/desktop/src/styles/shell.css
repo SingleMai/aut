@@ -1,0 +1,102 @@
+/* Adapted from OpenMausBot src/styles.css and desktop components at
+ * 738ec88472a3b888ff7b7793755d89da613ed301. Copyright 2026 Milind Soni
+ * and contributors. Apache-2.0. See NOTICE. */
+.shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+.brand-library {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aut-wordmark,
+.aut-character {
+  display: block;
+  flex-shrink: 0;
+  color: var(--ink);
+}
+.workspace {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.page-header {
+  min-height: 64px;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--edge);
+  -webkit-app-region: drag;
+}
+.page-header button {
+  -webkit-app-region: no-drag;
+}
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.title-mark {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-control);
+  background: var(--card);
+}
+.page-subtitle {
+  font-size: var(--text-small);
+  color: var(--secondary);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.activity-summary {
+  display: flex;
+  gap: 14px;
+  color: var(--secondary);
+  font-size: var(--text-small);
+  white-space: nowrap;
+}
+.activity-summary > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.activity-summary > span::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.activity-summary > .activity-waiting::before {
+  background: var(--warning);
+}
+.content {
+  min-height: 0;
+  flex: 1;
+  padding: 12px 28px 28px;
+  overflow: auto;
+}
+@media (max-width: 1050px) {
+  .page-header {
+    padding: 10px 20px;
+  }
+  .content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

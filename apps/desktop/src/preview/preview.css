@@ -1,0 +1,114 @@
+@import "../style.css";
+
+.component-preview {
+  height: 100dvh;
+  overflow: auto;
+  color: var(--ink);
+  background: var(--canvas);
+}
+.preview-paper {
+  width: min(1184px, 100%);
+  margin: 0 auto;
+  padding: clamp(20px, 5vw, 64px) clamp(14px, 4vw, 46px);
+}
+.preview-header,
+.preview-toolbar,
+.preview-toolbar > div,
+.preview-section-heading,
+.preview-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.preview-header {
+  gap: 24px;
+}
+.preview-header .aut-wordmark {
+  width: 92px;
+  height: 50px;
+}
+.preview-header > div {
+  border-inline-start: 1px solid var(--edge);
+  padding-inline-start: 24px;
+}
+.preview-header h1 {
+  font-size: clamp(21px, 3vw, 30px);
+}
+.preview-toolbar {
+  flex-wrap: wrap;
+  margin: 28px 0 22px;
+  padding: 13px 0;
+  border-block: 1px solid var(--edge);
+  gap: 12px 28px;
+}
+.preview-toolbar > div {
+  gap: 8px;
+  color: var(--secondary);
+  font-size: var(--text-label);
+}
+.preview-toolbar > div:last-child {
+  margin-inline-start: auto;
+}
+.preview-frame {
+  container-type: inline-size;
+}
+.preview-frame[data-width="narrow"] {
+  max-width: 390px;
+  margin: auto;
+}
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.preview-section,
+.preview-grid > .character-editor {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(16px, 2.2vw, 26px);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+.preview-section-heading,
+.preview-grid .character-heading {
+  justify-content: space-between;
+  margin-bottom: 20px;
+  min-height: 32px;
+}
+.preview-grid h2,
+.preview-grid .character-heading h3 {
+  font-size: 17px;
+}
+.preview-conversation .message {
+  padding: 0;
+}
+.preview-conversation .message:last-child {
+  margin-bottom: 0;
+}
+.preview-conversation .message-card {
+  width: 100%;
+}
+.preview-form-actions {
+  justify-content: flex-end;
+}
+.preview-code .rich-body {
+  font-size: var(--text-body);
+}
+:root:has(.component-preview[data-reduce-motion]) *,
+:root:has(.component-preview[data-reduce-motion]) *::before,
+:root:has(.component-preview[data-reduce-motion]) *::after {
+  animation-duration: 0s;
+  transition-duration: 0s;
+}
+@container (max-width: 780px) {
+  .preview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .preview-toolbar > div:last-child {
+    margin-inline-start: 0;
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "at": "2026-11-16T16:16:38.282Z",
+  "cliVersion": "codex-cli 0.167.0",
+  "model": "gpt-6.1-sol",
+  "classifier": "explicit deterministic fixture; all classifications still run through production decision trees",
+  "setup": "synthetic setup; daemon bridge wiring is a separate integration",
+  "checks": [
+    "native request_user_input full group",
+    "native async question",
+    "request data tree",
+    "one full-group card",
+    "waiting_user without forcing pause",
+    "explicit preset synthetic answers only",
+    "registration before activation",
+    "native confirmation",
+    "production reply gate",
+    "duplicate prevention",
+    "all decisions logged",
+    "scope cleanup"
+  ],
+  "childPids": [
+    44518,
+    44740
+  ],
+  "alive": [],
+  "runs": [
+    {
+      "mode": "sync",
+      "taskId": "task:live-route-1",
+      "request": {
+        "id": "b2a4264d-96f4-457b-9324-4dfceac6faa7",
+        "questions": [
+          {
+            "id": "probe_color",
+            "text": "Which fixture color?",
+            "options": [
+              {
+                "id": "0",
+                "label": "Blue",
+                "description": "Choose Blue."
+              },
+              {
+                "id": "1",
+                "label": "Red",
+                "description": "Choose Red."
+              }
+            ],
+            "multiSelect": false,
+            "allowFreeText": true
+          },
+          {
+            "id": "probe_shape",
+            "text": "Which fixture shape?",
+            "options": [
+              {
+                "id": "0",
+                "label": "Circle",
+                "description": "Choose Circle."
+              },
+              {
+                "id": "1",
+                "label": "Square",
+                "description": "Choose Square."
+              }
+            ],
+            "multiSelect": false,
+            "allowFreeText": true
+          }
+        ]
+      },
+      "claimPhase": "delivered",
+      "report": {
+        "full": "QUESTIONS_SYNC_OK:Blue:Circle",
+        "delivered": "QUESTIONS_SYNC_OK:Blue:Circle",
+        "rewrites": 0
+      },
+      "duplicateRejected": true
+    },
+    {
+      "mode": "async",
+      "taskId": "task:live-route-2",
+      "request": {
+        "id": "fde1b9f8-7e18-4d6b-bcac-daa19fe2178e",
+        "questions": [
+          {
+            "id": "call_7c41e2d0fff74903945b31889c4b3a90:0",
+            "text": "Which fixture color?",
+            "options": [
+              {
+                "id": "0",
+                "label": "Blue"
+              },
+              {
+                "id": "1",
+                "label": "Red"
+              }
+            ],
+            "multiSelect": false,
+            "allowFreeText": true
+          }
+        ]
+      },
+      "claimPhase": "delivered",
+      "report": {
+        "full": "QUESTIONS_ASYNC_OK:Blue",
+        "delivered": "QUESTIONS_ASYNC_OK:Blue",
+        "rewrites": 0
+      },
+      "duplicateRejected": true
+    }
+  ],
+  "eventCount": 54,
+  "decisionCount": 10,
+  "decisionTrees": [
+    "inbound",
+    "handoff-prune",
+    "request",
+    "inbound",
+    "reply-gate",
+    "inbound",
+    "handoff-prune",
+    "request",
+    "inbound",
+    "reply-gate"
+  ]
+}

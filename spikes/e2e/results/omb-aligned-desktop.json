@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-17T09:56:29.750Z",
+  "connected": true,
+  "replyPresent": true,
+  "answered": true,
+  "composerHeight": 45,
+  "sidebarColor": "rgb(245, 245, 245)",
+  "userBubble": "rgb(28, 28, 28)",
+  "atLatest": true,
+  "existingConfigurationPreserved": true,
+  "nativeIpc": true,
+  "shortConversationUpwardWheel": {
+    "passed": true,
+    "before": {
+      "top": 0,
+      "extent": 0,
+      "jump": false,
+      "x": 780,
+      "y": 419,
+      "draft": false
+    },
+    "after": {
+      "top": 0,
+      "extent": 0,
+      "jump": false
+    }
+  },
+  "finalPackagedRenderer": true,
+  "asarSha256": "c71d33fbcd6e071fe0cb18892d10a97b8b0a74cb40f7beb3d09fd8ddf0e2ef34"
+}

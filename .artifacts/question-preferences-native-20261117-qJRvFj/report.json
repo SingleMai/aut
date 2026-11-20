@@ -1,0 +1,202 @@
+{
+  "ok": true,
+  "scope": "Real copied Electron renderer and preload; synthetic IPC fixture only. No daemon, harness, existing app profile or ~/.aut used.",
+  "checks": [
+    {
+      "name": "Long question is genuinely clamped to four rendered lines",
+      "passed": true,
+      "observed": {
+        "height": 88,
+        "scrollHeight": 550,
+        "lineHeight": "22px",
+        "expanded": "false",
+        "fullTextPresent": true
+      }
+    },
+    {
+      "name": "Native click expands the complete question",
+      "passed": true,
+      "observed": {
+        "height": 550,
+        "clamped": false,
+        "text": "收起",
+        "fullTextPresent": true
+      }
+    },
+    {
+      "name": "Collapse preserves the actual typed answer draft without submission",
+      "passed": true,
+      "observed": {
+        "writes": []
+      }
+    },
+    {
+      "name": "Fresh isolated profile starts in Simple mode with tools visible",
+      "passed": true,
+      "observed": {
+        "advanced": "false",
+        "showToolCalls": "true",
+        "storedAdvanced": null,
+        "storedTools": null,
+        "toolRows": 1,
+        "finalVisible": "结果11月17日 20:13QA_FINAL_qa-task-a: 工具显示偏好不会隐藏这条最终回答。"
+      }
+    },
+    {
+      "name": "Native toggles persist settings and keep final text visible",
+      "passed": true,
+      "observed": {
+        "advanced": "true",
+        "showToolCalls": "false",
+        "storedAdvanced": "1",
+        "storedTools": "0",
+        "toolRows": 0,
+        "finalVisible": "结果11月17日 20:13QA_FINAL_qa-task-a: 工具显示偏好不会隐藏这条最终回答。"
+      }
+    },
+    {
+      "name": "Preferences survive switching to another task",
+      "passed": true,
+      "observed": {
+        "advanced": "true",
+        "showToolCalls": "false",
+        "storedAdvanced": "1",
+        "storedTools": "0",
+        "toolRows": 0,
+        "finalVisible": "结果11月17日 20:13QA_FINAL_qa-task-b: 工具显示偏好不会隐藏这条最终回答。"
+      }
+    },
+    {
+      "name": "Preferences survive a full renderer reload",
+      "passed": true,
+      "observed": {
+        "advanced": "true",
+        "showToolCalls": "false",
+        "storedAdvanced": "1",
+        "storedTools": "0",
+        "toolRows": 0,
+        "finalVisible": "结果11月17日 20:13QA_FINAL_qa-task-b: 工具显示偏好不会隐藏这条最终回答。"
+      }
+    },
+    {
+      "name": "Changing settings back also survives another task switch",
+      "passed": true,
+      "observed": {
+        "advanced": "false",
+        "showToolCalls": "true",
+        "storedAdvanced": "0",
+        "storedTools": "1",
+        "toolRows": 1,
+        "finalVisible": "结果11月17日 20:13QA_FINAL_qa-task-a: 工具显示偏好不会隐藏这条最终回答。"
+      }
+    },
+    {
+      "name": "The fixture run never submitted an answer or wrote backend data",
+      "passed": true,
+      "observed": {
+        "requestCount": 22
+      }
+    }
+  ],
+  "screenshots": [
+    "/private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/01-question-collapsed.png",
+    "/private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/02-question-expanded.png",
+    "/private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/03-task-a-preferences.png",
+    "/private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/04-task-b-after-reload.png"
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/v1/messages?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/bots"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/config"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/qa-long-question"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/messages?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/bots"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/config"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/qa-long-question"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-b/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a/session?limit=10"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks/qa-task-a/session?limit=10"
+    }
+  ],
+  "profile": "/private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-question-preferences-native-qJRvFj/profile-visible-tools",
+  "electron": "45.3.3",
+  "chrome": "156.0.8078.100",
+  "rendererSha256": "f42a3be6076a12484ba9d756cbaa563807cae9b51aee35797223782c94b5dec3",
+  "finishedAt": "2026-11-18T04:13:37.237Z"
+}

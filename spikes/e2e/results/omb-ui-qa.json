@@ -1,0 +1,536 @@
+{
+  "at": "2026-11-17T07:40:48.174Z",
+  "preview": "http://127.0.0.1:60562",
+  "spaceId": 21,
+  "apiFixture": "DaemonApiLive; no external model calls",
+  "checks": [
+    {
+      "name": "composer IME/keyCode229/Shift+Enter/navigation draft/Enter",
+      "passed": true,
+      "evidence": {
+        "imePrevented": [
+          false,
+          false
+        ],
+        "sentDuringIme": 0,
+        "shiftEnterAddsNewline": true,
+        "navigationDraft": "QA_IME_中文输入\n",
+        "regularEnterMessages": 1
+      }
+    },
+    {
+      "name": "quote strip/cancel/send",
+      "passed": true,
+      "evidence": {
+        "afterCancel": {
+          "draft": "QA_QUOTE_保留草稿",
+          "quoteHidden": true
+        },
+        "sent": [
+          {
+            "id": "quote:dc25fb95-1926-43d5-9316-8f11c6b67e3b",
+            "taskId": "qa-review"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WS refresh preserves composer/question choices, free text and active tab; complete group required",
+      "passed": true,
+      "evidence": {
+        "kept": {
+          "multiDraft": "还要检查键盘操作",
+          "selected": [
+            "quiet",
+            "compose",
+            "questions"
+          ],
+          "composerDraft": "QA_REFRESH_草稿保留",
+          "activeTab": "✓ 问题 2",
+          "submitDisabled": true
+        },
+        "complete": {
+          "progress": "已回答 3 / 3",
+          "submitDisabled": false
+        }
+      }
+    },
+    {
+      "name": "historical full report remains immutable and readable",
+      "passed": true,
+      "evidence": {
+        "characters": 1910,
+        "tail": "END_OF_IMMUTABLE_REPORT",
+        "horizontalOverflow": false
+      }
+    },
+    {
+      "name": "task navigation/legal controls/sidebar search",
+      "passed": true,
+      "evidence": {
+        "controls": {
+          "failed": [
+            "重试",
+            "归档"
+          ],
+          "interrupted": [
+            "恢复",
+            "归档"
+          ],
+          "idle": [
+            "归档"
+          ],
+          "running": [
+            "取消任务"
+          ]
+        },
+        "search": [
+          "状态测试 · interrupted研究助手 · 已中断"
+        ]
+      }
+    },
+    {
+      "name": "settings validation preserves drafts and valid save reaches API",
+      "passed": true,
+      "evidence": {
+        "invalidSavedName": "本地测试实例",
+        "saved": {
+          "id": "qa-local",
+          "name": "本机界面验收实例",
+          "kind": "codex",
+          "command": "codex",
+          "args": []
+        }
+      }
+    },
+    {
+      "name": "202 accepted latch and explicit registered retry",
+      "passed": true,
+      "evidence": {
+        "initialOneTapActions": 1,
+        "ignoredDisabledPickAndSubmit": true,
+        "explicitRetryActions": 1,
+        "total": 2,
+        "answers": [
+          {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "quiet"
+                ]
+              }
+            ]
+          },
+          {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "contrast"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "open answer IME/keyCode229/Shift+Enter then Enter",
+      "passed": true,
+      "evidence": {
+        "preSubmitActions": 0,
+        "imePrevented": [
+          false,
+          false
+        ],
+        "shiftEnterAddsNewline": true,
+        "lockedAfterEnter": true
+      }
+    },
+    {
+      "name": "real wheel history navigation stays anchored on incoming messages",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "scrollTop": 5203,
+          "anchorId": "qa-queued-message",
+          "anchorTop": 303.5,
+          "distance": 715
+        },
+        "after": {
+          "scrollTop": 5203,
+          "anchorTop": 303.5,
+          "latestText": "有新消息 · 回到最新"
+        },
+        "note": "Measured after native wheel momentum settled."
+      }
+    },
+    {
+      "name": "return to latest resumes following and composer does not cover final message",
+      "passed": true,
+      "evidence": {
+        "bottomDistance": 0,
+        "lastMessageBottom": 698.5,
+        "composerTop": 775
+      }
+    },
+    {
+      "name": "initial asynchronous cards settle at bottom",
+      "passed": true,
+      "evidence": {
+        "loadedMessages": 50,
+        "bottomDistance": 0,
+        "earliestId": "qa-history-35"
+      }
+    },
+    {
+      "name": "history pagination preserves visual anchor",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "count": 50,
+          "anchorId": "qa-history-35",
+          "anchorTop": 162.5,
+          "scrollTop": 0
+        },
+        "after": {
+          "count": 84,
+          "anchorTop": 162,
+          "scrollTop": 2123,
+          "first": "qa-history-01"
+        }
+      }
+    },
+    {
+      "name": "registered/submitting/indeterminate/queued/delivered lock native controls",
+      "passed": true,
+      "evidence": [
+        {
+          "state": "registered",
+          "controls": [
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            }
+          ],
+          "retryButtons": [
+            {
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "state": "submitting",
+          "controls": [
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            }
+          ],
+          "retryButtons": []
+        },
+        {
+          "state": "indeterminate",
+          "controls": [
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            }
+          ],
+          "retryButtons": []
+        },
+        {
+          "state": "queued",
+          "controls": [
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            },
+            {
+              "disabled": true
+            }
+          ],
+          "retryButtons": []
+        },
+        {
+          "state": "delivered",
+          "controls": [],
+          "retryButtons": []
+        }
+      ]
+    },
+    {
+      "name": "final follow-state bundle: fresh 50-message page wheel then append preserves anchor and oldest boundary",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "count": 50,
+          "firstId": "qa-history-36",
+          "scrollTop": 3316,
+          "distance": 600,
+          "anchorId": "qa-delivered-message",
+          "anchorTop": 301
+        },
+        "after": {
+          "count": 51,
+          "firstId": "qa-history-36",
+          "scrollTop": 3316,
+          "anchorTop": 301,
+          "distance": 640
+        }
+      }
+    },
+    {
+      "name": "final follow-state bundle: latest action then append follows again",
+      "passed": true,
+      "evidence": {
+        "count": 52,
+        "bottomDistance": 0,
+        "composerTop": 775
+      }
+    },
+    {
+      "name": "final follow-state bundle: explicit history pagination and subsequent append preserve all loaded pages and anchor",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "count": 52,
+          "firstId": "qa-history-36",
+          "anchorTop": 162.5
+        },
+        "after": {
+          "count": 87,
+          "firstId": "qa-history-01",
+          "anchorTop": 162,
+          "scrollTop": 2175
+        },
+        "refreshed": {
+          "count": 88,
+          "firstId": "qa-history-01",
+          "anchorTop": 162,
+          "scrollTop": 2175
+        }
+      }
+    }
+  ],
+  "audit": {
+    "messageCount": 88,
+    "actions": [
+      {
+        "id": "dc25fb95-1926-43d5-9316-8f11c6b67e3b",
+        "action": {
+          "type": "quote-reply",
+          "quotedMessageId": "qa-report",
+          "text": "QA_QUOTE_保留草稿"
+        }
+      },
+      {
+        "id": "d0e29b66-c20a-4598-88f5-e8521919e983",
+        "action": {
+          "type": "question-answer",
+          "cardId": "qa-single-card",
+          "requestId": "qa-single",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "quiet"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "ea847164-ca13-4bd1-a124-7ba36431be18",
+        "action": {
+          "type": "question-answer",
+          "cardId": "qa-multi-card",
+          "requestId": "qa-multi",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "quiet"
+                ]
+              },
+              {
+                "questionId": "checks",
+                "optionIds": [
+                  "compose",
+                  "questions"
+                ],
+                "text": "还要检查键盘操作"
+              },
+              {
+                "questionId": "notes",
+                "optionIds": [],
+                "text": "QA_MULTI_保留每道题的回答"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "0c2e9bab-47bd-475a-89c0-bf32efc8edcf",
+        "action": {
+          "type": "task-control",
+          "taskId": "qa-failed",
+          "action": "retry"
+        }
+      },
+      {
+        "id": "f67dab77-3669-438c-8d8c-0b7eaadc8bc7",
+        "action": {
+          "type": "task-control",
+          "taskId": "qa-interrupted",
+          "action": "resume"
+        }
+      },
+      {
+        "id": "f60535a4-91d5-4cdf-9507-5898e0385720",
+        "action": {
+          "type": "task-control",
+          "taskId": "qa-idle",
+          "action": "archive"
+        }
+      },
+      {
+        "id": "3b67aff2-5f12-442b-a765-94036927a038",
+        "action": {
+          "type": "task-control",
+          "taskId": "qa-running",
+          "action": "cancel"
+        }
+      },
+      {
+        "id": "22a71b99-5b2e-4a26-918f-cb7bb6912001",
+        "action": {
+          "type": "question-answer",
+          "cardId": "qa-latch-card",
+          "requestId": "qa-latch",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "quiet"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "95b17fc3-827f-4e79-b564-79947f4d5dad",
+        "action": {
+          "type": "question-answer",
+          "cardId": "qa-latch-card",
+          "requestId": "qa-latch",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "color",
+                "optionIds": [
+                  "contrast"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "e7d22edf-029d-46ad-b06b-a92c978cdce7",
+        "action": {
+          "type": "question-answer",
+          "cardId": "qa-open-card",
+          "requestId": "qa-open",
+          "answer": {
+            "perQuestion": [
+              {
+                "questionId": "notes",
+                "optionIds": [],
+                "text": "QA_OPEN_中文补充"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "userMessages": [
+      {
+        "id": "71aed4e9-f821-4e15-819e-0b1478719ef4",
+        "at": 1794901318655,
+        "author": "user",
+        "kind": "text",
+        "text": "QA_ENTER_只发送一次"
+      },
+      {
+        "id": "quote:dc25fb95-1926-43d5-9316-8f11c6b67e3b",
+        "at": 1794901395298,
+        "author": "user",
+        "kind": "text",
+        "text": "QA_QUOTE_保留草稿",
+        "taskId": "qa-review"
+      }
+    ]
+  },
+  "scope": "Synthetic API fixture using real DaemonApiLive and production renderer. No model requests, no user data writes; 202 is persisted receipt, not native harness delivery.",
+  "remaining": [],
+  "auditAssertions": {
+    "questionAnswerCounts": {
+      "qa-single": 1,
+      "qa-multi": 1,
+      "qa-open": 1,
+      "qa-latch": 2
+    },
+    "taskControls": [
+      "qa-failed:retry",
+      "qa-interrupted:resume",
+      "qa-idle:archive",
+      "qa-running:cancel"
+    ],
+    "regularEnterMessages": 1,
+    "protectedStateAnswerActions": 0
+  },
+  "issues": [
+    {
+      "id": "refresh-pagination-prepend",
+      "status": "fixed-and-verified",
+      "description": "On a fresh 50-message view, append refresh pulls older pages including messages preceding the current oldest; unchanged scrollTop no longer preserves the visual anchor.",
+      "before": {
+        "count": 50,
+        "scrollTop": 3239,
+        "anchorId": "qa-queued-message",
+        "anchorTop": 108.5
+      },
+      "after": {
+        "count": 85,
+        "scrollTop": 3239,
+        "anchorTop": 2267.5,
+        "firstId": "qa-history-01"
+      }
+    }
+  ],
+  "completedAt": "2026-11-17T08:10:52.263Z"
+}

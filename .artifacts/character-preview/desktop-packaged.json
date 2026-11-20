@@ -1,0 +1,50 @@
+{
+  "at": "2026-11-19T12:56:31.576Z",
+  "architecture": "arm64",
+  "appPath": "/Users/liying/mine/aut/.artifacts/character-preview/package/aut-darwin-arm64/aut.app",
+  "isolatedDataAndProfile": true,
+  "modelSource": "Reused model from successful live acceptance; no discovery or model task was launched",
+  "renderer": {
+    "title": "aut · 主会话",
+    "connected": true,
+    "bridge": true
+  },
+  "appearance": {
+    "styles": [
+      "style.css"
+    ],
+    "fonts": [
+      true,
+      true
+    ]
+  },
+  "overlays": {
+    "viewportCollision": true,
+    "restoredFocus": true,
+    "styleViolations": []
+  },
+  "primaryCard": [
+    {
+      "name": "aut",
+      "role": "主助手"
+    }
+  ],
+  "secretControls": {
+    "password": true,
+    "save": true
+  },
+  "secretSavedThroughPackagedIpc": true,
+  "chiefFallbackCard": "暂时无法判断，请选择如何处理。",
+  "bundledMcpStdio": true,
+  "windowClosed": true,
+  "daemonHealthyAfterWindowClose": true,
+  "daemonPid": 44976,
+  "uiPid": 44928,
+  "creationUndo": {
+    "botId": "packaged-observations",
+    "status": "undone"
+  },
+  "botEditSaved": true,
+  "settingsSaved": true,
+  "ownedDaemonStoppedAfterSmoke": true
+}

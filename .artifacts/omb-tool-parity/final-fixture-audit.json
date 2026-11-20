@@ -1,0 +1,13 @@
+{
+  "reads": 4,
+  "startAttempts": 0,
+  "updates": 1,
+  "available": true,
+  "readHeld": false,
+  "messageCount": 2,
+  "turnCount": 12,
+  "parityTurnCount": 1,
+  "parityItemCount": 13,
+  "liveItemCount": 1,
+  "userActions": []
+}

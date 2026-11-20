@@ -1,0 +1,15 @@
+{
+  "cliVersion": "codex-cli 0.167.0",
+  "outcome": "bootstrap-unavailable",
+  "stage": "configure",
+  "observed": {
+    "generalBotPresent": false,
+    "configuredHarnessCount": 0,
+    "botsFileCreated": false,
+    "apiAvailable": true,
+    "modelTurnsStarted": 0,
+    "temporaryDataDirectory": true
+  },
+  "cause": "Not yet directly observed. Native model discovery did not populate default roles; host load and its bounded timeout are possible causes, not confirmed diagnoses.",
+  "retryPolicy": "Retry the unchanged production startup or explicit configuration-save recovery path; do not insert placeholder models or system bots."
+}

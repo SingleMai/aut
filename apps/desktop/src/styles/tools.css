@@ -1,0 +1,214 @@
+/* Adapted from OpenMausBot src/components/{ToolActivity,ActivityRun,TurnNarrationRun,WorkingIndicator}.tsx
+ * at 738ec88472a3b888ff7b7793755d89da613ed301. Copyright 2026 Milind Soni and contributors.
+ * Apache-2.0. See NOTICE. */
+.session-tool-row {
+  display: contents;
+}
+.tool-activity {
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  color: var(--secondary);
+  font-size: var(--text-label);
+  line-height: 20px;
+}
+.tool-activity[open] {
+  width: min(608px, 100%);
+}
+.tool-summary,
+.tool-run-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  text-align: start;
+}
+.tool-summary {
+  list-style: none;
+}
+.tool-summary::-webkit-details-marker {
+  display: none;
+}
+.tool-summary:hover,
+.tool-run-toggle:hover {
+  background: var(--raised);
+}
+.tool-activity[data-failed] :is(.tool-summary, .tool-status) {
+  color: var(--danger);
+}
+.tool-state-icon {
+  display: inline-flex;
+}
+.tool-summary svg,
+.tool-run-toggle svg,
+.tool-state-icon {
+  flex-shrink: 0;
+}
+.tool-place {
+  opacity: 0.75;
+}
+.tool-success {
+  color: var(--success);
+}
+.tool-label,
+.tool-name,
+.tool-problem,
+.tool-run-label {
+  min-width: 0;
+  max-width: 480px;
+  font-weight: 550;
+}
+.tool-problem {
+  overflow-wrap: anywhere;
+}
+.tool-label,
+.tool-command,
+.tool-name,
+.tool-run-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.tool-command {
+  flex: 1;
+  min-width: 0;
+}
+.tool-name,
+.tool-command,
+.tool-identifier,
+.tool-input,
+.tool-output {
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+.tool-summary .tool-chevron {
+  margin-inline-start: auto;
+}
+.tool-activity[open] > :where(.tool-summary) .tool-chevron,
+.tool-run-toggle[aria-expanded="true"] .tool-chevron {
+  transform: rotate(90deg);
+}
+.tool-details {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px;
+  border-top: 1px solid var(--edge);
+}
+.tool-details > * {
+  min-width: 0;
+}
+.tool-field-label,
+.tool-status,
+.tool-hint {
+  font-size: var(--text-caption);
+  line-height: 16px;
+}
+.tool-status,
+.tool-field-label {
+  font-weight: 550;
+}
+.tool-field-label {
+  margin-bottom: 4px;
+}
+.tool-identifier,
+.tool-empty,
+.tool-input,
+.tool-output {
+  font-size: var(--text-small);
+  line-height: 18px;
+}
+.tool-identifier {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.tool-input,
+.tool-output {
+  margin: 0;
+  overflow: auto;
+  padding: 10px;
+  border-radius: var(--radius-control);
+  background: var(--canvas);
+  color: var(--ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.tool-input {
+  max-height: 208px;
+}
+.tool-output {
+  max-height: 256px;
+}
+.tool-run {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.narrated-run {
+  gap: 8px;
+}
+.tool-run-heading {
+  display: flex;
+  min-width: 0;
+}
+.tool-run-toggle {
+  max-width: 100%;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--secondary);
+  font-size: var(--text-label);
+  line-height: 20px;
+}
+:where(.narrated-run) .tool-run-toggle > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.narrated-run .tool-run-toggle {
+  min-height: 28px;
+  padding-block: 2px;
+}
+.working-dots {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 4px;
+  color: var(--accent);
+}
+.working-dots > span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.tool-state-icon .working-dots > span {
+  width: 3.5px;
+  height: 3.5px;
+}
+.working-timer {
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :where(.working-dots) > span {
+    animation: working-pulse 1.6s steps(2, jump-none) infinite;
+  }
+  .working-dots > :nth-child(2) {
+    animation-delay: 200ms;
+  }
+  .working-dots > :nth-child(3) {
+    animation-delay: 400ms;
+  }
+}
+@keyframes working-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}

@@ -1,0 +1,147 @@
+/* Adapted from OpenMausBot src/styles.css and desktop components at
+ * 738ec88472a3b888ff7b7793755d89da613ed301. Copyright 2026 Milind Soni
+ * and contributors. Apache-2.0. See NOTICE. */
+* {
+  box-sizing: border-box;
+}
+:root {
+  overflow: hidden;
+  color: var(--ink);
+  background: var(--canvas);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-synthesis: none;
+}
+:where(:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--selection);
+  color: var(--ink);
+}
+body {
+  margin: 0;
+}
+:where(button, input, textarea, select) {
+  font: inherit;
+}
+:where(button:not(.rt-reset)) {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+:where(button:disabled:not(.rt-reset)) {
+  opacity: 0.45;
+  cursor: default;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+}
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+h3 {
+  font-size: var(--text-message);
+  font-weight: 600;
+}
+.ui-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.muted {
+  color: var(--secondary);
+  font-size: var(--text-small);
+  line-height: 1.75;
+}
+.detail-card,
+.bot-card,
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  padding: 24px;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 15px;
+}
+.task-stats,
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 620px;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow-floating);
+  border-radius: var(--radius-control);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  font-size: var(--text-small);
+  z-index: 1000;
+}
+.empty-panel {
+  padding: 35px;
+  color: var(--secondary);
+  font-size: var(--text-label);
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+  }
+}
+
+[data-status="running"],
+[data-status="reporting"] {
+  --status-color: var(--accent);
+}
+[data-status="waiting_user"] {
+  --status-color: var(--warning);
+}
+[data-status="failed"],
+[data-status="interrupted"] {
+  --status-color: var(--danger);
+}
+[data-status="idle"] {
+  --status-color: var(--success);
+}
+.task-status[data-status] {
+  color: var(--status-color, var(--secondary));
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+/* Display rules on controls and panels must respect the native hidden state. */
+:root [hidden]:not([hidden="until-found"]) {
+  display: none;
+}

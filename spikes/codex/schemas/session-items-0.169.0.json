@@ -1,0 +1,640 @@
+{
+  "cliVersion": "codex-cli 0.169.0",
+  "source": "codex app-server generate-json-schema --experimental --out <temporary directory>",
+  "sourceFile": "codex_app_server_protocol.v2.schemas.json",
+  "evidence": "Generated protocol definitions only; these variants were not invoked by an online/model probe.",
+  "ThreadItemVariants": [
+    {
+      "properties": {
+        "content": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "summary": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "reasoning"
+          ],
+          "title": "ReasoningThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "ReasoningThreadItem",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "arguments": true,
+        "contentItems": {
+          "items": {
+            "$ref": "#/definitions/DynamicToolCallOutputContentItem"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "durationMs": {
+          "description": "The duration of the dynamic tool call in milliseconds.",
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/DynamicToolCallStatus"
+        },
+        "success": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "tool": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "dynamicToolCall"
+          ],
+          "title": "DynamicToolCallThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arguments",
+        "id",
+        "status",
+        "tool",
+        "type"
+      ],
+      "title": "DynamicToolCallThreadItem",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "agentsStates": {
+          "additionalProperties": {
+            "$ref": "#/definitions/CollabAgentState"
+          },
+          "description": "Last known status of the target agents, when available.",
+          "type": "object"
+        },
+        "id": {
+          "description": "Unique identifier for this collab tool call.",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model requested for the spawned agent, when applicable.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prompt": {
+          "description": "Prompt text sent as part of the collab tool call, when available.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reasoningEffort": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReasoningEffort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Reasoning effort requested for the spawned agent, when applicable."
+        },
+        "receiverThreadIds": {
+          "description": "Thread ID of the receiving agent, when applicable. In case of spawn operation, this corresponds to the newly spawned agent.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "senderThreadId": {
+          "description": "Thread ID of the agent issuing the collab request.",
+          "type": "string"
+        },
+        "status": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/CollabAgentToolCallStatus"
+            }
+          ],
+          "description": "Current status of the collab tool call."
+        },
+        "tool": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/CollabAgentTool"
+            }
+          ],
+          "description": "Name of the collab tool that was invoked."
+        },
+        "type": {
+          "enum": [
+            "collabAgentToolCall"
+          ],
+          "title": "CollabAgentToolCallThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agentsStates",
+        "id",
+        "receiverThreadIds",
+        "senderThreadId",
+        "status",
+        "tool",
+        "type"
+      ],
+      "title": "CollabAgentToolCallThreadItem",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "action": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/WebSearchAction"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "results": {
+          "default": null,
+          "description": "Structured search results returned out-of-band by standalone web search.\n\nThese stay as opaque JSON at the extension/app-server boundary so new result fields and result types can pass through without a Codex release.",
+          "items": true,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "type": {
+          "enum": [
+            "webSearch"
+          ],
+          "title": "WebSearchThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "query",
+        "type"
+      ],
+      "title": "WebSearchThreadItem",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "$ref": "#/definitions/LegacyAppPathString"
+        },
+        "type": {
+          "enum": [
+            "imageView"
+          ],
+          "title": "ImageViewThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "path",
+        "type"
+      ],
+      "title": "ImageViewThreadItem",
+      "type": "object"
+    },
+    {
+      "anyOf": [
+        {
+          "properties": {
+            "fileId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "fileId"
+          ],
+          "title": "FileIdThreadItem",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "result": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "result"
+          ],
+          "title": "ResultThreadItem",
+          "type": "object"
+        }
+      ],
+      "description": "Either inline generated-image data or its durable attachment-store identity.\n\n`File` must remain first so rollouts written during the migration, which contain both an empty `result` and a `fileId`, retain the file reference when deserialized.",
+      "properties": {
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ImageGenerationFailure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "generationId": {
+          "default": null,
+          "description": "Image generation identifier for the generated image, when provided by the image backend.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "inputImages": {
+          "description": "Observed local inputs for a completed generation, absent on older items.",
+          "items": {
+            "$ref": "#/definitions/ImageGenerationInputImage"
+          },
+          "type": "array"
+        },
+        "revisedPrompt": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "savedPath": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AbsolutePathBuf"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "transparentBackground": {
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "type": {
+          "enum": [
+            "imageGeneration"
+          ],
+          "title": "ImageGenerationThreadItemType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "type"
+      ],
+      "title": "ImageGenerationThreadItem",
+      "type": "object"
+    }
+  ],
+  "definitions": {
+    "CollabAgentState": {
+      "properties": {
+        "message": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/CollabAgentStatus"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "ImageGenerationFailure": {
+      "oneOf": [
+        {
+          "properties": {
+            "limitId": {
+              "type": "string"
+            },
+            "resetsAt": {
+              "format": "int64",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "type": {
+              "enum": [
+                "usageLimitExceeded"
+              ],
+              "title": "UsageLimitExceededImageGenerationFailureType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "limitId",
+            "type"
+          ],
+          "title": "UsageLimitExceededImageGenerationFailure",
+          "type": "object"
+        }
+      ]
+    },
+    "DynamicToolCallStatus": {
+      "enum": [
+        "inProgress",
+        "completed",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "LegacyAppPathString": {
+      "type": "string"
+    },
+    "DynamicToolCallOutputContentItem": {
+      "oneOf": [
+        {
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputText"
+              ],
+              "title": "InputTextDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "text",
+            "type"
+          ],
+          "title": "InputTextDynamicToolCallOutputContentItem",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "imageUrl": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputImage"
+              ],
+              "title": "InputImageDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "imageUrl",
+            "type"
+          ],
+          "title": "InputImageDynamicToolCallOutputContentItem",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "audioUrl": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "inputAudio"
+              ],
+              "title": "InputAudioDynamicToolCallOutputContentItemType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "audioUrl",
+            "type"
+          ],
+          "title": "InputAudioDynamicToolCallOutputContentItem",
+          "type": "object"
+        }
+      ]
+    },
+    "ImageGenerationInputImage": {
+      "description": "A local image file successfully read for this exact image-generation request.",
+      "properties": {
+        "path": {
+          "$ref": "#/definitions/AbsolutePathBuf"
+        },
+        "sha256": {
+          "description": "Lowercase SHA-256 of the file bytes read before image normalization.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "AbsolutePathBuf": {
+      "description": "A path that is guaranteed to be absolute and normalized (though it is not guaranteed to be canonicalized or exist on the filesystem).\n\nIMPORTANT: When deserializing an `AbsolutePathBuf`, a base path must be set using [AbsolutePathBufGuard::new]. If no base path is set, the deserialization will fail unless the path being deserialized is already absolute.",
+      "type": "string"
+    },
+    "ReasoningEffort": {
+      "description": "A non-empty reasoning effort value advertised by the model.",
+      "minLength": 1,
+      "type": "string"
+    },
+    "CollabAgentStatus": {
+      "enum": [
+        "pendingInit",
+        "running",
+        "interrupted",
+        "completed",
+        "errored",
+        "shutdown",
+        "notFound"
+      ],
+      "type": "string"
+    },
+    "CollabAgentToolCallStatus": {
+      "enum": [
+        "inProgress",
+        "completed",
+        "failed",
+        "interrupted"
+      ],
+      "type": "string"
+    },
+    "CollabAgentTool": {
+      "enum": [
+        "spawnAgent",
+        "sendInput",
+        "resumeAgent",
+        "wait",
+        "closeAgent",
+        "sendMessage",
+        "followupTask",
+        "interruptAgent",
+        "listAgents"
+      ],
+      "type": "string"
+    },
+    "WebSearchAction": {
+      "oneOf": [
+        {
+          "properties": {
+            "queries": {
+              "items": {
+                "type": "string"
+              },
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "query": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "enum": [
+                "search"
+              ],
+              "title": "SearchWebSearchActionType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "SearchWebSearchAction",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "openPage"
+              ],
+              "title": "OpenPageWebSearchActionType",
+              "type": "string"
+            },
+            "url": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "OpenPageWebSearchAction",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "pattern": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "type": {
+              "enum": [
+                "findInPage"
+              ],
+              "title": "FindInPageWebSearchActionType",
+              "type": "string"
+            },
+            "url": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "FindInPageWebSearchAction",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "other"
+              ],
+              "title": "OtherWebSearchActionType",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "title": "OtherWebSearchAction",
+          "type": "object"
+        }
+      ]
+    }
+  }
+}

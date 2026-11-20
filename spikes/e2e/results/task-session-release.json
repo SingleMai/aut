@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-17T17:05:44.546322+00:00",
+  "archive": "/Users/liying/mine/aut/deliverables/aut-macos-arm64-session.zip",
+  "bytes": 121347996,
+  "sha256": "1a594075671b4d32f52b3f2db9f90d7364eff2f483311792798ea3a4952437cf",
+  "files": 1491,
+  "symlinks": 14,
+  "integrityPassed": true,
+  "nativeAppMatchesArchive": true,
+  "appAsarSha256": "e80e74cf17558322fff111edbddba3819d18b00114dd2e336ea63371a8fc8f7d",
+  "daemonSha256": "e6d381e69d45ae5144ef7b83c5b9fde8df9f1a498aacacb7c9a9ef8fe7e3c520",
+  "noUserDataOrCredentials": true,
+  "signedAndNotarized": false
+}

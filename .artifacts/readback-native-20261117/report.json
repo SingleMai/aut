@@ -1,0 +1,153 @@
+{
+  "ok": true,
+  "scope": "Real Electron renderer + preload, synthetic IPC; private temporary profile; no daemon/harness or user records.",
+  "checks": [
+    {
+      "name": "load: grouped answers open only as a read-only disclosure",
+      "pass": true
+    },
+    {
+      "name": "load: selected labels, free-text and questions present",
+      "pass": true
+    },
+    {
+      "name": "load: delivered read-only; free text literal",
+      "pass": true
+    },
+    {
+      "name": "load: no answer echoed for submitting",
+      "pass": true
+    },
+    {
+      "name": "load: no answer echoed for queued",
+      "pass": true
+    },
+    {
+      "name": "load: queued state distinguished",
+      "pass": true
+    },
+    {
+      "name": "load: no answer controls for queued",
+      "pass": true
+    },
+    {
+      "name": "load: no answer echoed for missing",
+      "pass": true
+    },
+    {
+      "name": "load: no answer controls for missing",
+      "pass": true
+    },
+    {
+      "name": "reload: grouped answers open only as a read-only disclosure",
+      "pass": true
+    },
+    {
+      "name": "reload: selected labels, free-text and questions present",
+      "pass": true
+    },
+    {
+      "name": "reload: delivered read-only; free text literal",
+      "pass": true
+    },
+    {
+      "name": "reload: no answer echoed for submitting",
+      "pass": true
+    },
+    {
+      "name": "reload: no answer echoed for queued",
+      "pass": true
+    },
+    {
+      "name": "reload: queued state distinguished",
+      "pass": true
+    },
+    {
+      "name": "reload: no answer controls for queued",
+      "pass": true
+    },
+    {
+      "name": "reload: no answer echoed for missing",
+      "pass": true
+    },
+    {
+      "name": "reload: no answer controls for missing",
+      "pass": true
+    },
+    {
+      "name": "No mutation requests, including reload",
+      "pass": true
+    },
+    {
+      "name": "Single request fetched after reload",
+      "pass": true
+    }
+  ],
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/v1/messages?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/bots"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/config"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-submitting"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-queued"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-missing"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-delivered"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/messages?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tasks?limit=50"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/bots"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/config"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-submitting"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-queued"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-missing"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/requests/request-delivered"
+    }
+  ],
+  "uiSha256": "b9d8e61d3a7e1f01dbe76ee4867edd8441dc968d2067640c2be523db11ad2228"
+}

@@ -1,0 +1,24 @@
+{
+  "at": "2026-11-18T05:05:17.994Z",
+  "architecture": "arm64",
+  "appPath": "/Users/liying/mine/aut/.artifacts/readback-package/aut-darwin-arm64/aut.app",
+  "isolatedDataAndProfile": true,
+  "modelSource": "Reused model from successful live acceptance; no discovery or model task was launched",
+  "renderer": {
+    "title": "aut · 主会话",
+    "connected": true,
+    "bridge": true
+  },
+  "secretControls": {
+    "password": true,
+    "save": true
+  },
+  "secretSavedThroughPackagedIpc": true,
+  "chiefFallbackCard": "暂时无法判断，请选择如何处理。",
+  "bundledMcpStdio": true,
+  "windowClosed": true,
+  "daemonHealthyAfterWindowClose": true,
+  "daemonPid": 45528,
+  "uiPid": 45503,
+  "ownedDaemonStoppedAfterSmoke": true
+}

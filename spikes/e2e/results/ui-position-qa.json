@@ -1,0 +1,484 @@
+{
+  "startedAt": "2026-11-17T12:33:27.578Z",
+  "spaceId": 24,
+  "preview": "http://127.0.0.1:57393",
+  "fixture": "aut-chat-ui-qa-4UEls7",
+  "checks": [
+    {
+      "name": "single one-tap focus returns to composer and accepted controls stay locked",
+      "passed": true,
+      "evidence": {
+        "focusedComposer": true,
+        "disabled": true,
+        "selected": "quiet",
+        "status": "答案已提交，正在等待原会话确认。"
+      }
+    },
+    {
+      "name": "one ellipsis beside bubble; user left, bot right; menu stays within viewport",
+      "passed": true,
+      "evidence": {
+        "messages": [
+          {
+            "id": "qa-user-intent",
+            "body": {
+              "x": 802,
+              "y": 257.5,
+              "width": 560,
+              "height": 58,
+              "right": 1362,
+              "bottom": 315.5
+            },
+            "trigger": {
+              "x": 766,
+              "y": 285.5,
+              "width": 28,
+              "height": 28,
+              "right": 794,
+              "bottom": 313.5
+            },
+            "author": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "right": 0,
+              "bottom": 0
+            },
+            "triggers": 1,
+            "menuItems": [
+              "引用回复",
+              "复制消息",
+              "查看来源任务"
+            ]
+          },
+          {
+            "id": "qa-report",
+            "body": {
+              "x": 410,
+              "y": 382.5,
+              "width": 560,
+              "height": 58,
+              "right": 970,
+              "bottom": 440.5
+            },
+            "trigger": {
+              "x": 978,
+              "y": 410.5,
+              "width": 28,
+              "height": 28,
+              "right": 1006,
+              "bottom": 438.5
+            },
+            "author": {
+              "x": 410,
+              "y": 359.5,
+              "width": 68,
+              "height": 18,
+              "right": 478,
+              "bottom": 377.5
+            },
+            "triggers": 1,
+            "menuItems": [
+              "引用回复",
+              "复制消息",
+              "查看来源任务"
+            ]
+          }
+        ],
+        "menu": {
+          "x": 978,
+          "y": 444.5,
+          "width": 180,
+          "height": 120.5,
+          "right": 1158,
+          "bottom": 565
+        },
+        "viewport": {
+          "width": 1492,
+          "height": 853
+        },
+        "active": "引用回复"
+      }
+    },
+    {
+      "name": "message menu survives WS append and supports Arrow/Home/End/Esc/outside dismissal",
+      "passed": true,
+      "evidence": {
+        "wsOpen": true,
+        "sequence": [
+          {
+            "key": "ArrowDown",
+            "focus": "复制消息"
+          },
+          {
+            "key": "End",
+            "focus": "查看来源任务"
+          },
+          {
+            "key": "ArrowDown",
+            "focus": "引用回复"
+          },
+          {
+            "key": "ArrowUp",
+            "focus": "查看来源任务"
+          },
+          {
+            "key": "Home",
+            "focus": "引用回复"
+          }
+        ],
+        "escaped": {
+          "open": false,
+          "focus": "icon-button message-more"
+        },
+        "outsideClosed": true
+      }
+    },
+    {
+      "name": "direct full-report text entry opens immutable source",
+      "passed": true,
+      "evidence": {
+        "tail": true,
+        "noNewerReport": true,
+        "overflow": false
+      }
+    },
+    {
+      "name": "menu quote keeps draft and focuses composer; clipboard action succeeds",
+      "passed": true,
+      "evidence": {
+        "quoteText": "qa-report",
+        "draft": "UI_POSITION_引用草稿",
+        "copyToast": "已复制"
+      }
+    },
+    {
+      "name": "source task opens one detail without duplicate task list",
+      "passed": true,
+      "evidence": {
+        "taskId": "qa-review",
+        "observed": "detail with back link, no second list"
+      }
+    },
+    {
+      "name": "question tabs roving keyboard focus and multiline text grows",
+      "passed": true,
+      "evidence": {
+        "tabs": [
+          {
+            "active": "问题 2",
+            "tabStops": 1
+          },
+          {
+            "active": "问题 3",
+            "tabStops": 1
+          },
+          {
+            "active": "问题 1",
+            "tabStops": 1
+          },
+          {
+            "active": "问题 3",
+            "tabStops": 1
+          }
+        ],
+        "h0": 32,
+        "h1": 92,
+        "lastEnter": {
+          "focus": "提交整组答案",
+          "disabled": false,
+          "progress": "已回答 3 / 3"
+        }
+      }
+    },
+    {
+      "name": "last multi free answer Enter completes the item without POST",
+      "passed": true,
+      "evidence": {
+        "questionAnswerCount": 0
+      }
+    },
+    {
+      "name": "text-only question has one SVG send button and no duplicate footer, accepted focus returns",
+      "passed": true,
+      "evidence": {
+        "visibleButtons": [
+          {
+            "label": "提交文字答案",
+            "svg": true,
+            "text": ""
+          }
+        ],
+        "footerVisible": false
+      }
+    },
+    {
+      "name": "question API receipts: single, whole-group footer, free text each exactly once",
+      "passed": true,
+      "evidence": {
+        "counts": {
+          "qa-latch": 1,
+          "qa-multi": 1,
+          "qa-open": 1
+        },
+        "actions": [
+          {
+            "type": "question-answer",
+            "cardId": "qa-latch-card",
+            "requestId": "qa-latch",
+            "answer": {
+              "perQuestion": [
+                {
+                  "questionId": "color",
+                  "optionIds": [
+                    "quiet"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "question-answer",
+            "cardId": "qa-multi-card",
+            "requestId": "qa-multi",
+            "answer": {
+              "perQuestion": [
+                {
+                  "questionId": "color",
+                  "optionIds": [
+                    "quiet"
+                  ]
+                },
+                {
+                  "questionId": "checks",
+                  "optionIds": [
+                    "compose",
+                    "questions"
+                  ],
+                  "text": "额外检查布局"
+                },
+                {
+                  "questionId": "notes",
+                  "optionIds": [],
+                  "text": "第一行检查\n第二行检查\n第三行检查\n第四行检查"
+                }
+              ]
+            }
+          },
+          {
+            "type": "question-answer",
+            "cardId": "qa-open-card",
+            "requestId": "qa-open",
+            "answer": {
+              "perQuestion": [
+                {
+                  "questionId": "notes",
+                  "optionIds": [],
+                  "text": "开放题测试\n第二行"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "short viewport long bot dialog retains fixed close and save actions",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "buttons": [
+            {
+              "text": "关闭",
+              "top": 54,
+              "bottom": 84
+            },
+            {
+              "text": "取消",
+              "top": 516.5,
+              "bottom": 553
+            },
+            {
+              "text": "保存",
+              "top": 516.5,
+              "bottom": 553
+            }
+          ],
+          "scrolls": [
+            {
+              "class": "form-body",
+              "height": 392,
+              "extent": 403
+            }
+          ]
+        },
+        "after": [
+          {
+            "text": "关闭",
+            "top": 54,
+            "bottom": 84
+          },
+          {
+            "text": "取消",
+            "top": 516.5,
+            "bottom": 553
+          },
+          {
+            "text": "保存",
+            "top": 516.5,
+            "bottom": 553
+          }
+        ]
+      }
+    },
+    {
+      "name": "multi continuation footer stays disabled until current question is complete then advances; final Enter only focuses submit",
+      "passed": true,
+      "evidence": {
+        "incomplete": {
+          "label": "继续回答",
+          "disabled": true
+        },
+        "continued": {
+          "tab": "问题 3",
+          "label": "继续回答"
+        },
+        "complete": {
+          "label": "提交整组答案",
+          "disabled": false,
+          "focus": "提交整组答案"
+        }
+      }
+    },
+    {
+      "name": "settings save remains visible in short viewport and succeeds",
+      "passed": true,
+      "evidence": {
+        "top": {
+          "top": 547.5,
+          "bottom": 584,
+          "viewport": 600
+        },
+        "bottom": {
+          "top": 519.6875,
+          "bottom": 556.1875,
+          "viewport": 600
+        },
+        "savedToastObserved": true
+      }
+    },
+    {
+      "name": "protected answer states disable options and remove pointer cursor",
+      "passed": true,
+      "evidence": [
+        {
+          "state": "registered",
+          "locked": true,
+          "cursors": [
+            "default",
+            "default"
+          ],
+          "visibleRetry": true
+        },
+        {
+          "state": "submitting",
+          "locked": true,
+          "cursors": [
+            "default",
+            "default"
+          ],
+          "visibleRetry": false
+        },
+        {
+          "state": "indeterminate",
+          "locked": true,
+          "cursors": [
+            "default",
+            "default"
+          ],
+          "visibleRetry": false
+        },
+        {
+          "state": "queued",
+          "locked": true,
+          "cursors": [
+            "default",
+            "default"
+          ],
+          "visibleRetry": false
+        }
+      ]
+    },
+    {
+      "name": "latest multi footer continuation: last Enter adds zero POST; final footer adds exactly one",
+      "passed": true,
+      "evidence": {
+        "baselineFromPriorScenario": 1,
+        "afterLastEnter": 1,
+        "afterFooter": 2
+      }
+    },
+    {
+      "name": "menu closes when scroll/viewport moves anchor",
+      "passed": true,
+      "evidence": {
+        "scrollClosed": true,
+        "resizeClosed": true
+      }
+    },
+    {
+      "name": "real wheel history append preserves oldest boundary, anchor and draft; latest button resumes following",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "top": 4059.5,
+          "first": "qa-history-30",
+          "count": 50,
+          "anchor": "qa-open-message",
+          "anchorTop": 98
+        },
+        "after": {
+          "top": 4059.5,
+          "first": "qa-history-30",
+          "count": 51,
+          "anchorTop": 98,
+          "draft": "UI_POSITION_跨视图保留草稿",
+          "jump": {
+            "width": 36,
+            "height": 36,
+            "center": 886,
+            "feedCenter": 886,
+            "text": "有新消息 · 回到最新"
+          }
+        },
+        "latestBottomDistance": 0
+      }
+    },
+    {
+      "name": "explicit older pagination keeps original visual anchor",
+      "passed": true,
+      "evidence": {
+        "before": {
+          "id": "qa-history-30",
+          "top": 162.5,
+          "count": 52
+        },
+        "after": {
+          "count": 81,
+          "top": 163,
+          "first": "qa-history-01"
+        }
+      }
+    }
+  ],
+  "issues": [],
+  "completedAt": "2026-11-17T12:49:36.006Z",
+  "scope": "Real DaemonApiLive and production renderer with synthetic temp data; no model calls, no ~/.aut writes. Menu clipboard action used synthetic report text. Multi fixture was exercised once before and once after the continuation footer change, so final total 2 is two explicit QA scenarios.",
+  "remaining": [],
+  "screenshots": [
+    "ui-position-qa-overview.png",
+    "ui-position-qa-chat.png",
+    "ui-position-qa-question.png"
+  ]
+}

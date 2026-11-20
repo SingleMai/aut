@@ -1,0 +1,20 @@
+{
+  "archive": "aut-macos-arm64-mvp.zip",
+  "architecture": "arm64",
+  "inboundVersion": "1.1.2",
+  "bytes": 121145847,
+  "sha256": "c917c07a927db69c7722ac0dff5b83aa56d4ed07f8ead3ce907a4b3726efcf24",
+  "matchingPackagedFiles": [
+    "app.asar",
+    "daemon/main.mjs",
+    "daemon/stdio.js",
+    "NOTICE",
+    "LICENSE",
+    "renderer-LICENSES.txt"
+  ],
+  "zipIntegrity": true,
+  "privateConfigExcluded": true,
+  "check": "AUT_RUN_JEV_SMOKE=1 pnpm check",
+  "passedTests": 1140,
+  "testFiles": 69
+}

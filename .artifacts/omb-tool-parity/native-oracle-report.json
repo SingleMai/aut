@@ -1,0 +1,18 @@
+{
+  "dom": {
+    "equal": true,
+    "upstreamElements": 24,
+    "copiedElements": 24,
+    "differences": []
+  },
+  "groupingEqual": true,
+  "completed": {
+    "dom": {
+      "equal": true,
+      "upstreamElements": 20,
+      "copiedElements": 20,
+      "differences": []
+    },
+    "groupingEqual": true
+  }
+}

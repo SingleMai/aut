@@ -1,0 +1,10 @@
+packages:
+  - packages/*
+  - apps/*
+
+catalog:
+  effect: 3.22.4
+
+onlyBuiltDependencies:
+  - electron
+  - esbuild

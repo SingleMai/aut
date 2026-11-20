@@ -1,0 +1,116 @@
+import { Schema } from "effect";
+import { BotId, MessageId, NonEmptyString, PositiveInteger, Probability } from "./common.js";
+import { AutConfig, BotConfig, BotsConfig } from "./config.js";
+import { AutEvent, MainThreadMessage, QuestionAnswer, SessionRequest, Task } from "./domain.js";
+import { SessionHistory } from "./session-history.js";
+
+export const SendMessageInput = Schema.Struct({
+  text: NonEmptyString,
+  id: Schema.optional(MessageId),
+});
+export type SendMessageInput = typeof SendMessageInput.Type;
+export const MessagePageInput = Schema.Struct({
+  before: Schema.optional(MessageId),
+  limit: Schema.optional(PositiveInteger.pipe(Schema.lessThanOrEqualTo(50))),
+});
+export type MessagePageInput = typeof MessagePageInput.Type;
+export const MessagePageResponse = Schema.Struct({ messages: Schema.Array(MainThreadMessage) });
+export const MessageResponse = Schema.Struct({ message: MainThreadMessage });
+export const TaskListResponse = Schema.Struct({ tasks: Schema.Array(Task) });
+export const TaskResponse = Schema.Struct({ task: Task });
+export const TaskSessionInput = Schema.Struct({
+  before: Schema.optional(NonEmptyString),
+  limit: Schema.optional(PositiveInteger.pipe(Schema.lessThanOrEqualTo(20))),
+});
+export type TaskSessionInput = typeof TaskSessionInput.Type;
+export const TaskSessionResponse = Schema.Struct({
+  task: Task,
+  history: SessionHistory,
+  availability: Schema.Literal("available", "pending", "unsupported", "unavailable"),
+  message: Schema.optional(Schema.String),
+  hasEarlier: Schema.Boolean,
+  nextBefore: Schema.optional(NonEmptyString),
+});
+export type TaskSessionResponse = typeof TaskSessionResponse.Type;
+export const RequestResponse = Schema.Struct({
+  request: SessionRequest,
+  answerState: Schema.optional(
+    Schema.Literal("registered", "submitting", "delivered", "indeterminate", "queued"),
+  ),
+  deliveredAnswer: Schema.optional(QuestionAnswer),
+}).pipe(
+  Schema.filter(
+    (value) =>
+      value.deliveredAnswer === undefined ||
+      (value.request.kind === "question" && value.answerState === "delivered"),
+  ),
+);
+export const ReportResponse = Schema.Struct({ ref: NonEmptyString, text: Schema.String });
+export const RouteTestInput = Schema.Struct({ text: NonEmptyString });
+export type RouteTestInput = typeof RouteTestInput.Type;
+export const RouteTestResponse = Schema.Struct({
+  decisionLogId: NonEmptyString,
+  selectedBotId: BotId,
+  probabilities: Schema.Array(
+    Schema.Struct({ botId: BotId, name: NonEmptyString, probability: Probability }),
+  ).pipe(
+    Schema.minItems(1),
+    Schema.filter(
+      (entries) => new Set(entries.map((entry) => entry.botId)).size === entries.length,
+    ),
+  ),
+  backend: NonEmptyString,
+  model: NonEmptyString,
+});
+export type RouteTestResponse = typeof RouteTestResponse.Type;
+export const BotsResponse = Schema.Struct({ bots: BotsConfig });
+export const BotResponse = Schema.Struct({ bot: BotConfig });
+export const ConfigResponse = AutConfig;
+export const HealthResponse = Schema.Struct({ status: Schema.Literal("ok") });
+export const AcceptedResponse = Schema.Struct({ accepted: Schema.Literal(true) });
+export const DeletedResponse = Schema.Struct({ deleted: Schema.Literal(true) });
+export const ApiErrorResponse = Schema.Struct({
+  error: Schema.Struct({ code: NonEmptyString, message: Schema.String }),
+});
+
+export const DaemonResource = Schema.Literal("messages", "tasks", "requests", "bots", "config");
+export type DaemonResource = typeof DaemonResource.Type;
+export const ResourcesChanged = Schema.Struct({
+  type: Schema.Literal("changed"),
+  resources: Schema.Array(DaemonResource).pipe(
+    Schema.minItems(1),
+    Schema.filter((values) => new Set(values).size === values.length),
+  ),
+});
+export type ResourcesChanged = typeof ResourcesChanged.Type;
+export const DaemonEvent = Schema.Union(
+  Schema.Struct({ type: Schema.Literal("event"), event: AutEvent }),
+  ResourcesChanged,
+);
+export type DaemonEvent = typeof DaemonEvent.Type;
+
+// Local credential APIs return references and status only.
+export const SecretName = Schema.String.pipe(Schema.pattern(/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/));
+export const SecretReference = Schema.String.pipe(
+  Schema.pattern(/^(?:secret:[A-Za-z0-9][A-Za-z0-9_-]{0,63}|(?:env:)?[A-Z_][A-Z0-9_]*)$/),
+);
+export const SecretSaveInput = Schema.Struct({
+  name: SecretName,
+  key: Schema.String.pipe(
+    Schema.minLength(1),
+    Schema.maxLength(16384),
+    Schema.filter((value) => value.trim().length > 0),
+  ),
+});
+export type SecretSaveInput = typeof SecretSaveInput.Type;
+export const SecretSaveResponse = Schema.Struct({
+  apiKeyRef: SecretReference,
+  configured: Schema.Literal(true),
+});
+export type SecretSaveResponse = typeof SecretSaveResponse.Type;
+export const SecretStatusInput = Schema.Struct({ ref: SecretReference });
+export const SecretStatusResponse = Schema.Struct({
+  apiKeyRef: SecretReference,
+  configured: Schema.Boolean,
+});
+export type SecretStatusResponse = typeof SecretStatusResponse.Type;

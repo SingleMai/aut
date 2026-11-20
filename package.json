@@ -1,0 +1,30 @@
+{
+  "name": "aut",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "10.33.0"
+  },
+  "scripts": {
+    "build": "pnpm check:boundaries && tsc --build",
+    "typecheck": "tsc --build && tsc --project tsconfig.tools.json",
+    "test": "vitest run",
+    "lint": "biome check . && pnpm check:boundaries",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
+    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test",
+    "clean": "tsc --build --clean"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@effect/vitest": "0.27.0",
+    "@types/node": "24.19.2",
+    "effect": "3.22.4",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-17T12:45:10.737626+00:00",
+  "archive": "/Users/liying/mine/aut/deliverables/aut-macos-arm64-ui-fix.zip",
+  "bytes": 121337078,
+  "sha256": "405e27f1483899e0e0670988f97a06686e61988fd6175426ffbcb2ada43cc4bb",
+  "integrity": "passed",
+  "privateDataEntries": [],
+  "symlinks": 14,
+  "bundledNotice": true,
+  "asarSha256": "138f1e191e573317e48e0aa4e0a645d9a46cce9f561229c7cf40cd6f36da820b"
+}
