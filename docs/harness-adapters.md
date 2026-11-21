@@ -7,7 +7,7 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
 独立 Plan 探针另确认 `isBlocking=true`、挂起时进程存活与自由文本回填。
 默认模式主会话题组仍为 `isBlocking=false`，不将其误称为 Plan 模式实测。
 各版本证据独立保存，见 `docs/acceptance.md` 和 `spikes/e2e/results/`；不覆盖旧原始样本。
-> Claude Code / ACP 仍来自 OpenMausBot 源码阅读（commit `738ec88`），不是 CLI 实测。每个 adapter 实现前必须先录制当前 CLI 样本。
+> Claude Code 已按 **Claude Code 2.1.325** 的真实探针修订，原始收发见 `spikes/claude/fixtures/`，探针与复现方法见 `spikes/claude/README.md`。通用 ACP adapter 已按 **OpenCode 1.19.5** 的真实探针接入，原始收发见 `spikes/acp/fixtures/`，探针与复现方法见 `spikes/acp/README.md`。
 > OpenMausBot 路径均相对其仓库根目录（`github.com/milind-soni/OpenMausBot`）。
 
 ## 1. 优先级
@@ -15,20 +15,20 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
 | 阶段 | Harness | 接入方式 |
 |---|---|---|
 | MVP | **Codex** | `codex app-server`，NDJSON JSON-RPC over stdio |
-| 后续 | Claude Code | `claude -p` 常驻进程，stream-json 输入/输出 |
-| 后续 | OpenCode / Grok CLI / Gemini 等 | ACP（Agent Client Protocol）通用 adapter |
+| 后续 | Claude Code | `claude -p` 常驻进程，stream-json 输入/输出，已完成 2.1.325 探针 |
+| 后续 | OpenCode / Grok CLI / Gemini 等 | ACP（Agent Client Protocol）通用 adapter，OpenCode 1.19.5 已接入 |
 
-## 2. 能力表（Codex 已探针，其余待确认）
+## 2. 能力表（Codex、Claude Code、OpenCode ACP 已探针）
 
 | 能力 | Codex | Claude Code | 通用 ACP |
 |---|---|---|---|
-| resume | ✅ `thread/resume` | ✅ `--resume <id>` | ✅ `session/load` 或 `session/resume`（视 agent） |
-| fork（原生） | ✅ `thread/fork`，源 thread 未混入 fork 回合 | ✅ `--resume <id> --fork-session`（OMB 内部用于 keep-warm） | ❓ 未见 |
-| steer | ✅ `turn/steer` | ✅ 回合中写 stdin | ⚠️ 无标准方法（OMB 用 agent 公布的 slash command 变通） |
-| 原生全放行 | ✅ | ✅ `--permission-mode bypassPermissions` | ⚠️ 视 agent（Grok 有、Gemini/Qwen `--yolo`、OpenCode 无→由 adapter 自动回复） |
-| 原生提问 | ✅ Plan 阻塞请求；Default 可选非阻塞请求；async 通知（见 §3.3） | ⚠️ 见 §4.2，两种方案待定 | ✅ `session/request_permission`（`interaction_` 前缀），Grok 扩展 `_x.ai/ask_user_question` |
-| 多问题 / 多选 / 自由文本 | ✅ 两题实测 / ❌ 保守声明（协议无多选字段） / ✅ 非选项文本实测 | ✅ / ✅ / ✅（原生 AskUserQuestion） | ❌ 单问题 / ❌ / ⚠️ 仅选项 |
-| transcript 导出 | ✅ `thread/read({includeTurns:true})` | ✅ 会话 JSONL 文件 | ❓ |
+| resume | ✅ `thread/resume` | ✅ `--resume <id>`（2.1.325 实测） | ✅ `session/load` 或 `session/resume`（视 agent） |
+| fork（原生） | ✅ `thread/fork`，源 thread 未混入 fork 回合 | ✅ `--resume <id> --fork-session --no-session-persistence`（2.1.325 实测） | ⚠️ OpenCode 1.19.5 已公布并实测 `session/fork`，aut adapter 暂声明 `false` |
+| steer | ✅ `turn/steer` | ✅ 回合中写带 `uuid` 的 stdin user frame（2.1.325 实测） | ⚠️ 无标准方法，adapter 默认 `false`，可选 provider slash command 仅在能力公布时启用 |
+| 原生全放行 | ✅ | ✅ `--permission-mode bypassPermissions`（2.1.325 实测） | ⚠️ 视 agent（Grok 有、Gemini/Qwen `--yolo`、OpenCode 无→由 adapter 自动回复） |
+| 原生提问 | ✅ Plan 阻塞请求；Default 可选非阻塞请求；async 通知（见 §3.3） | ✅ 通过 aut 注入的 MCP `ask_user` 工具拦截，答案回填为 tool result（2.1.325 实测） | ✅ `session/request_permission`（`interaction_` 前缀），Grok 扩展 `_x.ai/ask_user_question` |
+| 多问题 / 多选 / 自由文本 | ✅ 两题实测 / ❌ 保守声明（协议无多选字段） / ✅ 非选项文本实测 | ✅ / ✅ / ✅（aut `ask_user` MCP 工具） | 通用能力保守声明为 ❌ / ❌ / ❌，Grok 扩展已实现多问题和自由文本解析 |
+| transcript 导出 | ✅ `thread/read({includeTurns:true})` | ✅ 运行期 transcript（Claude 会话 JSONL 可作为后续只读实现依据） | ✅ 运行期 transcript，`sessionHistory: false` |
 
 能力表的最终值写进各 adapter 的 `capabilities` 常量，并在本文同步。
 
@@ -95,33 +95,39 @@ Codex 会把这些设置持久化在 thread 上，所以 **start、resume、每�
 - 当前 CLI 导出的协议提示，paginated thread 长期推荐 `thread/turns/list` + `thread/items/list`；本轮只验证完整读取，分页尚不作为已验证能力宣称。
 - `resume-persisted.jsonl` 由新 app-server 进程恢复 `normal.jsonl` 的持久 thread，确认进程退出后的 resume 可用；探针不读取用户已有对话。
 
-## 4. Claude Code（后续）
+## 4. Claude Code（2.1.325）
 
 参考：`server/drivers/claude.ts`、`server/permission-proxy.ts`、`server/drivers/claude-keepwarm.ts`、`server/drivers/claude-unusable-tools.ts`。
 
 ### 4.1 进程
-- `claude -p --output-format stream-json --input-format stream-json --verbose --include-partial-messages`，每个 session 一个常驻进程，`--resume <sessionId>`。
+- `claude -p --output-format stream-json --input-format stream-json --verbose --include-partial-messages --replay-user-messages`，每个 session 一个常驻进程，`--resume <sessionId>`。生产 adapter 已按 2.1.325 真实样本消费 `system/init`、`stream_event`、`assistant`、`user`、`result` 和回合排队字段。
 - 每回合配置写入 0600 临时文件，用 `--mcp-config` / `--settings` 传入。
-- OMB 设置的环境变量：`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`、`CLAUDE_CODE_DISABLE_CRON=1`（aut 的 session 由 daemon 管理，后台任务/定时器会绕过 chief，建议同样禁用）。
-- fork：`--resume <id> --fork-session --no-session-persistence`。
+- 沿用 OpenMausBot 的进程边界设置 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`、`CLAUDE_CODE_DISABLE_CRON=1`，aut 的 session 由 daemon 管理，后台任务和定时器不能绕过 chief。
+- fork：`--resume <id> --fork-session --no-session-persistence`，2.1.325 已实测分支回合与父会话隔离。
+- 中断：`SIGINT` 会收到 `result.is_error:true` 与 `terminal_reason:"aborted_streaming"`，adapter 映射为 `turn.completed(ok:false, stopReason:"interrupted")`。
+- steer：写入带 UUID 的 `user` frame。原生回放 `isReplay:true` 用来确认消息已被模型接收，`result` 到达前 adapter 保留结果并等待 continuation grace。
 
-### 4.2 提问拦截：两个方案（实现前用探针 A/B）
-- **方案 A（OMB 已验证）**：`--permission-mode bypassPermissions`；此模式下 CLI 不提供原生 `AskUserQuestion`，
-  由 aut McpBridge 注入 `ask_user` 工具，经本地 socket 连回 daemon，答案作为工具结果返回。
-- **方案 B**：不用 bypass，`--permission-prompt-tool mcp__aut__approve` 指向 McpBridge 的审批工具，对所有工具自动放行；
-  遇到原生 `AskUserQuestion` 时回复 `{"behavior":"allow","updatedInput":{...input, "answers": {...}}}`（answers 以问题文本为 key）。
-  优点：原生工具支持多问题/多选且模型更熟悉；代价：每个工具调用多一次本地 MCP 往返。需确认是否存在漏网的审批。
-- 倾向 B，以探针结果定，结论写入 ADR。
+### 4.2 提问拦截
 
-## 5. 通用 ACP（后续）
+- 当前 adapter 采用 OpenMausBot 已验证的方案 A。`--permission-mode bypassPermissions` 负责权限全放行，aut 通过临时 MCP 配置注入 `aut-questions` 的 `ask_user` 工具。工具进程只通过本地 Unix socket 与 adapter broker 通信，问题进入 `SessionRequest`，用户答案再作为 MCP tool result 回填。
+- 2.1.325 真实样本确认了多问题、多选和自由文本在该工具路径上可用。权限请求即使漏到 broker 也发布 `request.opened` / `request.closed` 审计事件后自动允许，question 永不自动回答。
+- `spikes/claude/fixtures/question-2.1.325.jsonl` 保存了真实 MCP 工具发现、问题 broker、工具结果和最终 `result` 的完整收发。
+
+## 5. 通用 ACP（当前实现）
 
 参考：`server/drivers/acp/core.ts`、`server/drivers/acp/grok.ts`、`server/drivers/acp/opencode-go.ts`。
-- 方法：`session/new`、`session/load` / `session/resume`、`session/prompt`、`session/cancel`。
+- 运行链路是 `aut core → aut ACP adapter → provider CLI`。OpenMausBot 仅作为 Apache-2.0 源码来源，aut 不依赖其运行时，也没有使用 `enterprise/`。
+- OpenCode 1.19.5 真实探针已覆盖 `initialize`、`session/new`、`session/prompt`、`session/cancel`、新进程 `session/load` 和 provider `session/fork`。原始收发保存在 `spikes/acp/fixtures/`，逐行解码测试见 `packages/adapters/src/acp/wire.test.ts`。
+- 方法：`session/new`、`session/load` / `session/resume`、`session/prompt`、`session/cancel`。每个 aut session 独占 ACP 子进程、transport、事件总线和回合状态。
+- `HarnessInstanceConfig.authMethodIds` 可以保存 provider 的认证方式优先级。adapter 会从 `initialize.authMethods` 中选择第一个匹配项并调用 `authenticate`，没有配置时沿用 provider 自己的登录状态。
+- 当 provider 在 `session/new` 或 `session/load` 返回模型 `configOptions` 时，adapter 通过 `session/set_config_option` 应用 Bot 的 `model`，并按同一规则应用已声明的 `effort`。没有公布对应选项的 provider 保留自身 session 默认值，不能把该 provider 的模型切换能力写成已验证事实。
 - 权限：client 收到 `session/request_permission`，回复所选 optionId（`allow_once` / `allow_always` / `reject_once`）或 `{ outcome: { outcome: "cancelled" } }`。
   回合之间到达的请求一律 `cancelled`，避免 agent 阻塞。
 - 提问：`session/request_permission` 中 `toolCallId` 以 `interaction_` 开头者为提问，只支持单个选项集；Grok 走扩展方法 `_x.ai/ask_user_question`，
   回复 `{ outcome: "accepted", answers: { "<问题文本>": ["<label>"] } }`。
-- 全放行：Grok `--permission-mode bypassPermissions`；Gemini/Qwen `--yolo`；OpenCode 无原生模式，adapter 自动回复所有 permission。
+- 全放行：Grok `--permission-mode bypassPermissions`；Gemini/Qwen `--yolo`；OpenCode 没有原生全放行模式，adapter 按项目默认最高权限自动选择允许项，并记录 permission 审计事件。question 永不自动回答。
+- 能力边界：OpenCode provider 已公布 `session/fork`，但通用 adapter 目前仍声明 `fork: false`，避免把同一 transport 直接复用成两个 aut handle。ACP 没有标准 steer，adapter 只有在配置的 slash command 由 provider 公布时才尝试发送，默认返回 `refused`。
+- Grok 1.0.89 当前已完成 ACP `initialize` 和认证边界探针，未登录时 `session/new` 返回 `Authentication required`，尚未录制真实回合。Gemini 和 Qwen 在本机未安装，不能把其能力写成已验证事实。
 
 ## 6. 探针要求（每个 harness）
 
@@ -132,3 +138,5 @@ Codex 会把这些设置持久化在 thread 上，所以 **start、resume、每�
 4. 回合运行中 steer、interrupt 各一次。
 5. resume；fork（若支持）；transcript 导出（若支持）。
 6. 所有原始收发保存为 fixtures（JSONL，带版本号），作为 adapter 测试的回放来源。
+
+ACP 当前样本和复现命令见 `spikes/acp/README.md`。provider 宣布的能力与 aut adapter 对外声明可能不同，能力表以 adapter 的 `capabilities` 为准。

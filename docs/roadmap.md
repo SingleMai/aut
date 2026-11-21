@@ -64,7 +64,8 @@
 可并行起步：01 ∥ 02；03 完成后 04 ∥ 06 ∥ 07（需 01）∥ 16（mock）。
 
 ## 之后
-- Claude Code adapter（先做 §4.2 方案 A/B 探针）、通用 ACP adapter。
+- Claude Code adapter 已完成 2.1.325 的协议探针和生产 adapter，后续继续做 provider 版本复验。
+- 通用 ACP adapter 已接入 OpenCode 1.19.5，并复用 provider 的 ACP 认证握手。Grok、Gemini、Qwen 仍需各自的真实回合探针和能力确认。
 - 备用 Classifier 后端（LiteLLM 等结构化输出）。
 - 基于决策日志的评测集与阈值调优工具。
 - trigger 事件源与主动型 bot。
