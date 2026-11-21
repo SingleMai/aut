@@ -51,6 +51,8 @@ export const HarnessInstanceConfig = Schema.Struct({
   command: NonEmptyString,
   args: Schema.Array(Schema.String),
   env: optional(StringRecord),
+  /** Provider-declared ACP auth method ids, ordered by preference. */
+  authMethodIds: optional(Schema.Array(NonEmptyString)),
 });
 export type HarnessInstanceConfig = typeof HarnessInstanceConfig.Type;
 

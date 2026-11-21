@@ -344,6 +344,7 @@ interface BotConfig {
 interface HarnessInstanceConfig {
   id: string; name: string; kind: string; command: string; args: string[]
   env?: Record<string, string>
+  authMethodIds?: string[]  // ACP initialize 返回的认证方式，按优先级排列
 }
 interface ClassifierBackendConfig {
   backend: string; model: string; endpoint: string; apiKeyRef?: string

@@ -47,6 +47,18 @@ Claude adapter lifecycle, stream-json handling and question proxy:
   aut HarnessAdapter boundary. The real CLI fixtures at
   spikes/claude/fixtures/*-2.1.325.jsonl were recorded from Claude Code 2.1.325.
 
+Generic ACP adapter lifecycle, JSON-RPC host and question mapping:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Sources: server/drivers/acp/core.ts, server/drivers/acp/host.ts,
+  server/drivers/acp/question-requests.ts, server/drivers/acp/steer.ts and
+  server/drivers/acp/grok.ts. Commit:
+  738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in
+  packages/adapters/src/acp/ and spikes/acp/. No enterprise-directory code is
+  included, and OpenMausBot is not a runtime dependency. The recorded provider
+  fixtures are from OpenCode 1.19.5 and Grok 1.0.89.
+
 Planned sources (Apache-2.0 portions only; never the enterprise/ directory):
 - OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors,
   https://github.com/milind-soni/OpenMausBot, Apache License 2.0.
