@@ -31,6 +31,22 @@ Codex adapter lifecycle and question-delivery design:
   Licensed under Apache License 2.0; adapted in packages/adapters/src/codex/.
   No enterprise-directory code is included.
 
+Claude adapter lifecycle, stream-json handling and question proxy:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Sources: server/drivers/claude.ts, server/procs.ts and
+  server/permission-proxy.ts. Commit:
+  738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in
+  packages/adapters/src/claude/. No enterprise-directory code is included.
+  The protocol test fixtures at spikes/claude/{fake-claude-cli,launch-note,
+  room-handoff-agent,stream-script,cleanup}.ts are copied from the matching
+  server/testing files at the same commit.
+  The production adapter ports the stream-json result hold and question broker
+  boundaries into Effect services while preserving the source behavior at the
+  aut HarnessAdapter boundary. The real CLI fixtures at
+  spikes/claude/fixtures/*-2.1.325.jsonl were recorded from Claude Code 2.1.325.
+
 Planned sources (Apache-2.0 portions only; never the enterprise/ directory):
 - OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors,
   https://github.com/milind-soni/OpenMausBot, Apache License 2.0.

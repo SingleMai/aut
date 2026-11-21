@@ -30,6 +30,18 @@ try {
     external: ["bufferutil", "utf-8-validate"],
     logLevel: "warning",
   });
+  await build({
+    entryPoints: [resolve(root, "../../packages/adapters/dist/claude/question-proxy.js")],
+    outfile: resolve(staging, "daemon/question-proxy.js"),
+    bundle: true,
+    platform: "node",
+    format: "esm",
+    target: "node24",
+    banner: {
+      js: 'import { createRequire as autCreateRequire } from "node:module"; const require = autCreateRequire(import.meta.url);',
+    },
+    logLevel: "warning",
+  });
   await writeFile(resolve(staging, "daemon/package.json"), JSON.stringify({ type: "module" }));
   await build({
     entryPoints: [resolve(root, "../../packages/mcp-bridge/dist/stdio.js")],
