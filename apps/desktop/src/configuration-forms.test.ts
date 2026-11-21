@@ -53,6 +53,24 @@ it("keeps independent credentials and an empty optional backend separate from a 
     "primary.backend",
   ]);
 });
+it("preserves configured ACP authentication method priority", () => {
+  const data = form({
+    ...row("acp", "grok"),
+    "acp.authMethodIds": '["cached_token","grok.com"]',
+  });
+  expect(Effect.runSync(readSettingsForm(data, [{ key: "acp" }]))).toEqual({
+    harnessInstances: [
+      {
+        id: "grok",
+        name: "Local",
+        kind: "codex",
+        command: "codex",
+        args: [],
+        authMethodIds: ["cached_token", "grok.com"],
+      },
+    ],
+  });
+});
 it("reports the offending MCP entry without including configuration values", () => {
   const data = form({
     id: "bot",

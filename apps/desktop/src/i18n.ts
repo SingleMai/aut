@@ -139,6 +139,7 @@ export const zhCN = {
   addInstance: "添加实例",
   command: "CLI 命令",
   arguments: "启动参数（JSON 数组）",
+  authMethodIds: "ACP 认证方式（JSON 数组）",
   environment: "环境变量（JSON 对象）",
   classifierOptional: "后端、模型和服务地址都留空时停用该分类服务。密钥可以单独保存。",
   primary: "主分类服务",

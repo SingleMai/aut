@@ -87,6 +87,12 @@ export function SettingsPage({
                     defaultValue={JSON.stringify(instance?.args ?? [])}
                     wide
                   />
+                  <InputField
+                    name={`${key}.authMethodIds`}
+                    label={t.authMethodIds}
+                    defaultValue={JSON.stringify(instance?.authMethodIds ?? [])}
+                    wide
+                  />
                   <TextAreaField
                     name={`${key}.env`}
                     label={t.environment}

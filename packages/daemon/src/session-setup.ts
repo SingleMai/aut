@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
-import { makeCodexAdapter } from "@aut/adapters";
+import { makeAcpAdapter, makeClaudeAdapter, makeCodexAdapter } from "@aut/adapters";
 import {
   ConfigStore,
   CoreError,
@@ -67,6 +67,19 @@ const factories: Readonly<Record<string, (config: HarnessInstanceConfig) => Harn
       command: config.command,
       args: config.args,
       ...(config.env ? { env: config.env } : {}),
+    }),
+  claude: (config) =>
+    makeClaudeAdapter({
+      command: config.command,
+      args: config.args,
+      ...(config.env ? { env: config.env } : {}),
+    }),
+  acp: (config) =>
+    makeAcpAdapter({
+      command: config.command,
+      args: config.args,
+      ...(config.env ? { env: config.env } : {}),
+      ...(config.authMethodIds ? { authMethodIds: config.authMethodIds } : {}),
     }),
 };
 export const HarnessResolverLive = Layer.effect(

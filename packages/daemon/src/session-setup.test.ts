@@ -176,6 +176,21 @@ it("resolves configured harness factories while preserving the original instance
         args: ["app-server"],
         env: { EXISTING: "keep" },
       },
+      {
+        id: "claude-local",
+        name: "Claude",
+        kind: "claude",
+        command: "/existing/claude",
+        args: [],
+      },
+      {
+        id: "acp-local",
+        name: "ACP",
+        kind: "acp",
+        command: "/existing/opencode",
+        args: ["acp"],
+        authMethodIds: ["grok.com"],
+      },
     ],
   };
   await Effect.runPromise(
@@ -185,6 +200,8 @@ it("resolves configured harness factories while preserving the original instance
         yield* config.writeConfig(settings);
         const resolver = yield* HarnessResolver;
         expect((yield* resolver.resolve("local")).kind).toBe("codex");
+        expect((yield* resolver.resolve("claude-local")).kind).toBe("claude");
+        expect((yield* resolver.resolve("acp-local")).kind).toBe("acp");
         expect(Either.isLeft(yield* Effect.either(resolver.resolve("missing")))).toBe(true);
         expect(yield* config.readConfig).toEqual(settings);
       }).pipe(

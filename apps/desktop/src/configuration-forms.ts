@@ -107,12 +107,16 @@ export function readSettingsForm(form: FormData, rows: readonly { key: string }[
     if (id && ids.has(id)) errors[`${key}.id`] = messages.duplicateInstanceId;
     ids.add(id);
     const env = read("env");
+    const authMethodIds = form.has(`${key}.authMethodIds`)
+      ? jsonField(form, `${key}.authMethodIds`, errors)
+      : undefined;
     return {
       id,
       name: read("name"),
       kind: read("kind"),
       command: read("command"),
       args: jsonField(form, `${key}.args`, errors),
+      ...(Array.isArray(authMethodIds) && authMethodIds.length > 0 ? { authMethodIds } : {}),
       ...(env && env !== "{}" ? { env: jsonField(form, `${key}.env`, errors) } : {}),
     };
   });
@@ -140,7 +144,11 @@ export function readSettingsForm(form: FormData, rows: readonly { key: string }[
       // The array-level uniqueness check is attributed to the repeated row above.
       if (typeof index !== "number" || !field) return undefined;
       const message =
-        field === "args" ? messages.args : field === "env" ? messages.env : messages.required;
+        field === "args" || field === "authMethodIds"
+          ? messages.args
+          : field === "env"
+            ? messages.env
+            : messages.required;
       return [`${rows[index]?.key}.${String(field)}`, message];
     },
   );

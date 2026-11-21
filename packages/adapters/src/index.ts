@@ -1,4 +1,16 @@
 export {
+  AcpAdapterLive,
+  type AcpOptions,
+  acpCapabilities,
+  makeAcpAdapter,
+} from "./acp/session.js";
+export {
+  ClaudeAdapterLive,
+  type ClaudeOptions,
+  claudeCapabilities,
+  makeClaudeAdapter,
+} from "./claude/session.js";
+export {
   CodexDefaults,
   type ReadCodexDefaultsOptions,
   readCodexDefaults,
