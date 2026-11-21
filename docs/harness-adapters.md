@@ -109,7 +109,7 @@ Codex 会把这些设置持久化在 thread 上，所以 **start、resume、每�
 
 ### 4.2 提问拦截
 
-- 当前 adapter 采用 OpenMausBot 已验证的方案 A。`--permission-mode bypassPermissions` 负责权限全放行，aut 通过临时 MCP 配置注入 `aut-questions` 的 `ask_user` 工具。工具进程只通过本地 Unix socket 与 adapter broker 通信，问题进入 `SessionRequest`，用户答案再作为 MCP tool result 回填。
+- 当前 adapter 采用 OpenMausBot 已验证的方案 A。`--permission-mode bypassPermissions` 负责权限全放行，aut 通过临时 MCP 配置注入 `aut-questions` 的 `ask_user` 工具。工具进程只通过本地 Unix socket 与 adapter broker 通信，问题进入 `SessionRequest`，用户答案再作为 MCP tool result 回填。决策与取舍见 [ADR-0055](decisions/0055-claude-question-interception.md)。
 - 2.1.325 真实样本确认了多问题、多选和自由文本在该工具路径上可用。权限请求即使漏到 broker 也发布 `request.opened` / `request.closed` 审计事件后自动允许，question 永不自动回答。
 - `spikes/claude/fixtures/question-2.1.325.jsonl` 保存了真实 MCP 工具发现、问题 broker、工具结果和最终 `result` 的完整收发。
 
