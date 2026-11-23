@@ -11,9 +11,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ConfigStore, CoreLive, HarnessResolver, SessionSetup } from "@aut/core";
 import type { BridgeSocket } from "@aut/mcp-bridge";
-import { BotConfig, Task } from "@aut/protocol";
+import { BotConfig, type McpServerConfig, Task } from "@aut/protocol";
 import { Effect, Either, Exit, Fiber, Layer, Redacted, Schema, Scope } from "effect";
 import { afterEach, expect, it } from "vitest";
+import { McpSupervisor } from "./mcp-supervisor.js";
 import {
   HarnessResolverLive,
   SessionBridge,
@@ -38,7 +39,6 @@ const makeBot = (cwd: string) =>
     soul: "Test role instructions",
     cwd,
     modelSelection: { instanceId: "local", model: "test-model", effort: "low" },
-    mcpServers: [{ name: "extra", transport: "stdio", command: "existing", args: ["keep"] }],
   });
 const makeTask = (bot: BotConfig) =>
   Schema.decodeUnknownSync(Task)({
@@ -58,8 +58,12 @@ const credentials = {
   socketPath: "/tmp/synthetic.sock",
   token: Redacted.make("synthetic-session-secret"),
 };
+const mcpSupervisor = (configs: readonly McpServerConfig[] = []) =>
+  Layer.succeed(McpSupervisor, {
+    configsForBot: () => Effect.succeed(configs),
+  } as unknown as McpSupervisor["Type"]);
 
-it("writes only its managed soul, preserves AGENTS and extra MCP config, and scopes the private credential", async () => {
+it("writes only its managed soul, preserves AGENTS and injects authorized MCP proxies", async () => {
   const path = directory();
   writeFileSync(join(path, "AGENTS.md"), "Existing project instructions\n");
   const bot = makeBot(path);
@@ -79,7 +83,16 @@ it("writes only its managed soul, preserves AGENTS and extra MCP config, and sco
           }),
       ),
   };
-  const setup = SessionSetupLive.pipe(Layer.provideMerge(SessionBridgeLive));
+  const external: McpServerConfig = {
+    name: "extra",
+    transport: "stdio",
+    command: "existing",
+    args: ["keep"],
+  };
+  const setup = SessionSetupLive.pipe(
+    Layer.provideMerge(SessionBridgeLive),
+    Layer.provideMerge(mcpSupervisor([external])),
+  );
   const input = await Effect.runPromise(
     Effect.scoped(
       Effect.gen(function* () {
@@ -102,7 +115,7 @@ it("writes only its managed soul, preserves AGENTS and extra MCP config, and sco
   expect(statSync(role).mode & 0o777).toBe(0o600);
   expect(input.model).toBe("test-model");
   expect(input.effort).toBe("low");
-  expect(input.mcpServers[0]).toEqual(bot.mcpServers[0]);
+  expect(input.mcpServers[0]).toEqual(external);
   expect(input.mcpServers[1]?.name).toBe("aut");
   expect(input.instructions).not.toContain("synthetic-session-secret");
   expect(readFileSync(role, "utf8")).not.toContain("synthetic-session-secret");
@@ -130,38 +143,29 @@ it("waits for listener readiness and refuses a second binding", async () => {
   );
 });
 
-it("rejects reserved MCP names and symlinked managed directories", async () => {
-  for (const reserved of [false, true]) {
-    const path = directory();
-    const bot = makeBot(path);
-    if (!reserved) symlinkSync(directory(), join(path, ".aut"));
-    const target = reserved
-      ? {
-          ...bot,
-          mcpServers: [
-            { name: "aut", transport: "stdio" as const, command: "untrusted", args: [] },
-          ],
-        }
-      : bot;
-    const layer = SessionSetupLive.pipe(
-      Layer.provide(
-        Layer.succeed(SessionBridge, {
-          bind: () => Effect.void,
-          register: () => Effect.dieMessage("Invalid setup must not register a session credential"),
-        }),
+it("rejects symlinked managed directories before registering a session", async () => {
+  const path = directory();
+  const bot = makeBot(path);
+  symlinkSync(directory(), join(path, ".aut"));
+  const layer = SessionSetupLive.pipe(
+    Layer.provide(
+      Layer.succeed(SessionBridge, {
+        bind: () => Effect.void,
+        register: () => Effect.dieMessage("Invalid setup must not register a session credential"),
+      }),
+    ),
+    Layer.provideMerge(mcpSupervisor()),
+  );
+  const outcome = await Effect.runPromise(
+    Effect.scoped(
+      Effect.either(
+        Effect.gen(function* () {
+          return yield* (yield* SessionSetup).prepare(makeTask(bot), bot);
+        }).pipe(Effect.provide(layer)),
       ),
-    );
-    const outcome = await Effect.runPromise(
-      Effect.scoped(
-        Effect.either(
-          Effect.gen(function* () {
-            return yield* (yield* SessionSetup).prepare(makeTask(target), target);
-          }).pipe(Effect.provide(layer)),
-        ),
-      ),
-    );
-    expect(Either.isLeft(outcome) && outcome.left.code).toBe("Configuration");
-  }
+    ),
+  );
+  expect(Either.isLeft(outcome) && outcome.left.code).toBe("Configuration");
 });
 
 it("resolves configured harness factories while preserving the original instance configuration", async () => {

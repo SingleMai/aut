@@ -205,7 +205,7 @@ interface StartSessionInput {
   model: string; effort?: string
   cwd: string
   instructions: string               // bot soul + aut 固定指令（模板）
-  mcpServers: McpServerConfig[]      // 总是包含 aut McpBridge
+  mcpServers: McpServerConfig[]      // 包含 aut McpBridge，以及当前 Bot 已授权的 MCP proxy
 }
 
 interface SessionHandle {
@@ -369,13 +369,25 @@ interface TranscriptEntry {
   turnId?: string
 }
 type McpServerConfig =
-  | { name: string; transport: "stdio"; command: string; args: string[]; env?: Record<string, string> }
-  | { name: string; transport: "http"; url: string; headers?: Record<string, string> }
+  | { name: string; transport: "stdio"; command: string; args: string[]; cwd?: string; env?: Record<string, string> }
+  | { name: string; transport: "http" | "sse"; url: string; headers?: Record<string, string> }
+interface McpTool { name: string; description?: string; inputSchema?: JsonValue }
+interface McpServerBase {
+  id: McpServerId; name: string; enabled: boolean
+  auth: { status: "none" | "required" | "authenticated" | "error"; message?: string; updatedAt?: Timestamp }
+  health: { status: "unknown" | "ready" | "error"; message?: string; checkedAt?: Timestamp }
+  tools: McpTool[]
+}
+type McpServer =
+  | (McpServerBase & { transport: "stdio"; command: string; args: string[]; cwd?: string; env?: Record<string, string> })
+  | (McpServerBase & { transport: "http" | "sse"; url: string; headers?: Record<string, string>; oauth?: { clientId?: string; clientSecretRef?: string } })
+interface McpGrant { botId: BotId; serverId: McpServerId; enabled: boolean; allowedTools: string[] }
+interface McpConfig { schemaVersion: 1; servers: McpServer[]; grants: McpGrant[] }
 interface BotConfig {
   id: BotId; name: string; description: string; soul: string
   characterId?: string  // 可选的稳定形象 ID
   modelSelection: { instanceId: string; model: string; effort?: string }
-  cwd: string; mcpServers: McpServerConfig[]
+  cwd: string
   system?: "primary"  // 仅内置主助手设置此字段
 }
 interface HarnessInstanceConfig {
@@ -395,6 +407,7 @@ type BotsConfig = BotConfig[]
 
 - bots 与 harnessInstances 的 ID 唯一；主助手标记 `primary` 至多出现一次。
 - `characterId` 是可选非空字符串。后端透传 ID，客户端按已安装的形象目录解析。回退与动作契约见 [ADR-0053](decisions/0053-bot-character-module.md)。
+- MCP server 不属于 `BotConfig`。全局注册表和 grant 保存在 `mcp.json`，任务启动时由 daemon 按 Bot 授权生成受限 proxy 配置。
 - 名称、命令、路径、实例标识、游标 kind、模型与密钥引用为非空字符串；文本和 soul 可为空。
 - URL/endpoint 只允许 http(s) 的绝对地址。classifier model 不得含 `latest` 别名。
 - `TurnInput.messageIds` 可为空，支持内部改写/询问；普通用户请求仍保留引用。
@@ -422,7 +435,7 @@ type ReadMainThreadOutput = MainThreadExcerpt[]
 type ListTasksOutput = TaskSummary[]
 type GetTaskOutput = Task
 type CreateBotInput = Pick<BotConfig, "id" | "name" | "description" | "soul" | "characterId">
-  & Partial<Pick<BotConfig, "modelSelection" | "cwd" | "mcpServers">>
+  & Partial<Pick<BotConfig, "modelSelection" | "cwd">>
 type CreateBotOutput = Pick<BotConfig, "id" | "name">
 type CreateTriggerInput = {
   id?: TriggerId

@@ -37,7 +37,6 @@ const user: BotConfig = {
   soul: "Existing instructions",
   modelSelection: { instanceId: instance.id, model: "existing-model", effort: "high" },
   cwd: "/existing/workspace",
-  mcpServers: [],
 };
 const run = <A, E>(effect: Effect.Effect<A, E, ConfigStore | Store | Scope.Scope>, path: string) =>
   Effect.runPromise(Effect.scoped(effect.pipe(Effect.provide(CoreLive({ dataDirectory: path })))));

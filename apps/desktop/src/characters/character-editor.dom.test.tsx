@@ -21,7 +21,6 @@ const bot: BotConfig = {
   cwd: "/tmp",
   description: "Research",
   modelSelection: { instanceId: "local", model: "fixture" },
-  mcpServers: [],
 };
 
 function previewPaperBird() {

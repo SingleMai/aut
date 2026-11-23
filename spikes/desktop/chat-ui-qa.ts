@@ -55,8 +55,8 @@ const program = Effect.scoped(Effect.gen(function* () {
   const admin = yield* Administration;
   yield* config.writeConfig({ harnessInstances: [{ id: "qa-local", name: "本地测试实例", kind: "codex", command: "codex", args: [] }] });
   yield* config.writeBots([
-    { id: botId, name: "研究助手", description: "Review synthetic UI fixtures.", soul: "Use only synthetic fixtures.", cwd: directory, modelSelection: { instanceId: "qa-local", model: "fixture-only" }, mcpServers: [] },
-    { id: BotId.make("qa-writer"), name: "写作助手", description: "Write synthetic QA summaries.", soul: "Use only synthetic fixtures.", cwd: directory, modelSelection: { instanceId: "qa-local", model: "fixture-only" }, mcpServers: [] },
+    { id: botId, name: "研究助手", description: "Review synthetic UI fixtures.", soul: "Use only synthetic fixtures.", cwd: directory, modelSelection: { instanceId: "qa-local", model: "fixture-only" } },
+    { id: BotId.make("qa-writer"), name: "写作助手", description: "Write synthetic QA summaries.", soul: "Use only synthetic fixtures.", cwd: directory, modelSelection: { instanceId: "qa-local", model: "fixture-only" } },
   ]);
   yield* store.transaction((tx) => Effect.gen(function* () {
     yield* insertTaskWithSession(tx, {

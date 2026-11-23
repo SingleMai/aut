@@ -24,6 +24,16 @@
 | POST | `/v1/messages/:id/undo-bot-creation` | — | 返回原创建回执 `{ message }`。同一撤销可重试，回执已失效返回 409，未知回执返回 404 |
 | PUT | `/v1/bots/:id` | `BotConfig` | `{ bot:BotConfig }`；ID 与 system 标记不可改变 |
 | DELETE | `/v1/bots/:id` | — | `{ deleted:true }`；主助手和仍被任务引用的 Bot 受删除保护 |
+| GET | `/v1/mcp/servers` | — | `{ servers:McpServer[] }` |
+| POST | `/v1/mcp/servers` | `McpServerInput` | `{ server:McpServer }`，201；新 server 默认关闭 |
+| PUT | `/v1/mcp/servers/:id` | `McpServerInput` | `{ server:McpServer }`；连接参数变化会清空工具目录并关闭 server |
+| DELETE | `/v1/mcp/servers/:id` | — | `{ deleted:true }`；同时删除该 server 的 Bot grant |
+| POST | `/v1/mcp/servers/:id/test` | — | `{ server:McpServer }`；发现工具并更新健康状态 |
+| POST | `/v1/mcp/servers/:id/enable` 或 `/disable` | — | `{ server:McpServer }` |
+| POST | `/v1/mcp/servers/:id/auth/start` | — | `{ serverId, authorizationUrl, expiresAt }`；仅 HTTP/SSE server 支持 |
+| POST | `/v1/mcp/servers/:id/auth/logout` | — | `{ server:McpServer }`；删除本地 OAuth token |
+| GET | `/v1/bots/:id/mcp-grants` | — | `{ grants:McpGrant[] }` |
+| PUT | `/v1/bots/:id/mcp-grants/:serverId` | `{ enabled, allowedTools }` | `{ grant:McpGrant }`；工具名只保留当前目录中的精确名称 |
 | POST | `/v1/secrets` | `{ name, key }` | `{ apiKeyRef:"secret:<name>", configured:true }`；同名原子替换 |
 | GET | `/v1/secrets/status?ref=...` | `SecretStatusInput` | `{ apiKeyRef, configured:boolean }`，绝不返回密钥 |
 | GET | `/v1/config` | — | `AutConfig` |
@@ -37,6 +47,10 @@ HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 hea
 触发器创建可提供稳定 `id`，重复 ID 返回 409 并保留原记录，便于在客户端无法确认响应时核对结果。
 路由试验仅写决策日志，不执行 Op 或追加主会话消息。历史报告引用 `event:<事件ID>`，
 路径参数应 URL 编码；它指向不可变成功完成事件，不随 Task.lastReport 更新（ADR-0027）。
+MCP server 配置保存在 `mcp.json`，Bot 配置不再接受内嵌 `mcpServers[]`。静态环境变量和 header 只接受
+`secret:`、`env:` 引用或非敏感值。OAuth token 不出现在 API、配置文件和日志中。新 server、grant 和工具授权默认关闭，
+只有已启用且已授权的工具才会以 MCP proxy 方式注入任务会话。单个 server 测试或连接失败只影响对应 grant，
+不会阻止 `aut` bridge 或其他 server 注入。
 分页以 Store 的插入顺序为准，before 是排他的消息游标。错误统一为
 `{ error: { code:string, message:string } }`，不回传异常堆栈、密钥或本地凭据。
 
@@ -56,11 +70,11 @@ HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 hea
 
 ```ts
 { type: "event", event: AutEvent }
-{ type: "changed", resources: ["messages", "tasks", "requests", "bots", "config", "triggers"] }
+{ type: "changed", resources: ["messages", "tasks", "requests", "bots", "config", "mcp", "triggers"] }
 ```
 
 `resources` 是非空去重子集。`event` 保留输入/会话事件；`changed` 通知 UI 回读对应 API，
-覆盖 chief ack/reply/card、任务状态、问题、bot、配置和触发器变更。输出不会再次作为用户输入送给 chief。
+覆盖 chief ack/reply/card、任务状态、问题、bot、配置、MCP server 和触发器变更。输出不会再次作为用户输入送给 chief。
 每个已提交 SQLite 事务最多发一条资源变更通知；读取、回滚和失败不会发。
 JSON 配置原子保存成功后发对应通知。通知是当前连接的实时失效信号，不是持久化事件回放；
 首次连接或重连后应重新读取 API，以获得断开期间的最终状态。

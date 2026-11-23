@@ -27,6 +27,7 @@ import {
 } from "@aut/mcp-bridge";
 import { type HarnessAdapter, type HarnessInstanceConfig, StartSessionInput } from "@aut/protocol";
 import { Context, Deferred, Effect, Layer, Schema, type Scope } from "effect";
+import { McpSupervisor } from "./mcp-supervisor.js";
 
 export class SessionBridge extends Context.Tag("aut/SessionBridge")<
   SessionBridge,
@@ -153,6 +154,7 @@ export const SessionSetupLive = Layer.effect(
   SessionSetup,
   Effect.gen(function* () {
     const bridge = yield* SessionBridge;
+    const mcp = yield* McpSupervisor;
     return {
       prepare: (task, bot) =>
         Effect.gen(function* () {
@@ -161,13 +163,6 @@ export const SessionSetupLive = Layer.effect(
               new CoreError({
                 code: "ImmutableField",
                 message: "The task cannot switch its configured bot or harness instance",
-              }),
-            );
-          if (bot.mcpServers.some((server) => server.name === "aut"))
-            return yield* Effect.fail(
-              new CoreError({
-                code: "Configuration",
-                message: "The MCP service name aut is reserved for the main-thread bridge",
               }),
             );
           const path = yield* writeSoul(bot.cwd, bot.id, bot.soul);
@@ -187,6 +182,7 @@ export const SessionSetupLive = Layer.effect(
                   }),
               ),
             );
+          const externalMcp = yield* mcp.configsForBot(task.id, bot.id);
           return yield* Schema.decodeUnknown(StartSessionInput)({
             taskId: task.id,
             bot,
@@ -208,7 +204,7 @@ export const SessionSetupLive = Layer.effect(
               "When the user asks you to create an aut bot, use the create_bot MCP tool. Its successful result confirms the saved bot ID.",
               "Use the harness native question tool when user input is required. Do not replace questions with textual markers. Return a clear final report after completing the requested work.",
             ].join("\n\n"),
-            mcpServers: [...bot.mcpServers, mcpServerConfig(credentials)],
+            mcpServers: [...externalMcp, mcpServerConfig(credentials)],
           }).pipe(
             Effect.mapError(
               () =>

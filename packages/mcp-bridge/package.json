@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@aut/protocol": "workspace:*",
+    "@modelcontextprotocol/client": "2.4.0",
     "effect": "catalog:",
     "@modelcontextprotocol/server": "2.4.0"
   },
   "devDependencies": {
-    "@modelcontextprotocol/client": "2.4.0",
     "@types/node": "24.19.2"
   }
 }

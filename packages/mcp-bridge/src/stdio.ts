@@ -1,9 +1,14 @@
 import { Effect, Redacted } from "effect";
 import { BridgeError } from "./interface.js";
+import { parseProxyCredentials, serveMcpProxy } from "./proxy.js";
 import { serveMcpStdio } from "./server.js";
 import { makeSocketBridgeClient } from "./socket.js";
 
 const program = Effect.gen(function* () {
+  if (process.env.AUT_MCP_MODE === "proxy") {
+    yield* parseProxyCredentials(process.env).pipe(Effect.flatMap(serveMcpProxy));
+    return;
+  }
   const socketPath = process.env.AUT_MCP_SOCKET;
   const token = process.env.AUT_MCP_TOKEN;
   if (!socketPath || !token)

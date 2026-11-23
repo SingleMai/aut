@@ -32,7 +32,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "Private soul never injected by handoff",
   modelSelection: { instanceId: "test", model: "fixed" },
   cwd: "/tmp",
-  mcpServers: [],
   system: "primary",
 });
 const task = Schema.decodeUnknownSync(Task)({

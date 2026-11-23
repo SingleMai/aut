@@ -19,7 +19,6 @@ const setup = () => {
     soul: "",
     cwd: "/tmp",
     modelSelection: { instanceId: "local", model: "test" },
-    mcpServers: [],
   };
   const snapshot = {
     ...data.snapshot(),

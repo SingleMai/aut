@@ -71,7 +71,7 @@ it("preserves configured ACP authentication method priority", () => {
     ],
   });
 });
-it("reports the offending MCP entry without including configuration values", () => {
+it("does not include the removed inline MCP configuration in a Bot", () => {
   const data = form({
     id: "bot",
     name: "Research",
@@ -90,8 +90,12 @@ it("reports the offending MCP entry without including configuration values", () 
       },
     ]),
   });
-  const { fields } = Effect.runSync(Effect.flip(readBotForm(data)));
-  expect(Object.keys(fields)).toEqual(["mcp"]);
-  expect(fields.mcp).toContain("第 2 项");
-  expect(fields.mcp).not.toContain("secret-value");
+  expect(Effect.runSync(readBotForm(data))).toEqual({
+    id: "bot",
+    name: "Research",
+    description: "Work",
+    soul: "",
+    cwd: ".",
+    modelSelection: { instanceId: "local", model: "fixture" },
+  });
 });

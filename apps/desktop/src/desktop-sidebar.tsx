@@ -22,6 +22,7 @@ export const pages = {
   tasks: { label: t.tasks, icon: "tasks" },
   bots: { label: t.bots, icon: "bot" },
   automations: { label: t.automations, icon: "automation" },
+  mcp: { label: t.mcpServers, icon: "mcp" },
   settings: { label: t.settings, icon: "settings" },
 } satisfies Record<string, { label: string; icon: IconName }>;
 export type DesktopView = keyof typeof pages;
@@ -135,6 +136,7 @@ export function DesktopSidebar({
       <div className="sidebar-footer">
         {nav("bots")}
         {nav("automations")}
+        {nav("mcp")}
         {nav("settings")}
       </div>
       <div className={`connection${connected ? "" : " offline"}`}>

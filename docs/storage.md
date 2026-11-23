@@ -30,6 +30,17 @@ main_thread_messages → messages，tasks/sessions → tasks，session_requests 
 events/decision_logs 不直接触发资源失效。只读、无变化的 set、回滚与失败不发布。
 失败和中断回滚，连接 Semaphore 在所有退出路径释放。
 
+## JSON 配置
+
+`bots.json` 保存 `BotsConfig`，`config.json` 保存 `AutConfig`，`mcp.json` 保存版本为 1 的
+`McpConfig`。MCP 配置包含全局 `servers` 注册表和 Bot 到 server 的 `grants`。server 保存连接参数、
+启用状态、认证状态、健康状态和最近一次工具目录。敏感环境变量、请求头和 OAuth token 不写入 `mcp.json`，
+前两者使用 `secret:` 或 `env:` 引用，后者写入独立的 0600 `secrets.json`。
+
+文件缺失时 `mcp.json` 返回 `{schemaVersion:1, servers:[], grants:[]}`。文件解析或编码失败时保留原文件并返回
+配置错误。`ConfigStore.readMcp/writeMcp/updateMcp` 与其他配置文件共用跨文件 mutation 锁，成功保存后发布
+`mcp` Changes 资源。`ConfigStore` 不读取或迁移旧 Bot 内嵌的 `mcpServers[]` 字段。
+
 ## 领域服务
 
 - `MainThread.append(message)`、`page({before?,limit?})`、`get(id)`、`getByIds(ids)`。
@@ -39,13 +50,13 @@ events/decision_logs 不直接触发资源失效。只读、无变化的 set、�
   `update(id,pureFn)`。create 接受状态为 created、待答列表和队列均为空的任务，并原子创建会话执行登记。update 可修改任务内容，身份、来源、状态、待答列表和投递队列由各自的登记流程管理。
 - `DecisionLog.write(log)`、`get(id)`、`correct(id,correction)`、`complete(id,execution)`；
   修订只替换 correction，执行结果回写只替换 execution，两者事务化更新且保留原始路由记录。
-- `ConfigStore.readConfig/writeConfig/updateConfig`、`readBots/writeBots/updateBots`。
-  缺失文件分别返回 `{harnessInstances:[]}` 与 `[]`；非法文件报告错误，不静默重置。
+- `ConfigStore.readConfig/writeConfig/updateConfig`、`readBots/writeBots/updateBots`、`readMcp/writeMcp/updateMcp`。
+  缺失文件分别返回 `{harnessInstances:[]}`、`[]` 与空 `McpConfig`；非法文件报告错误，不静默重置。
   `withMutation(effect)`为跨文件配置检查与修改提供共享工作流锁；Administration 与主助手初始化共用它，
   内部单文件I/O锁独立，避免重入并防止旧快照覆盖新配置。
 - `EventBus.publish(event)`、`subscribe`（返回绑定调用方 Scope 的 Dequeue）。
 - `Changes.publish(resources)`、`subscribe`；独立 PubSub 发布资源失效，不能充当 chief 输入。
-  ConfigStore 原子保存成功后发布 bots/config；保存与发布不可中断，失败不发布。
+  ConfigStore 原子保存成功后发布 bots/config/mcp；保存与发布不可中断，失败不发布。
 
 TaskRegistry 的转移事件使用 `type`：`turn.started`、`request.opened {requestId}`、
 `request.answered {requestId}`、`turn.completed {ok:true}` 或

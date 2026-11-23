@@ -20,7 +20,7 @@ writeFileSync(join(directory, "bots.json"), JSON.stringify([primaryBotConfig(Bot
 const receiptBotId = BotId.make("packaged-observations");
 await Effect.runPromise(Effect.flatMap(Administration, (admin) => admin.createBot({
   id: receiptBotId, name: "观测助手", description: "Synthetic receipt check", soul: "",
-  cwd: directory, modelSelection: { instanceId: "local", model }, mcpServers: [],
+  cwd: directory, modelSelection: { instanceId: "local", model },
 }, TaskId.make("packaged-creator"))).pipe(Effect.provide(AdministrationLive.pipe(Layer.provide(CoreLive({ dataDirectory: directory }))))));
 const freePort = Effect.async<number, Error>((resume) => {
   const server = createServer();

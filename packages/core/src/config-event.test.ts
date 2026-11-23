@@ -53,7 +53,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "Keep exact instructions\n第二行",
   modelSelection: { instanceId: "local", model: "model-pinned", effort: "high" },
   cwd: "/existing/project",
-  mcpServers: [],
 });
 
 describe("atomic configuration files", () => {

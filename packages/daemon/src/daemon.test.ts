@@ -93,7 +93,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "Keep soul",
   cwd: "/existing/project",
   modelSelection: { instanceId: "local", model: "existing-model" },
-  mcpServers: [],
 });
 const task = (id: string, status: Task["status"]) =>
   Schema.decodeUnknownSync(Task)({

@@ -3,6 +3,7 @@ import type {
   BotConfig,
   DaemonResource,
   MainThreadMessage,
+  McpServer,
   MessageId,
   Task,
   Trigger,
@@ -18,12 +19,20 @@ interface Snapshot {
   readonly tasks: readonly Task[];
   readonly bots: readonly BotConfig[];
   readonly triggers: readonly Trigger[];
+  readonly mcpServers: readonly McpServer[];
   readonly config?: AutConfig;
   readonly requestRevision: number;
   readonly taskRevision: number;
 }
 
-const resources: readonly DaemonResource[] = ["messages", "tasks", "requests", "bots", "config"];
+const resources: readonly DaemonResource[] = [
+  "messages",
+  "tasks",
+  "requests",
+  "bots",
+  "config",
+  "mcp",
+];
 export function createDesktopData() {
   let state: Snapshot = {
     messages: [],
@@ -32,6 +41,7 @@ export function createDesktopData() {
     tasks: [],
     bots: [],
     triggers: [],
+    mcpServers: [],
     requestRevision: 0,
     taskRevision: 0,
   };
@@ -83,11 +93,12 @@ export function createDesktopData() {
           bots: changed.has("bots") ? desktopApi.listBots() : Effect.succeed(undefined),
           config: changed.has("config") ? desktopApi.getConfig() : Effect.succeed(undefined),
           triggers: changed.has("triggers") ? desktopApi.listTriggers() : Effect.succeed(undefined),
+          mcp: changed.has("mcp") ? desktopApi.listMcpServers() : Effect.succeed(undefined),
         },
         { concurrency: "unbounded", mode: "either" },
       );
       const errors = new Map<DaemonResource, UiError>();
-      for (const key of ["messages", "tasks", "bots", "config", "triggers"] as const) {
+      for (const key of ["messages", "tasks", "bots", "config", "triggers", "mcp"] as const) {
         const result = results[key];
         if (result._tag === "Left") errors.set(key, result.left);
       }
@@ -97,6 +108,7 @@ export function createDesktopData() {
       const bots = Either.getOrUndefined(results.bots);
       const config = Either.getOrUndefined(results.config);
       const triggers = Either.getOrUndefined(results.triggers);
+      const mcp = Either.getOrUndefined(results.mcp);
       publish({
         ...(errors.has("messages") && !state.messages.length && { messageStatus: "unavailable" }),
         ...Either.getOrUndefined(results.messages),
@@ -104,6 +116,7 @@ export function createDesktopData() {
         ...(bots && { bots: bots.bots }),
         ...(config && { config }),
         ...(triggers && { triggers: triggers.triggers }),
+        ...(mcp && { mcpServers: mcp.servers }),
         requestRevision: state.requestRevision + Number(changed.has("requests")),
         taskRevision: state.taskRevision + Number(changed.has("requests") || changed.has("tasks")),
       });
@@ -203,6 +216,95 @@ export function createDesktopData() {
       ),
     listTriggerRuns: (id: string) =>
       desktopApi.listTriggerRuns(id).pipe(Effect.map((value) => value.runs)),
+    createMcpServer: (input: Parameters<typeof desktopApi.createMcpServer>[0]) =>
+      lock.withPermits(1)(
+        desktopApi
+          .createMcpServer(input)
+          .pipe(
+            Effect.tap((value) =>
+              Effect.sync(() => publish({ mcpServers: [value.server, ...state.mcpServers] })),
+            ),
+          ),
+      ),
+    updateMcpServer: (id: string, input: Parameters<typeof desktopApi.updateMcpServer>[1]) =>
+      lock.withPermits(1)(
+        desktopApi.updateMcpServer(id, input).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                mcpServers: [
+                  value.server,
+                  ...state.mcpServers.filter((server) => server.id !== id),
+                ],
+              }),
+            ),
+          ),
+        ),
+      ),
+    deleteMcpServer: (id: string) =>
+      lock.withPermits(1)(
+        desktopApi
+          .deleteMcpServer(id)
+          .pipe(
+            Effect.tap(() =>
+              Effect.sync(() =>
+                publish({ mcpServers: state.mcpServers.filter((server) => server.id !== id) }),
+              ),
+            ),
+          ),
+      ),
+    testMcpServer: (id: string) =>
+      lock.withPermits(1)(
+        desktopApi.testMcpServer(id).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                mcpServers: [
+                  value.server,
+                  ...state.mcpServers.filter((server) => server.id !== id),
+                ],
+              }),
+            ),
+          ),
+        ),
+      ),
+    setMcpServerEnabled: (id: string, enabled: boolean) =>
+      lock.withPermits(1)(
+        desktopApi.setMcpServerEnabled(id, enabled).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                mcpServers: [
+                  value.server,
+                  ...state.mcpServers.filter((server) => server.id !== id),
+                ],
+              }),
+            ),
+          ),
+        ),
+      ),
+    startMcpAuth: (id: string) => desktopApi.startMcpAuth(id),
+    logoutMcpAuth: (id: string) =>
+      lock.withPermits(1)(
+        desktopApi.logoutMcpAuth(id).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                mcpServers: [
+                  value.server,
+                  ...state.mcpServers.filter((server) => server.id !== id),
+                ],
+              }),
+            ),
+          ),
+        ),
+      ),
+    listMcpGrants: (botId: string) => desktopApi.listMcpGrants(botId),
+    setMcpGrant: (
+      botId: string,
+      serverId: string,
+      input: Parameters<typeof desktopApi.setMcpGrant>[2],
+    ) => desktopApi.setMcpGrant(botId, serverId, input),
   };
 }
 export type DesktopData = ReturnType<typeof createDesktopData>;

@@ -23,6 +23,15 @@ import {
   DeletedResponse,
   HealthResponse,
   ListTasksInput,
+  McpAuthStartResponse,
+  McpGrantInput,
+  McpGrantResponse,
+  McpGrantsResponse,
+  McpServerId,
+  McpServerInput,
+  McpServerResponse,
+  McpServersResponse,
+  McpTestResponse,
   MessageId,
   MessagePageInput,
   MessagePageResponse,
@@ -65,6 +74,7 @@ import { WebSocket, WebSocketServer } from "ws";
 import { Administration } from "./admin.js";
 import { DaemonError, decode, io, publicError } from "./errors.js";
 import { InboundGateway } from "./inbound.js";
+import { McpSupervisor } from "./mcp-supervisor.js";
 import { Authentication } from "./ownership.js";
 import { Recovery } from "./recovery.js";
 import { RouteTest } from "./route-test.js";
@@ -185,6 +195,7 @@ export const HttpServerLive = (port = 4317) =>
       const triggers = yield* TriggerRegistry;
       const sessions = yield* SessionReader;
       const records = yield* SessionRecords;
+      const mcp = yield* McpSupervisor;
       const bus = yield* EventBus;
       const changes = yield* Changes;
       const runtime = yield* Effect.runtime<never>();
@@ -342,6 +353,58 @@ export const HttpServerLive = (port = 4317) =>
               });
             yield* admin.deleteBot(id);
             return yield* respond(response, 200, DeletedResponse, { deleted: true });
+          }
+          if (method === "GET" && path === "/v1/mcp/servers")
+            return yield* respond(response, 200, McpServersResponse, { servers: yield* mcp.list });
+          if (method === "POST" && path === "/v1/mcp/servers")
+            return yield* respond(response, 201, McpServerResponse, {
+              server: yield* mcp.create(yield* body(request, McpServerInput)),
+            });
+          const mcpServerAction = /^\/v1\/mcp\/servers\/([^/]+)\/(test|enable|disable)$/.exec(path);
+          if (mcpServerAction?.[1] && mcpServerAction[2]) {
+            const id = yield* decode(McpServerId, yield* pathId(mcpServerAction[1]));
+            if (method === "POST" && mcpServerAction[2] === "test")
+              return yield* respond(response, 200, McpTestResponse, {
+                server: yield* mcp.test(id),
+              });
+            if (method === "POST")
+              return yield* respond(response, 200, McpServerResponse, {
+                server: yield* mcp.setEnabled(id, mcpServerAction[2] === "enable"),
+              });
+          }
+          const mcpAuthAction = /^\/v1\/mcp\/servers\/([^/]+)\/auth\/(start|logout)$/.exec(path);
+          if (method === "POST" && mcpAuthAction?.[1] && mcpAuthAction[2]) {
+            const id = yield* decode(McpServerId, yield* pathId(mcpAuthAction[1]));
+            if (mcpAuthAction[2] === "start")
+              return yield* respond(response, 200, McpAuthStartResponse, yield* mcp.authStart(id));
+            return yield* respond(response, 200, McpServerResponse, {
+              server: yield* mcp.authLogout(id),
+            });
+          }
+          const mcpServerMatch = /^\/v1\/mcp\/servers\/([^/]+)$/.exec(path);
+          if (mcpServerMatch?.[1] && (method === "PUT" || method === "DELETE")) {
+            const id = yield* decode(McpServerId, yield* pathId(mcpServerMatch[1]));
+            if (method === "PUT")
+              return yield* respond(response, 200, McpServerResponse, {
+                server: yield* mcp.update(id, yield* body(request, McpServerInput)),
+              });
+            yield* mcp.remove(id);
+            return yield* respond(response, 200, DeletedResponse, { deleted: true });
+          }
+          const mcpGrantsMatch = /^\/v1\/bots\/([^/]+)\/mcp-grants(?:\/([^/]+))?$/.exec(path);
+          if (mcpGrantsMatch?.[1]) {
+            const botId = yield* decode(BotId, yield* pathId(mcpGrantsMatch[1]));
+            if (method === "GET" && !mcpGrantsMatch[2])
+              return yield* respond(response, 200, McpGrantsResponse, {
+                grants: yield* mcp.listGrants(botId),
+              });
+            if (method === "PUT" && mcpGrantsMatch[2]) {
+              const serverId = yield* decode(McpServerId, yield* pathId(mcpGrantsMatch[2]));
+              const input = yield* body(request, McpGrantInput);
+              return yield* respond(response, 200, McpGrantResponse, {
+                grant: yield* mcp.setGrant(botId, serverId, input.enabled, input.allowedTools),
+              });
+            }
           }
           if (path === "/v1/secrets" && method === "POST") {
             const input = yield* body(request, SecretSaveInput);

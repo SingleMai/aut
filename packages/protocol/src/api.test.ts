@@ -10,7 +10,6 @@ const bot = {
   soul: "",
   cwd: "/tmp/aut",
   modelSelection: { instanceId: "local", model: "model-1" },
-  mcpServers: [],
 };
 const task = {
   id: "t1",
@@ -144,6 +143,64 @@ const cases: Record<string, { valid: unknown; invalid: unknown }> = {
   ApiErrorResponse: {
     valid: { error: { code: "NotFound", message: "Not found" } },
     invalid: { error: { message: "Missing code" } },
+  },
+  McpServersResponse: {
+    valid: { servers: [] },
+    invalid: { servers: [{}] },
+  },
+  McpServerResponse: {
+    valid: {
+      server: {
+        id: "mcp-1",
+        name: "Calendar",
+        transport: "http",
+        url: "https://example.com/mcp",
+        enabled: false,
+        auth: { status: "none" },
+        health: { status: "unknown" },
+        tools: [],
+      },
+    },
+    invalid: { server: { id: "mcp-1" } },
+  },
+  McpServerInputResponse: {
+    valid: { name: "Calendar", transport: "stdio", command: "calendar-mcp", args: [] },
+    invalid: { name: "Calendar", transport: "http", url: "ftp://example.com" },
+  },
+  McpGrantInput: {
+    valid: { enabled: true, allowedTools: ["search"] },
+    invalid: { enabled: "yes", allowedTools: [] },
+  },
+  McpGrantsResponse: {
+    valid: { grants: [] },
+    invalid: { grants: [{}] },
+  },
+  McpGrantResponse: {
+    valid: { grant: { botId: "b1", serverId: "mcp-1", enabled: true, allowedTools: ["search"] } },
+    invalid: { grant: { botId: "b1" } },
+  },
+  McpTestResponse: {
+    valid: {
+      server: {
+        id: "mcp-1",
+        name: "Calendar",
+        transport: "http",
+        url: "https://example.com/mcp",
+        enabled: false,
+        auth: { status: "none" },
+        health: { status: "ready", checkedAt: 1 },
+        tools: [],
+      },
+    },
+    invalid: { server: { id: "mcp-1" } },
+  },
+  McpServerIdResponse: {
+    valid: { serverId: "mcp-1" },
+    invalid: { serverId: "" },
+  },
+  McpAuthStartResponse: {
+    valid: { serverId: "mcp-1", authorizationUrl: "https://example.com/authorize", expiresAt: 1 },
+    invalid: { serverId: "mcp-1", authorizationUrl: "ftp://example.com", expiresAt: 1 },
   },
 };
 

@@ -14,7 +14,7 @@ writeFileSync(serverPath, `const readline=require('node:readline');readline.crea
 const model = process.env.AUT_CODEX_MODEL ?? "gpt-6.1-sol";
 const server = { name: process.env.AUT_MCP_FIXTURE_NAME ?? "aut.fixture", transport: "stdio" as const, command: process.execPath, args: [serverPath] };
 const overridden = { ...server, name: "aut_override_fixture", env: { AUT_MCP_FIXTURE_TOOL: "override_fixture" } };
-const input: StartSessionInput = { taskId: TaskId.make("mcp-fixture"), bot: { id: BotId.make("mcp-probe"), name: "Probe", description: "Fixture", soul: "", modelSelection: { instanceId: "codex", model }, cwd, mcpServers: [server, overridden] }, cwd, model, instructions: "Synthetic configuration test", mcpServers: [server, overridden] };
+const input: StartSessionInput = { taskId: TaskId.make("mcp-fixture"), bot: { id: BotId.make("mcp-probe"), name: "Probe", description: "Fixture", soul: "", modelSelection: { instanceId: "codex", model }, cwd }, cwd, model, instructions: "Synthetic configuration test", mcpServers: [server, overridden] };
 let native: Transport | undefined;
 const baseline = (tool: string) => `{command=${JSON.stringify(process.execPath)},args=[${JSON.stringify(serverPath)}],env={AUT_MCP_FIXTURE_TOOL=${JSON.stringify(tool)}}}`;
 const adapter = makeCodexAdapter({ args: ["-c", `mcp_servers.aut_inherited_fixture=${baseline("inherited_fixture")}`, "-c", `mcp_servers.aut_override_fixture=${baseline("old_fixture")}`] }, { open: (options) => NodeTransport.open(options).pipe(Effect.tap((value) => Effect.sync(() => { native = value; }))) });

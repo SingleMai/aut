@@ -16,7 +16,7 @@ export const temporarySessionInput = (
 ): StartSessionInput => ({
   ...input,
   instructions,
-  bot: { ...input.bot, soul: "", mcpServers: [] },
+  bot: { ...input.bot, soul: "" },
   mcpServers: [],
 });
 

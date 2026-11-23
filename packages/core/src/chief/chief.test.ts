@@ -161,6 +161,9 @@ const setup = (
           readConfig: Effect.succeed({ harnessInstances: [] }),
           writeConfig: () => Effect.die("Unused"),
           updateConfig: () => Effect.die("Unused"),
+          readMcp: Effect.succeed({ schemaVersion: 1 as const, servers: [], grants: [] }),
+          writeMcp: () => Effect.die("Unused"),
+          updateMcp: () => Effect.die("Unused"),
           readBots: Effect.succeed([
             {
               id: BotId.make("research"),
@@ -169,7 +172,6 @@ const setup = (
               soul: "",
               modelSelection: { instanceId: "test", model: "test" },
               cwd: "/tmp",
-              mcpServers: [],
             },
             {
               id: BotId.make("aut"),
@@ -178,7 +180,6 @@ const setup = (
               soul: "",
               modelSelection: { instanceId: "test", model: "test" },
               cwd: "/tmp",
-              mcpServers: [],
               system: "primary" as const,
             },
           ]),

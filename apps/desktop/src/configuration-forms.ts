@@ -72,13 +72,10 @@ export function readBotForm(
       soul: formText(form, "soul"),
       cwd: read("cwd"),
       modelSelection: { instanceId: instance, model: read("model"), ...(effort ? { effort } : {}) },
-      mcpServers: jsonField(form, "mcp", errors),
       ...(bot?.system ? { system: bot.system } : {}),
     },
     errors,
     ([field, child]) => {
-      if (field === "mcpServers")
-        return ["mcp", messages.mcp(typeof child === "number" ? child + 1 : undefined)];
       if (field === "modelSelection")
         return [child === "instanceId" ? "instance" : String(child), messages.required];
       return [String(field), messages.required];

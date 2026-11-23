@@ -33,7 +33,7 @@ chief 处理不了的情况（意图不明、跨多任务的元请求等）**下
 | 概念 | 说明 |
 |---|---|
 | **Main thread** | 用户与 aut 的唯一对话流。包含用户消息、chief 模板回复、回包、问题卡片、澄清卡片。持久化在 SQLite。 |
-| **Bot** | 用户配置的"岗位"：名称、路由专长（以原语言进入 Jev 的 state）、soul（长期指令）、使用哪个 harness 实例与模型、workdir、MCP servers。 |
+| **Bot** | 用户配置的"岗位"：名称、路由专长（以原语言进入 Jev 的 state）、soul（长期指令）、使用哪个 harness 实例与模型、workdir。外部 MCP server 与 Bot grant 由全局注册表管理。 |
 | **主助手** | 唯一内置的主助手 aut，可直接工作、承接路由兜底，也可在 chief 下沉时协调。 |
 | **Harness 实例** | 一个可用的 harness 配置（如"本机 Codex，路径 X"），bot 通过 `instanceId` 引用。 |
 | **Task** | 一次委托。**一个 task = 一个 bot 的一个 session**，创建后不能换 bot；一个 bot 可同时有多个 task。 |
@@ -77,7 +77,6 @@ description      用户填写的专长，可用中文。路由与试验使用同
 soul             长期指令/人设，写入 workdir 下的指令文件（harness 自己读取，如 AGENTS.md）
 modelSelection   { instanceId, model, effort? }
 cwd              workdir
-mcpServers[]     额外 MCP servers（aut 自己的 McpBridge 总是挂载）
 system?          "primary"（当前内置主助手标记）
 ```
 普通 Bot 可由用户在配置页创建，也可由工作或协调会话里的 Agent 创建，详见 [会话 MCP bridge](mcp-bridge.md)。

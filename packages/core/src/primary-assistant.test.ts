@@ -53,7 +53,6 @@ describe("configured primary assistant", () => {
     expect(bot.name).toBe("aut");
     expect(bot.modelSelection).toEqual(seed.modelSelection);
     expect(bot.cwd).toBe(seed.cwd);
-    expect(bot.mcpServers).toEqual([]);
     expect(bot.description).toMatch(/^[\x20-\x7E]+$/);
     expect(bot.soul).toMatch(/^[\x20-\x7E]+$/);
     expect(bot.modelSelection).not.toBe(seed.modelSelection);
@@ -72,7 +71,6 @@ describe("configured primary assistant", () => {
       ...primaryBotConfig(BotId.make("user-chosen-id"), seed),
       name: "Edited name",
       soul: "User-owned instructions",
-      mcpServers: [{ name: "custom", transport: "stdio", command: "bridge", args: [] }],
     };
     await withRegistry([existing], (directory) =>
       Effect.gen(function* () {

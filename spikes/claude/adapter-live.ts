@@ -24,7 +24,6 @@ const input: StartSessionInput = {
     soul: "",
     modelSelection: { instanceId: "claude-live", model },
     cwd: workdir,
-    mcpServers: [],
   },
   model,
   cwd: workdir,

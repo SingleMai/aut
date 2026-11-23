@@ -471,7 +471,6 @@ const program = Effect.scoped(
         soul: "Never execute a harness in this fixture.",
         cwd: directory,
         modelSelection: { instanceId: "qa-supported", model: "fixture-only" },
-        mcpServers: [],
       },
     ]);
     yield* store.transaction((tx) =>

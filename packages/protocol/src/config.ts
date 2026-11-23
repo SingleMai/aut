@@ -1,5 +1,15 @@
 import { Schema } from "effect";
-import { BotId, HttpUrl, NonEmptyString, optional, StringRecord, uniqueBy } from "./common.js";
+import {
+  BotId,
+  HttpUrl,
+  JsonValue,
+  McpServerId,
+  NonEmptyString,
+  optional,
+  StringRecord,
+  Timestamp,
+  uniqueBy,
+} from "./common.js";
 
 export const McpServerConfig = Schema.Union(
   Schema.Struct({
@@ -7,16 +17,114 @@ export const McpServerConfig = Schema.Union(
     transport: Schema.Literal("stdio"),
     command: NonEmptyString,
     args: Schema.Array(Schema.String),
+    cwd: optional(NonEmptyString),
     env: optional(StringRecord),
   }),
   Schema.Struct({
     name: NonEmptyString,
-    transport: Schema.Literal("http"),
+    transport: Schema.Literal("http", "sse"),
     url: HttpUrl,
     headers: optional(StringRecord),
   }),
 );
 export type McpServerConfig = typeof McpServerConfig.Type;
+
+export const McpTool = Schema.Struct({
+  name: NonEmptyString,
+  description: optional(Schema.String),
+  inputSchema: optional(JsonValue),
+});
+export type McpTool = typeof McpTool.Type;
+
+export const McpAuthStatus = Schema.Struct({
+  status: Schema.Literal("none", "required", "authenticated", "error"),
+  message: optional(Schema.String),
+  updatedAt: optional(Timestamp),
+});
+export type McpAuthStatus = typeof McpAuthStatus.Type;
+
+export const McpHealthStatus = Schema.Struct({
+  status: Schema.Literal("unknown", "ready", "error"),
+  message: optional(Schema.String),
+  checkedAt: optional(Timestamp),
+});
+export type McpHealthStatus = typeof McpHealthStatus.Type;
+
+const McpSecretReference = Schema.String.pipe(
+  Schema.pattern(/^(?:secret:[A-Za-z0-9][A-Za-z0-9_-]{0,63}|(?:env:)?[A-Z_][A-Z0-9_]*)$/),
+);
+export const McpOAuthClient = Schema.Struct({
+  clientId: optional(NonEmptyString),
+  clientSecretRef: optional(McpSecretReference),
+});
+export type McpOAuthClient = typeof McpOAuthClient.Type;
+
+const mcpServerStateFields = {
+  id: McpServerId,
+  name: NonEmptyString,
+  enabled: Schema.Boolean,
+  auth: McpAuthStatus,
+  oauth: optional(McpOAuthClient),
+  health: McpHealthStatus,
+  tools: Schema.Array(McpTool).pipe(Schema.filter((tools) => uniqueBy(tools, (tool) => tool.name))),
+};
+
+export const McpServer = Schema.Union(
+  Schema.Struct({
+    ...mcpServerStateFields,
+    transport: Schema.Literal("stdio"),
+    command: NonEmptyString,
+    args: Schema.Array(Schema.String),
+    cwd: optional(NonEmptyString),
+    env: optional(StringRecord),
+  }),
+  Schema.Struct({
+    ...mcpServerStateFields,
+    transport: Schema.Literal("http", "sse"),
+    url: HttpUrl,
+    headers: optional(StringRecord),
+    oauth: optional(McpOAuthClient),
+  }),
+);
+export type McpServer = typeof McpServer.Type;
+
+export const McpServerInput = Schema.Union(
+  Schema.Struct({
+    name: NonEmptyString,
+    transport: Schema.Literal("stdio"),
+    command: NonEmptyString,
+    args: Schema.Array(Schema.String),
+    cwd: optional(NonEmptyString),
+    env: optional(StringRecord),
+  }),
+  Schema.Struct({
+    name: NonEmptyString,
+    transport: Schema.Literal("http", "sse"),
+    url: HttpUrl,
+    headers: optional(StringRecord),
+    oauth: optional(McpOAuthClient),
+  }),
+);
+export type McpServerInput = typeof McpServerInput.Type;
+
+export const McpGrant = Schema.Struct({
+  botId: BotId,
+  serverId: McpServerId,
+  enabled: Schema.Boolean,
+  allowedTools: Schema.Array(NonEmptyString).pipe(
+    Schema.filter((tools) => new Set(tools).size === tools.length),
+  ),
+});
+export type McpGrant = typeof McpGrant.Type;
+
+export const McpConfig = Schema.Struct({
+  schemaVersion: Schema.Literal(1),
+  servers: Schema.Array(McpServer).pipe(Schema.filter((servers) => uniqueBy(servers, (s) => s.id))),
+  grants: Schema.Array(McpGrant).pipe(
+    Schema.filter((grants) => uniqueBy(grants, (grant) => `${grant.botId}:${grant.serverId}`)),
+  ),
+});
+export type McpConfig = typeof McpConfig.Type;
 
 export const ModelSelection = Schema.Struct({
   instanceId: NonEmptyString,
@@ -33,7 +141,6 @@ export const BotConfig = Schema.Struct({
   soul: Schema.String,
   modelSelection: ModelSelection,
   cwd: NonEmptyString,
-  mcpServers: Schema.Array(McpServerConfig),
   system: optional(Schema.Literal("primary")),
 });
 export type BotConfig = typeof BotConfig.Type;

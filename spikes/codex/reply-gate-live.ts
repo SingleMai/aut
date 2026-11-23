@@ -19,7 +19,7 @@ const botId = BotId.make("gate-live");
 const input: StartSessionInput = {
   taskId, model, effort: "low", cwd: workdir, mcpServers: [],
   instructions: "This is a synthetic report test. Do not use tools or ask questions. Follow the current request and output only the requested report.",
-  bot: { id: botId, name: "Gate fixture", description: "Synthetic report verification", soul: "", cwd: workdir, modelSelection: { instanceId: "codex", model }, mcpServers: [] },
+  bot: { id: botId, name: "Gate fixture", description: "Synthetic report verification", soul: "", cwd: workdir, modelSelection: { instanceId: "codex", model } },
 };
 const at = Date.now();
 const task: Task = { id: taskId, botId, title: "Synthetic gate verification", status: "reporting", createdAt: at, updatedAt: at, lastActivityAt: at, session: { instanceId: "codex" }, pendingRequestIds: [], queue: [], origin: { kind: "user" } };

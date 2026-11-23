@@ -44,7 +44,6 @@ const configuredBot = Schema.decodeUnknownSync(BotConfig)({
   soul: "",
   modelSelection: { instanceId: "local", model: "test" },
   cwd: "/tmp",
-  mcpServers: [],
 });
 
 describe("TriggerRegistry", () => {

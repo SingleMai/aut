@@ -8,6 +8,7 @@ import { createDesktopData } from "./desktop-data.js";
 import { DesktopSidebar, type DesktopView, pages } from "./desktop-sidebar.js";
 import { t } from "./i18n.js";
 import { Icon } from "./icons.js";
+import { McpPage } from "./mcp-page.js";
 import { SettingsPage } from "./settings-page.js";
 import { TaskPage } from "./task-page.js";
 import { runUi } from "./ui/use-action.js";
@@ -162,6 +163,7 @@ export function DesktopApp() {
             {view === "automations" && (
               <AutomationsPage {...{ bots, data, flash }} triggers={snapshot.triggers} />
             )}
+            {view === "mcp" && <McpPage {...{ bots, data, flash }} servers={snapshot.mcpServers} />}
             {view === "settings" && config && <SettingsPage {...{ config, data, flash }} />}
           </section>
         </main>

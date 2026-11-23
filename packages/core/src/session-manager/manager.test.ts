@@ -67,7 +67,6 @@ const bot: BotConfig = {
   soul: "",
   modelSelection: { instanceId: "fixture", model: "fixture-model" },
   cwd: "/tmp",
-  mcpServers: [],
 };
 const until = (check: Effect.Effect<boolean, CoreError>) =>
   Effect.gen(function* () {

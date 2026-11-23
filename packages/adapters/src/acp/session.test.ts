@@ -21,7 +21,6 @@ const input: StartSessionInput = {
     soul: "",
     modelSelection: { instanceId: "acp-fixture", model: "fixture-model" },
     cwd: "/tmp",
-    mcpServers: [],
   },
   model: "fixture-model",
   cwd: "/tmp",

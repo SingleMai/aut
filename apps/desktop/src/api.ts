@@ -8,6 +8,14 @@ import {
   type CreateTriggerInput,
   DeletedResponse,
   JsonValue,
+  McpAuthStartResponse,
+  type McpGrantInput,
+  McpGrantResponse,
+  McpGrantsResponse,
+  type McpServerInput,
+  McpServerResponse,
+  McpServersResponse,
+  McpTestResponse,
   MessagePageResponse,
   MessageResponse,
   ReportResponse,
@@ -99,6 +107,34 @@ export const desktopApi = {
   testRoute: (input: RouteTestInput) => request("POST", "/v1/route-test", RouteTestResponse, input),
   getConfig: () => request("GET", "/v1/config", ConfigResponse),
   saveConfig: (config: AutConfig) => request("PUT", "/v1/config", ConfigResponse, config),
+  listMcpServers: () => request("GET", "/v1/mcp/servers", McpServersResponse),
+  createMcpServer: (input: typeof McpServerInput.Encoded) =>
+    request("POST", "/v1/mcp/servers", McpServerResponse, input),
+  updateMcpServer: (id: string, input: typeof McpServerInput.Encoded) =>
+    request("PUT", `/v1/mcp/servers/${encodeURIComponent(id)}`, McpServerResponse, input),
+  deleteMcpServer: (id: string) =>
+    request("DELETE", `/v1/mcp/servers/${encodeURIComponent(id)}`, DeletedResponse),
+  testMcpServer: (id: string) =>
+    request("POST", `/v1/mcp/servers/${encodeURIComponent(id)}/test`, McpTestResponse),
+  setMcpServerEnabled: (id: string, enabled: boolean) =>
+    request(
+      "POST",
+      `/v1/mcp/servers/${encodeURIComponent(id)}/${enabled ? "enable" : "disable"}`,
+      McpServerResponse,
+    ),
+  startMcpAuth: (id: string) =>
+    request("POST", `/v1/mcp/servers/${encodeURIComponent(id)}/auth/start`, McpAuthStartResponse),
+  logoutMcpAuth: (id: string) =>
+    request("POST", `/v1/mcp/servers/${encodeURIComponent(id)}/auth/logout`, McpServerResponse),
+  listMcpGrants: (botId: string) =>
+    request("GET", `/v1/bots/${encodeURIComponent(botId)}/mcp-grants`, McpGrantsResponse),
+  setMcpGrant: (botId: string, serverId: string, input: typeof McpGrantInput.Encoded) =>
+    request(
+      "PUT",
+      `/v1/bots/${encodeURIComponent(botId)}/mcp-grants/${encodeURIComponent(serverId)}`,
+      McpGrantResponse,
+      input,
+    ),
   listTriggers: () => request("GET", "/v1/triggers", TriggersResponse),
   createTrigger: (input: typeof CreateTriggerInput.Encoded) =>
     request("POST", "/v1/triggers", TriggerResponse, input),

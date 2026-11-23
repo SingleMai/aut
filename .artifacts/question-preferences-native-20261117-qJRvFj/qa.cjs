@@ -46,7 +46,7 @@ ipcMain.handle('aut:request', (_event, input) => {
   let data;
   if (route === '/v1/messages') data = { messages };
   else if (route === '/v1/tasks') data = { tasks };
-  else if (route === '/v1/bots') data = { bots: [{ id: botId, name: '隔离测试助手', description: 'Synthetic local UI fixture', soul: '', modelSelection: { instanceId: 'qa-fixture', model: 'synthetic' }, cwd: qa, mcpServers: [] }] };
+  else if (route === '/v1/bots') data = { bots: [{ id: botId, name: '隔离测试助手', description: 'Synthetic local UI fixture', soul: '', modelSelection: { instanceId: 'qa-fixture', model: 'synthetic' }, cwd: qa }] };
   else if (route === '/v1/config') data = { harnessInstances: [] };
   else if (route === `/v1/requests/${requestId}`) data = { request };
   else if (route === '/v1/health') data = { status: 'ok' };

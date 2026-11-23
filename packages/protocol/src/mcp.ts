@@ -12,7 +12,7 @@ import {
   TriggerId,
   uniqueBy,
 } from "./common.js";
-import { BotConfig, McpServerConfig, ModelSelection } from "./config.js";
+import { BotConfig, ModelSelection } from "./config.js";
 import {
   MessageAuthor,
   ProposableOp,
@@ -76,7 +76,6 @@ export const CreateBotInput = Schema.Struct({
   ...BotConfig.pick("id", "name", "description", "soul", "characterId").fields,
   modelSelection: optional(ModelSelection),
   cwd: optional(NonEmptyString),
-  mcpServers: optional(Schema.Array(McpServerConfig)),
 });
 export type CreateBotInput = typeof CreateBotInput.Type;
 export const CreateBotOutput = BotConfig.pick("id", "name");

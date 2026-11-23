@@ -105,11 +105,6 @@ export function BotEditor({
                   label={t.effort}
                   defaultValue={bot?.modelSelection.effort ?? ""}
                 />
-                <TextAreaField
-                  name="mcp"
-                  label={t.mcp}
-                  defaultValue={JSON.stringify(bot?.mcpServers ?? [], null, 2)}
-                />
               </details>
               {bot?.system && <p className="muted">{t.primaryAssistant}</p>}
             </div>

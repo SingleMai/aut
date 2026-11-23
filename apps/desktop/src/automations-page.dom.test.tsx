@@ -22,7 +22,6 @@ const bot: BotConfig = {
   soul: "",
   cwd: "/tmp",
   modelSelection: { instanceId: "local", model: "test" },
-  mcpServers: [],
 };
 
 const trigger: Trigger = {

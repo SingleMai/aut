@@ -50,8 +50,7 @@ const run = withDaemon(directory, (api) =>
       created?.name === "星表助手" &&
         !created.system &&
         created.cwd === manual.cwd &&
-        created.modelSelection.model === manual.modelSelection.model &&
-        created.mcpServers.length === 0,
+        created.modelSelection.model === manual.modelSelection.model,
       "The ordinary Agent did not create the requested bot with inherited defaults",
     );
     const toolProof = (id: string) =>

@@ -61,6 +61,7 @@
 | MVP-16 | Electron 桌面端 | 05（可先 mock 03） | P6 |
 | MVP-17 | 端到端验收 | 全部 | — |
 | MVP-18 | Trigger and Automation：本地计划触发、运行账本、Chief/Task/Session 接入与桌面管理 | 03, 04, 05, 08, 09, 16 | P6 |
+| MVP-19 | MCP server 注册表、OAuth、工具目录、Bot grant、daemon supervisor 与桌面管理 | 03, 04, 05, 10, 16 | P6 |
 
 可并行起步：01 ∥ 02；03 完成后 04 ∥ 06 ∥ 07（需 01）∥ 16（mock）。
 
@@ -70,4 +71,5 @@
 - 备用 Classifier 后端（LiteLLM 等结构化输出）。
 - 基于决策日志的评测集与阈值调优工具。
 - 主动型 bot 的 Webhook、文件变化事件、可配置 overlap 策略和失败自动重试，首个本地计划触发切片与 MCP trigger 工具的边界见 ADR-0056 至 ADR-0060。
+- MCP registry 首期已经覆盖 stdio、Streamable HTTP、SSE、OAuth PKCE、工具发现和按 Bot/工具授权。resources、prompts、elicitation、通配符授权和跨设备凭据同步另行设计，见 ADR-0061。
 - request 树的"只有用户能回答吗"自动默认策略（需 ADR）。

@@ -59,7 +59,6 @@ it("uses a fresh configuration snapshot per tree and keeps credentials outside d
             soul: "",
             cwd: "/tmp",
             modelSelection: { instanceId: "local", model: "test" },
-            mcpServers: [],
           });
           yield* config.writeBots([
             bot,

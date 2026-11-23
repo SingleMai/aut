@@ -34,7 +34,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "",
   cwd: "/tmp",
   modelSelection: { instanceId: "local", model: "test" },
-  mcpServers: [],
 });
 const message = (id: string, text = id) =>
   Schema.decodeUnknownSync(MainThreadMessage)({ id, at: 1, author: "user", kind: "text", text });

@@ -15,7 +15,7 @@ const directory = mkdtempSync(join(tmpdir(), "aut-manager-live-"));
 const cwd = join(directory, "work");
 mkdirSync(cwd);
 const model = process.env.AUT_CODEX_MODEL ?? "gpt-6.1-sol";
-const bot: BotConfig = { id: BotId.make("live-worker"), name: "Synthetic worker", description: "Synthetic manager integration", soul: "", modelSelection: { instanceId: "codex-live", model }, cwd, mcpServers: [] };
+const bot: BotConfig = { id: BotId.make("live-worker"), name: "Synthetic worker", description: "Synthetic manager integration", soul: "", modelSelection: { instanceId: "codex-live", model }, cwd };
 const childPids = new Set<number>();
 const adapter = makeCodexAdapter({}, { open: (options) => NodeTransport.open(options).pipe(Effect.tap(() => Effect.sync(() => {
   for (const value of execFileSync("pgrep", ["-P", String(process.pid)], { encoding: "utf8" }).trim().split("\n")) if (value) childPids.add(Number(value));

@@ -19,7 +19,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "",
   cwd: "/tmp",
   modelSelection: { instanceId: "local", model: "test" },
-  mcpServers: [],
   system: "primary",
 });
 const run = <A, E>(

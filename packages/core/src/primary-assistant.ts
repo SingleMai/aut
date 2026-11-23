@@ -15,7 +15,6 @@ export const primaryBotConfig = (
   soul: "You are aut's primary assistant. Do the requested work yourself when you can. Use the supplied context and relevant evidence, ask the user through the native question tool when needed, and report the outcome in the user's language.",
   modelSelection: { ...seed.modelSelection },
   cwd: seed.cwd,
-  mcpServers: [],
 });
 
 export const isCoordinationTask = (

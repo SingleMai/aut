@@ -93,6 +93,7 @@ export class SecretStore extends Context.Tag("aut/SecretStore")<
       name: string,
       key: Redacted.Redacted<string>,
     ) => Effect.Effect<SecretSaveResponse, DaemonError>;
+    readonly remove: (name: string) => Effect.Effect<void, DaemonError>;
     readonly resolve: (reference: string) => Effect.Effect<Redacted.Redacted<string>, DaemonError>;
     readonly status: (reference: string) => Effect.Effect<SecretStatusResponse, DaemonError>;
   }
@@ -147,6 +148,35 @@ export const SecretStoreLive = (options: CoreOptions = {}) =>
                   writeFile(directory, `${encoded}\n`),
                 );
                 return { apiKeyRef: `secret:${checked.name}`, configured: true } as const;
+              }),
+            ),
+          ),
+        remove: (name) =>
+          semaphore.withPermits(1)(
+            Effect.uninterruptible(
+              Effect.gen(function* () {
+                const checked = yield* decode(SecretName, name);
+                const previous = yield* read;
+                const next: SecretFile = {
+                  schemaVersion: 1,
+                  entries: previous.entries.filter((entry) => entry.name !== checked),
+                };
+                const encoded = yield* Schema.encode(Schema.parseJson(SecretFile))(next).pipe(
+                  Effect.mapError(unavailable),
+                );
+                if (next.entries.length === 0) {
+                  yield* io("The local credential could not be removed", () => {
+                    try {
+                      unlinkSync(join(directory, "secrets.json"));
+                    } catch (error) {
+                      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+                    }
+                  });
+                } else {
+                  yield* io("The local credential could not be removed", () =>
+                    writeFile(directory, `${encoded}\n`),
+                  );
+                }
               }),
             ),
           ),

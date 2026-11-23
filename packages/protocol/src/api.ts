@@ -1,14 +1,17 @@
 import { Schema } from "effect";
 import {
   BotId,
+  HttpUrl,
   JsonValue,
+  McpServerId,
   MessageId,
   NonEmptyString,
   PositiveInteger,
   Probability,
+  Timestamp,
   TriggerId,
 } from "./common.js";
-import { AutConfig, BotConfig, BotsConfig } from "./config.js";
+import { AutConfig, BotConfig, BotsConfig, McpGrant, McpServer, McpServerInput } from "./config.js";
 import {
   AutEvent,
   MainThreadMessage,
@@ -83,6 +86,24 @@ export type RouteTestResponse = typeof RouteTestResponse.Type;
 export const BotsResponse = Schema.Struct({ bots: BotsConfig });
 export const BotResponse = Schema.Struct({ bot: BotConfig });
 export const ConfigResponse = AutConfig;
+export const McpServersResponse = Schema.Struct({ servers: Schema.Array(McpServer) });
+export const McpServerResponse = Schema.Struct({ server: McpServer });
+export const McpServerInputResponse = McpServerInput;
+export const McpGrantInput = Schema.Struct({
+  enabled: Schema.Boolean,
+  allowedTools: Schema.Array(NonEmptyString),
+});
+export type McpGrantInput = typeof McpGrantInput.Type;
+export const McpGrantsResponse = Schema.Struct({ grants: Schema.Array(McpGrant) });
+export const McpGrantResponse = Schema.Struct({ grant: McpGrant });
+export const McpTestResponse = Schema.Struct({ server: McpServer });
+export const McpServerIdResponse = Schema.Struct({ serverId: McpServerId });
+export const McpAuthStartResponse = Schema.Struct({
+  serverId: McpServerId,
+  authorizationUrl: HttpUrl,
+  expiresAt: Timestamp,
+});
+export type McpAuthStartResponse = typeof McpAuthStartResponse.Type;
 export const HealthResponse = Schema.Struct({ status: Schema.Literal("ok") });
 export const AcceptedResponse = Schema.Struct({ accepted: Schema.Literal(true) });
 export const DeletedResponse = Schema.Struct({ deleted: Schema.Literal(true) });
@@ -118,6 +139,7 @@ export const DaemonResource = Schema.Literal(
   "requests",
   "bots",
   "config",
+  "mcp",
   "triggers",
 );
 export type DaemonResource = typeof DaemonResource.Type;

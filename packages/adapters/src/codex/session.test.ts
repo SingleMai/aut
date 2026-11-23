@@ -53,7 +53,6 @@ const input: StartSessionInput = {
     soul: "",
     modelSelection: { instanceId: "codex-test", model: "gpt-6.1-sol" },
     cwd: "/tmp",
-    mcpServers: [],
   },
   model: "gpt-6.1-sol",
   cwd: "/tmp",

@@ -27,7 +27,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "",
   cwd: "/tmp",
   modelSelection: { instanceId: "local", model: "test" },
-  mcpServers: [],
 });
 const task = Schema.decodeUnknownSync(Task)({
   id: "worker-task",
@@ -203,26 +202,18 @@ it("creates ordinary bots through either live role with shared defaults and conf
         description: "整理日程",
         soul: "请用中文回答",
       });
-      const custom = {
-        name: "calendar",
-        transport: "http" as const,
-        url: "https://example.com/calendar",
-      };
-      yield* config.updateBots((bots) => bots.map((b) => ({ ...b, mcpServers: [custom] })));
       const child = make("calendar");
       expect(yield* bridge.createBot(worker, child)).toEqual({ id: child.id, name: child.name });
       expect((yield* config.readBots).find((b) => b.id === child.id)).toEqual({
         ...child,
         cwd: bot.cwd,
         modelSelection: bot.modelSelection,
-        mcpServers: [],
       });
       const explicit = {
         ...make("planner"),
         characterId: "custom-planner",
         cwd: "/tmp/planner",
         modelSelection: { instanceId: "local", model: "planner" },
-        mcpServers: [custom],
       };
       yield* bridge.createBot(slow, explicit);
       expect((yield* config.readBots).find((b) => b.id === explicit.id)).toEqual(explicit);

@@ -21,7 +21,6 @@ const bot: BotConfig = {
   soul: "",
   description: "检查桌面交互",
   modelSelection: { instanceId: "qa-local", model: "fixture" },
-  mcpServers: [],
 };
 
 function FormPreview() {

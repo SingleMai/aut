@@ -415,7 +415,6 @@ it.scoped(
           soul: "",
           modelSelection: { instanceId: "fixture", model: "fixture" },
           cwd: "/tmp",
-          mcpServers: [],
         },
       };
       const session = yield* makeCodexAdapter({}, f.factory).startSession(input);

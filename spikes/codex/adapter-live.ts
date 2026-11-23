@@ -11,7 +11,7 @@ const workdir = mkdtempSync(join(tmpdir(), "aut-adapter-live-"));
 const model = process.env.AUT_CODEX_MODEL ?? "gpt-6.1-sol";
 const input: StartSessionInput = {
   taskId: TaskId.make("adapter-live-synthetic"),
-  bot: { id: BotId.make("adapter-live"), name: "Probe", description: "Synthetic adapter test", soul: "", modelSelection: { instanceId: "codex", model }, cwd: workdir, mcpServers: [] },
+  bot: { id: BotId.make("adapter-live"), name: "Probe", description: "Synthetic adapter test", soul: "", modelSelection: { instanceId: "codex", model }, cwd: workdir },
   model, cwd: workdir, instructions: "You are running an explicitly synthetic integration test. Follow exact output and tool instructions.", mcpServers: [],
 };
 const pids = new Set<number>();

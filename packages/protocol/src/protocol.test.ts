@@ -33,7 +33,6 @@ const bot = {
   soul: "",
   modelSelection,
   cwd: "/tmp/aut",
-  mcpServers: [],
 };
 const harness = {
   id: "codex",
@@ -237,6 +236,7 @@ const cases: Record<string, Case> = {
   MessageId: { schema: Common.MessageId, valid: "m1", invalid: "" },
   RequestId: { schema: Common.RequestId, valid: "r1", invalid: "" },
   BotId: { schema: Common.BotId, valid: "b1", invalid: "" },
+  McpServerId: { schema: Common.McpServerId, valid: "mcp-1", invalid: "" },
   Timestamp: { schema: Common.Timestamp, valid: 0, invalid: -1 },
   JsonValue: {
     schema: Common.JsonValue,
@@ -254,6 +254,55 @@ const cases: Record<string, Case> = {
     schema: Config.McpServerConfig,
     valid: { name: "aut", transport: "stdio", command: "aut-mcp", args: [] },
     invalid: { name: "aut", transport: "http", url: "ftp://example.com" },
+  },
+  McpTool: {
+    schema: Config.McpTool,
+    valid: { name: "search", description: "Search", inputSchema: { type: "object" } },
+    invalid: { name: "" },
+  },
+  McpAuthStatus: {
+    schema: Config.McpAuthStatus,
+    valid: { status: "authenticated", updatedAt: 1 },
+    invalid: { status: "logged-in" },
+  },
+  McpHealthStatus: {
+    schema: Config.McpHealthStatus,
+    valid: { status: "ready", checkedAt: 1 },
+    invalid: { status: "online" },
+  },
+  McpOAuthClient: {
+    schema: Config.McpOAuthClient,
+    valid: { clientId: "aut-client", clientSecretRef: "secret:mcp-client" },
+    invalid: { clientSecretRef: "file:/tmp/client" },
+  },
+  McpServer: {
+    schema: Config.McpServer,
+    valid: {
+      id: "mcp-1",
+      name: "Calendar",
+      transport: "http",
+      url: "https://example.com/mcp",
+      enabled: false,
+      auth: { status: "none" },
+      health: { status: "unknown" },
+      tools: [],
+    },
+    invalid: { id: "mcp-1", name: "Calendar", transport: "http", url: "ftp://example.com" },
+  },
+  McpServerInput: {
+    schema: Config.McpServerInput,
+    valid: { name: "Calendar", transport: "stdio", command: "calendar-mcp", args: [] },
+    invalid: { name: "Calendar", transport: "http", url: "ftp://example.com" },
+  },
+  McpGrant: {
+    schema: Config.McpGrant,
+    valid: { botId: "b1", serverId: "mcp-1", enabled: true, allowedTools: ["search"] },
+    invalid: { botId: "b1", serverId: "mcp-1", enabled: true, allowedTools: ["search", "search"] },
+  },
+  McpConfig: {
+    schema: Config.McpConfig,
+    valid: { schemaVersion: 1, servers: [], grants: [] },
+    invalid: { schemaVersion: 2, servers: [], grants: [] },
   },
   ModelSelection: {
     schema: Config.ModelSelection,

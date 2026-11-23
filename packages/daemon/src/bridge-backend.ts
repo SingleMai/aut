@@ -164,7 +164,6 @@ export const BridgeBackendLive = Layer.effect(
                 ...args,
                 modelSelection: args.modelSelection ?? parent.modelSelection,
                 cwd: args.cwd ?? parent.cwd,
-                mcpServers: args.mcpServers ?? [],
               },
               identity.taskId,
             )

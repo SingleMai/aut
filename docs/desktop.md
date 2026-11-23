@@ -65,8 +65,9 @@ macOS 开发包通过 LaunchServices 启动 daemon 时，保留进程已有的 P
 - 在 Bot 页手动创建，或在主会话委托 Agent 创建。两种入口的结果都进入同一 Bot 列表。
 - Bot 页以「主助手」标识唯一内置助手 aut，其余助手按用户配置的名称和专长展示。
 - Agent 创建后，主会话的创建回执提供「撤销创建」。Bot 改过配置、接过任务或已被删除时，原回执显示对应原因。详见 [ADR-0046](decisions/0046-agent-bot-creation-undo.md)。
-- 点击 Bot 头像或用键盘激活「更换形象」，编辑器会聚焦当前选项。名称、形象和擅长的工作放在一起，思考强度和 MCP 放在「高级设置」。保存后，Bot 列表和会话使用同一形象。角色预览从「等你回答」开始，也可连续试看思考、等待、送达和报告。[编辑器实录](assets/desktop/bot-characters.gif) · [形象接入指南](../packages/characters/README.md)
+- 点击 Bot 头像或用键盘激活「更换形象」，编辑器会聚焦当前选项。名称、形象和擅长的工作放在一起，思考强度放在「高级设置」。保存后，Bot 列表和会话使用同一形象。角色预览从「等你回答」开始，也可连续试看思考、等待、送达和报告。[编辑器实录](assets/desktop/bot-characters.gif) · [形象接入指南](../packages/characters/README.md)
 - Bot 编辑器也可配置 soul、工作目录、Harness 实例和模型。系统身份受保护，长表单的标题和操作始终可达。Bot 和设置表单都会保留保存失败时的输入，在字段旁显示校验提示，展开相应区域并聚焦首个错误。
+- MCP 服务页管理全局 server 注册、stdio/Streamable HTTP/SSE 连接参数、连接测试、启用状态、OAuth 登录和工具目录。每个 server 下按 Bot 开关 grant 并逐工具授权。连接凭据只在 daemon 内解析，页面只显示引用、状态和工具名称。
 - 设置页管理 Harness 实例及主、备用分类服务，并说明用户消息会发送到所选服务。「保存密钥」写入本机凭据并填入引用，「保存全部设置」才应用实例与分类器配置。后端、模型和服务地址均留空时，该分类服务停用。[本地 API](local-api.md) · [ADR-0026](decisions/0026-classifier-secret-storage.md)
 - 路由试验只展示分类概率，不派发任务；既有 Provider 配置保持不变。
 

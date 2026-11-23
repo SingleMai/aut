@@ -32,7 +32,6 @@ const bot = Schema.decodeUnknownSync(BotConfig)({
   soul: "Private long term instructions",
   cwd: "/tmp",
   modelSelection: { instanceId: "local", model: "test" },
-  mcpServers: [],
 });
 const task = Schema.decodeUnknownSync(Task)({
   id: "task",

@@ -52,7 +52,7 @@ export const configurePrimary = (api: LiveClient) => Effect.gen(function* () {
 });
 
 export const createEcho = (api: LiveClient, dataDirectory: string, primary: BotConfig) => Effect.gen(function* () {
-  const bot: BotConfig = { id: BotId.make("echo-fixture"), name: "回声助手", description: "Handle synthetic integration verification and echo test requests, including echoing short test results.", soul: "You are a synthetic integration-test worker. Follow the user's exact fixture instructions. Never touch external accounts or send messages to people. Native user questions are allowed only when explicitly requested by the fixture. Keep final reports short unless the fixture explicitly requests a long report.", modelSelection: { ...primary.modelSelection, effort: "low" }, cwd: dataDirectory, mcpServers: [] };
+  const bot: BotConfig = { id: BotId.make("echo-fixture"), name: "回声助手", description: "Handle synthetic integration verification and echo test requests, including echoing short test results.", soul: "You are a synthetic integration-test worker. Follow the user's exact fixture instructions. Never touch external accounts or send messages to people. Native user questions are allowed only when explicitly requested by the fixture. Keep final reports short unless the fixture explicitly requests a long report.", modelSelection: { ...primary.modelSelection, effort: "low" }, cwd: dataDirectory };
   yield* api.request("/v1/bots", Schema.Struct({ bot: BotConfig }), "POST", bot);
   return bot;
 });

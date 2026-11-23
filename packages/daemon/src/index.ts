@@ -23,6 +23,8 @@ import { BridgeRuntimeLive } from "./bridge-runtime.js";
 import { ConfiguredTreeLive } from "./configured-tree.js";
 import { HttpServerLive } from "./http.js";
 import { InboundGatewayLive } from "./inbound.js";
+import { McpOAuthLive } from "./mcp-oauth.js";
+import { McpSupervisorLive } from "./mcp-supervisor.js";
 import { AuthenticationLive, OwnershipLive } from "./ownership.js";
 import {
   PrimaryAssistantBootstrapLive,
@@ -44,6 +46,8 @@ export * from "./configured-tree.js";
 export * from "./errors.js";
 export * from "./http.js";
 export * from "./inbound.js";
+export * from "./mcp-oauth.js";
+export * from "./mcp-supervisor.js";
 export * from "./ownership.js";
 export * from "./primary-assistant.js";
 export * from "./recovery.js";
@@ -64,13 +68,14 @@ export const DaemonApiLive = (options: DaemonOptions = {}) => {
       Layer.merge(core, SecretReaderLive.pipe(Layer.provideMerge(SecretStoreLive(options)))),
     ),
   );
+  const mcp = McpSupervisorLive.pipe(Layer.provide(McpOAuthLive), Layer.provideMerge(tree));
   const services = Layer.mergeAll(
     AuthenticationLive,
     RecoveryLive,
     InboundGatewayLive,
     AdministrationLive,
     RouteTestLive,
-  ).pipe(Layer.provideMerge(tree));
+  ).pipe(Layer.provideMerge(mcp));
   const readers = SessionReaderLive.pipe(
     Layer.provideMerge(
       Layer.merge(HarnessResolverLive, StoredSessionSnapshotSourceLive).pipe(
@@ -82,13 +87,17 @@ export const DaemonApiLive = (options: DaemonOptions = {}) => {
 };
 
 export const DaemonLive = (options: DaemonOptions = {}) => {
-  const infrastructure = Layer.mergeAll(
+  const baseInfrastructure = Layer.mergeAll(
     CoreLive(options),
     AdmissionInboxLive,
     SessionBridgeLive,
     SecretReaderLive.pipe(Layer.provideMerge(SecretStoreLive(options))),
     PrimaryAssistantDefaultsProbeLive,
   ).pipe(Layer.provideMerge(OwnershipLive(options)));
+  const infrastructure = McpSupervisorLive.pipe(
+    Layer.provide(McpOAuthLive),
+    Layer.provideMerge(baseInfrastructure),
+  );
   const recovered = Layer.merge(RecoveryLive, PrimaryAssistantBootstrapLive(options)).pipe(
     Layer.provideMerge(infrastructure),
   );

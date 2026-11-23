@@ -29,6 +29,8 @@ export const TriggerId = NonEmptyString.pipe(Schema.brand("TriggerId"));
 export type TriggerId = typeof TriggerId.Type;
 export const TriggerRunId = NonEmptyString.pipe(Schema.brand("TriggerRunId"));
 export type TriggerRunId = typeof TriggerRunId.Type;
+export const McpServerId = NonEmptyString.pipe(Schema.brand("McpServerId"));
+export type McpServerId = typeof McpServerId.Type;
 export const Timestamp = NonNegativeInteger;
 export type Timestamp = typeof Timestamp.Type;
 

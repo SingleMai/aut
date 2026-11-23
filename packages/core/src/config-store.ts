@@ -11,7 +11,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join } from "node:path";
-import { AutConfig, BotsConfig } from "@aut/protocol";
+import { AutConfig, BotsConfig, McpConfig } from "@aut/protocol";
 import { Context, Effect, Layer, Schema } from "effect";
 import { Changes } from "./changes.js";
 import { type CoreOptions, resolveDataDirectory } from "./data-directory.js";
@@ -54,6 +54,11 @@ export class ConfigStore extends Context.Tag("aut/ConfigStore")<
     readonly updateBots: (
       modify: (bots: BotsConfig) => BotsConfig,
     ) => Effect.Effect<BotsConfig, CoreError>;
+    readonly readMcp: Effect.Effect<McpConfig, CoreError>;
+    readonly writeMcp: (config: McpConfig) => Effect.Effect<void, CoreError>;
+    readonly updateMcp: (
+      modify: (config: McpConfig) => McpConfig,
+    ) => Effect.Effect<McpConfig, CoreError>;
   }
 >() {}
 
@@ -110,7 +115,11 @@ export const ConfigStoreLive = (options: CoreOptions = {}) =>
             boundary(`Failed to save ${filename}`, () =>
               writeAtomic(directory, filename, `${contents}\n`),
             ).pipe(
-              Effect.zipRight(changes.publish([filename === "bots.json" ? "bots" : "config"])),
+              Effect.zipRight(
+                changes.publish([
+                  filename === "bots.json" ? "bots" : filename === "mcp.json" ? "mcp" : "config",
+                ]),
+              ),
             ),
           );
         });
@@ -138,6 +147,7 @@ export const ConfigStoreLive = (options: CoreOptions = {}) =>
         );
       const emptyConfig: AutConfig = { harnessInstances: [] };
       const emptyBots: BotsConfig = [];
+      const emptyMcp: McpConfig = { schemaVersion: 1, servers: [], grants: [] };
       return {
         withMutation: <A, E, R>(effect: Effect.Effect<A, E, R>) => mutations.withPermits(1)(effect),
         readConfig: semaphore.withPermits(1)(read("config.json", AutConfig, emptyConfig)),
@@ -146,6 +156,9 @@ export const ConfigStoreLive = (options: CoreOptions = {}) =>
         readBots: semaphore.withPermits(1)(read("bots.json", BotsConfig, emptyBots)),
         writeBots: (bots) => semaphore.withPermits(1)(write("bots.json", BotsConfig, bots)),
         updateBots: (modify) => update("bots.json", BotsConfig, emptyBots, modify),
+        readMcp: semaphore.withPermits(1)(read("mcp.json", McpConfig, emptyMcp)),
+        writeMcp: (config) => semaphore.withPermits(1)(write("mcp.json", McpConfig, config)),
+        updateMcp: (modify) => update("mcp.json", McpConfig, emptyMcp, modify),
       };
     }),
   );
