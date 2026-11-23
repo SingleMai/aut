@@ -25,6 +25,10 @@ export const RequestId = NonEmptyString.pipe(Schema.brand("RequestId"));
 export type RequestId = typeof RequestId.Type;
 export const BotId = NonEmptyString.pipe(Schema.brand("BotId"));
 export type BotId = typeof BotId.Type;
+export const TriggerId = NonEmptyString.pipe(Schema.brand("TriggerId"));
+export type TriggerId = typeof TriggerId.Type;
+export const TriggerRunId = NonEmptyString.pipe(Schema.brand("TriggerRunId"));
+export type TriggerRunId = typeof TriggerRunId.Type;
 export const Timestamp = NonNegativeInteger;
 export type Timestamp = typeof Timestamp.Type;
 

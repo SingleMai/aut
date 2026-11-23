@@ -10,7 +10,9 @@ type AutEvent =
   | { source: "user";    kind: "message"; messageId: MessageId }
   | { source: "user";    kind: "ui-action"; action: UiAction }
   | { source: "session"; kind: SessionEvent["kind"]; taskId: TaskId; event: SessionEvent }
-  | { source: "trigger"; kind: "fired"; triggerId: string; payload: unknown }   // 预留，MVP 不实现
+  | { source: "trigger"; kind: "fired"; triggerId: TriggerId; payload: JsonValue;
+      runId?: TriggerRunId; occurrenceKey?: string; scheduledAt?: Timestamp;
+      botId?: BotId; prompt?: string }
 
 type UiAction =
   | { type: "card-choice"; cardId: string; optionId: string }          // 问题卡片 / 澄清卡片
@@ -53,6 +55,9 @@ interface Card {
 ```ts
 type Op =
   | { op: "new";      botId: BotId; requestMessageIds: MessageId[] }
+  | { op: "new-trigger"; triggerId: TriggerId; runId: TriggerRunId;
+      occurrenceKey: string; scheduledAt: Timestamp; botId: BotId;
+      prompt: string; payload: JsonValue }
   | { op: "ask";      taskId: TaskId; mode: "fast" | "deep"; messageId: MessageId }
   | { op: "send";     taskId: TaskId; delivery: "immediate" | "queue" | "steer" | "restart"; messageIds: MessageId[] }
   | { op: "control";  taskId: TaskId; action: ControlAction }
@@ -84,6 +89,38 @@ interface Task {
 type TaskStatus =
   | "created" | "running" | "waiting_user" | "reporting" | "idle"
   | "failed" | "interrupted" | "cancelled" | "archived"
+
+interface Trigger {
+  id: TriggerId
+  name: string
+  enabled: boolean
+  botId: BotId
+  prompt: string
+  payload: JsonValue
+  schedule: TriggerSchedule
+  overlap: "skip"
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  nextAt?: Timestamp
+}
+
+type TriggerSchedule =
+  | { kind: "once"; at: Timestamp }
+  | { kind: "interval"; startAt: Timestamp; everyMs: number }
+  | { kind: "daily"; at: string; timeZone?: string }
+  | { kind: "cron"; expression: string; timeZone?: string }
+
+interface TriggerRun {
+  id: TriggerRunId
+  triggerId: TriggerId
+  occurrenceKey: string
+  scheduledAt: Timestamp
+  status: "queued" | "running" | "ran" | "failed" | "missed" | "skipped"
+  taskId?: TaskId
+  startedAt?: Timestamp
+  finishedAt?: Timestamp
+  error?: string
+}
 ```
 
 **合法转移表**（实现必须表驱动，非法转移是 bug）：
@@ -387,6 +424,20 @@ type GetTaskOutput = Task
 type CreateBotInput = Pick<BotConfig, "id" | "name" | "description" | "soul" | "characterId">
   & Partial<Pick<BotConfig, "modelSelection" | "cwd" | "mcpServers">>
 type CreateBotOutput = Pick<BotConfig, "id" | "name">
+type CreateTriggerInput = {
+  id?: TriggerId
+  name: string; botId: BotId; prompt: string; payload?: JsonValue
+  schedule: TriggerSchedule; enabled?: boolean
+}
+type CreateTriggerOutput = Trigger
+type GetTriggerInput = { triggerId: TriggerId }
+type GetTriggerOutput = Trigger
+type ListTriggersInput = { botId?: BotId; enabled?: boolean; limit?: number }
+type ListTriggersOutput = Trigger[]
+type ListTriggerRunsInput = { triggerId: TriggerId; limit?: number }
+type ListTriggerRunsOutput = TriggerRun[]
+type UpdateTriggerToolInput = { triggerId: TriggerId; update: UpdateTriggerInput }
+type UpdateTriggerOutput = Trigger
 type ProposeRouteInput = { op: Exclude<Op, { op: "clarify" | "escalate" }>; rationale: string }
 type ProposeRouteOutput = { accepted: boolean; result?: string; rejectReason?: string }
 type AskUserInput = { questions: SessionRequest["questions"] }

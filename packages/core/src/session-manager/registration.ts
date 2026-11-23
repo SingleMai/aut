@@ -1,7 +1,7 @@
 // Delivery registration adapted from OpenMausBot server/steer-queue.ts and runtime/runtime.ts
 // at 738ec88472a3b888ff7b7793755d89da613ed301 (Apache-2.0). See NOTICE.
 
-import type { BotConfig, Op, Task, TaskId } from "@aut/protocol";
+import { type BotConfig, MessageId, type Op, type Task, type TaskId } from "@aut/protocol";
 import { Effect, Option } from "effect";
 import type { ExecutionResult } from "../chief/ports.js";
 import type { ConfigStore } from "../config-store.js";
@@ -14,7 +14,7 @@ import { insertTaskWithSession, requireTask, saveTask, transitionTask } from "..
 import { executionFor, noActive, noNext, noSteering } from "./execution.js";
 import type { Delivery, SessionExecution } from "./model.js";
 
-export type SessionOp = Extract<Op, { readonly op: "new" | "send" | "control" }>;
+export type SessionOp = Extract<Op, { readonly op: "new" | "new-trigger" | "send" | "control" }>;
 interface Registration {
   readonly taskId: TaskId;
   readonly decisionLogId: string;
@@ -32,20 +32,40 @@ const registrationTarget = (
   { taskId, at, decisionLogId, origin }: Registration,
 ): Effect.Effect<{ task: Task; bot?: BotConfig; created: boolean }, CoreError> =>
   Effect.gen(function* () {
-    if (op.op !== "new") return { task: yield* requireTask(tx, taskId), created: false };
+    if (op.op !== "new" && op.op !== "new-trigger")
+      return { task: yield* requireTask(tx, taskId), created: false };
     // This read and the first task insert share the transaction that orders use against bot removal.
     const bot = (yield* config.readBots).find((entry) => entry.id === op.botId);
     if (!bot) return yield* fail("Configuration", `Unknown bot: ${op.botId}`);
     const existing = yield* tx.get("tasks", taskId);
     if (Option.isSome(existing)) return { task: existing.value, bot, created: false };
-    const messages = yield* messagesInOrder(tx, op.requestMessageIds);
+    const requestMessageIds =
+      op.op === "new-trigger" ? [MessageId.make(`trigger:${op.runId}`)] : op.requestMessageIds;
+    const messages = yield* messagesInOrder(tx, requestMessageIds);
     const first = messages[0];
-    if (!first || messages.length !== op.requestMessageIds.length)
+    if (op.op === "new-trigger") {
+      if (!first) {
+        yield* tx.insert("main_thread_messages", {
+          id: requestMessageIds[0] as MessageId,
+          at,
+          author: "chief",
+          kind: "notice",
+          text: op.prompt,
+        });
+      }
+    } else if (!first || messages.length !== op.requestMessageIds.length)
       return yield* fail("NotFound", "Task request messages are missing");
+    const taskMessage = first ?? {
+      id: requestMessageIds[0] as MessageId,
+      at,
+      author: "chief" as const,
+      kind: "notice" as const,
+      text: op.op === "new-trigger" ? op.prompt : "",
+    };
     const task: Task = {
       id: taskId,
       botId: bot.id,
-      title: first.text.slice(0, 120),
+      title: taskMessage.text.slice(0, 120),
       status: "created",
       createdAt: at,
       updatedAt: at,
@@ -53,7 +73,11 @@ const registrationTarget = (
       session: { instanceId: bot.modelSelection.instanceId },
       pendingRequestIds: [],
       queue: [],
-      origin: origin ?? { kind: "user", decisionLogId },
+      origin:
+        origin ??
+        (op.op === "new-trigger"
+          ? { kind: "trigger", decisionLogId }
+          : { kind: "user", decisionLogId }),
     };
     yield* insertTaskWithSession(tx, task);
     return { task, bot, created: true };
@@ -115,7 +139,12 @@ export const registerOperation = (
       return { ok: true };
     }
 
-    const messageIds = op.op === "new" ? op.requestMessageIds : op.messageIds;
+    const messageIds =
+      op.op === "new"
+        ? op.requestMessageIds
+        : op.op === "new-trigger"
+          ? [MessageId.make(`trigger:${op.runId}`)]
+          : op.messageIds;
     if (!created) {
       if (!messageIds.length)
         return yield* fail("InvalidRequest", "A delivery requires message references");

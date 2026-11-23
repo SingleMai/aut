@@ -10,7 +10,7 @@ import {
   Store,
 } from "@aut/core";
 import { BridgeBackend, type SessionIdentity } from "@aut/mcp-bridge";
-import { BotConfig, BotId, MessageId, Task, TaskId } from "@aut/protocol";
+import { BotConfig, BotId, MessageId, Task, TaskId, TriggerId, TriggerRun } from "@aut/protocol";
 import { Effect, Either, Layer, Schema, Stream } from "effect";
 import { afterEach, expect, it } from "vitest";
 import { AdministrationLive } from "./admin.js";
@@ -251,6 +251,93 @@ it("creates ordinary bots through either live role with shared defaults and conf
         child.id,
         explicit.id,
       ]);
+    }),
+  );
+});
+
+it("creates triggers with role-scoped Bot targets and stable-ID conflicts", async () => {
+  await run(
+    Effect.gen(function* () {
+      const bridge = yield* BridgeBackend;
+      const input = {
+        id: TriggerId.make("worker-trigger"),
+        name: "Worker schedule",
+        botId: bot.id,
+        prompt: "Run the worker schedule",
+        payload: {},
+        enabled: true,
+        schedule: { kind: "once" as const, at: Date.now() + 60_000 },
+      };
+      const created = yield* bridge.createTrigger(worker, input);
+      expect(created).toMatchObject({
+        id: "worker-trigger",
+        botId: bot.id,
+        overlap: "skip",
+      });
+      yield* (yield* Store).transaction((tx) =>
+        tx.insert(
+          "trigger_runs",
+          Schema.decodeUnknownSync(TriggerRun)({
+            id: "run:worker-trigger:1",
+            triggerId: created.id,
+            occurrenceKey: "worker-trigger:1",
+            scheduledAt: 1,
+            status: "failed",
+            error: "Synthetic failure",
+          }),
+        ),
+      );
+      expect(yield* bridge.getTrigger(worker, { triggerId: created.id })).toEqual(created);
+      expect(
+        yield* bridge.listTriggers(worker, { botId: bot.id, enabled: true, limit: 10 }),
+      ).toContainEqual(created);
+      expect(
+        yield* bridge.listTriggerRuns(worker, { triggerId: created.id, limit: 10 }),
+      ).toMatchObject([{ id: "run:worker-trigger:1", status: "failed" }]);
+      expect(
+        (yield* Effect.flip(
+          bridge.listTriggerRuns(worker, { triggerId: TriggerId.make("missing-trigger") }),
+        )).code,
+      ).toBe("NotFound");
+      const paused = yield* bridge.updateTrigger(worker, {
+        triggerId: created.id,
+        update: { enabled: false },
+      });
+      expect(paused.enabled).toBe(false);
+      expect(
+        (yield* Effect.flip(
+          bridge.updateTrigger(worker, {
+            triggerId: created.id,
+            update: { botId: slow.botId },
+          }),
+        )).code,
+      ).toBe("Forbidden");
+      const retargeted = yield* bridge.updateTrigger(slow, {
+        triggerId: created.id,
+        update: { botId: slow.botId, enabled: true },
+      });
+      expect(retargeted.botId).toBe(slow.botId);
+      expect(
+        (yield* Effect.flip(
+          bridge.getTrigger(worker, { triggerId: TriggerId.make("missing-trigger") }),
+        )).code,
+      ).toBe("NotFound");
+      expect(
+        (yield* Effect.flip(
+          bridge.createTrigger(worker, {
+            ...input,
+            id: TriggerId.make("worker-trigger-2"),
+            botId: slow.botId,
+          }),
+        )).code,
+      ).toBe("Forbidden");
+      const coordinator = yield* bridge.createTrigger(slow, {
+        ...input,
+        id: TriggerId.make("slow-target-trigger"),
+        botId: bot.id,
+      });
+      expect(coordinator.id).toBe("slow-target-trigger");
+      expect((yield* Effect.flip(bridge.createTrigger(worker, input))).code).toBe("Conflict");
     }),
   );
 });

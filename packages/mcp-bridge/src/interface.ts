@@ -2,15 +2,25 @@ import {
   BotId,
   type CreateBotInput,
   type CreateBotOutput,
+  type CreateTriggerInput,
+  type CreateTriggerOutput,
   type GetTaskInput,
   type GetTaskOutput,
+  type GetTriggerInput,
+  type GetTriggerOutput,
   type ListTasksInput,
   type ListTasksOutput,
+  type ListTriggerRunsInput,
+  type ListTriggerRunsOutput,
+  type ListTriggersInput,
+  type ListTriggersOutput,
   type ProposeRouteInput,
   type ProposeRouteOutput,
   type ReadMainThreadInput,
   type ReadMainThreadOutput,
   TaskId,
+  type UpdateTriggerOutput,
+  type UpdateTriggerToolInput,
 } from "@aut/protocol";
 import { Context, Data, type Effect, Schema } from "effect";
 
@@ -26,6 +36,7 @@ export class BridgeError extends Data.TaggedError("BridgeError")<{
     | "Unauthorized"
     | "Forbidden"
     | "InvalidInput"
+    | "Conflict"
     | "NotFound"
     | "Unavailable"
     | "Indeterminate";
@@ -52,6 +63,26 @@ export class BridgeBackend extends Context.Tag("aut/McpBridge/Backend")<
       identity: SessionIdentity,
       input: CreateBotInput,
     ) => Effect.Effect<CreateBotOutput, BridgeError>;
+    readonly createTrigger: (
+      identity: SessionIdentity,
+      input: CreateTriggerInput,
+    ) => Effect.Effect<CreateTriggerOutput, BridgeError>;
+    readonly getTrigger: (
+      identity: SessionIdentity,
+      input: GetTriggerInput,
+    ) => Effect.Effect<GetTriggerOutput, BridgeError>;
+    readonly listTriggers: (
+      identity: SessionIdentity,
+      input: ListTriggersInput,
+    ) => Effect.Effect<ListTriggersOutput, BridgeError>;
+    readonly listTriggerRuns: (
+      identity: SessionIdentity,
+      input: ListTriggerRunsInput,
+    ) => Effect.Effect<ListTriggerRunsOutput, BridgeError>;
+    readonly updateTrigger: (
+      identity: SessionIdentity,
+      input: UpdateTriggerToolInput,
+    ) => Effect.Effect<UpdateTriggerOutput, BridgeError>;
     readonly proposeRoute: (
       identity: SessionIdentity,
       input: ProposeRouteInput,

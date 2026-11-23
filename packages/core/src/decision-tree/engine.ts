@@ -298,11 +298,13 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                       const valid =
                         config.name === "inbound"
                           ? "op" in output && output.op !== "escalate"
-                          : config.name === "reply-gate"
-                            ? "gate" in output
-                            : config.name === "request"
-                              ? "request" in output
-                              : "excerpts" in output;
+                          : config.name === "trigger"
+                            ? "op" in output && output.op === "new-trigger"
+                            : config.name === "reply-gate"
+                              ? "gate" in output
+                              : config.name === "request"
+                                ? "request" in output
+                                : "excerpts" in output;
                       if (!valid)
                         return yield* Effect.fail(
                           new TreeError({

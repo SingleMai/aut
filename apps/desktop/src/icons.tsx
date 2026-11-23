@@ -5,6 +5,7 @@ const paths = {
   bot: "M8 4h8M12 4V2M6 8h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2ZM9 12h.01M15 12h.01M9 16h6M2 12h2M20 12h2",
   settings:
     "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2",
+  automation: "M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7V3ZM12 7v5l3 2",
   send: "M12 19V5M5 12l7-7 7 7",
   report: "M8 3h8l4 4v14H4V3h4ZM16 3v5h4M8 12h8M8 16h6",
   arrow: "M12 5v14M5 12l7 7 7-7",

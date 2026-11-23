@@ -4,14 +4,24 @@
 import {
   CreateBotInput,
   CreateBotOutput,
+  CreateTriggerInput,
+  CreateTriggerOutput,
   GetTaskInput,
   GetTaskOutput,
+  GetTriggerInput,
+  GetTriggerOutput,
   ListTasksInput,
   ListTasksOutput,
+  ListTriggerRunsInput,
+  ListTriggerRunsOutput,
+  ListTriggersInput,
+  ListTriggersOutput,
   ProposeRouteInput,
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  UpdateTriggerOutput,
+  UpdateTriggerToolInput,
 } from "@aut/protocol";
 import { McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import { StdioServerTransport, serveStdio } from "@modelcontextprotocol/server/stdio";
@@ -51,9 +61,14 @@ export const makeMcpServer = (client: SocketBridgeClient): Effect.Effect<McpServ
           inputSchema: mcpSchema(input),
           outputSchema: mcpSchema(Schema.Struct({ result: output })),
           annotations: {
-            readOnlyHint: name !== "propose_route" && name !== "create_bot",
+            readOnlyHint:
+              name !== "propose_route" &&
+              name !== "create_bot" &&
+              name !== "create_trigger" &&
+              name !== "update_trigger",
             destructiveHint: name === "propose_route",
-            idempotentHint: name !== "propose_route" && name !== "create_bot",
+            idempotentHint:
+              name !== "propose_route" && name !== "create_bot" && name !== "create_trigger",
             openWorldHint: false,
           },
         },
@@ -107,6 +122,36 @@ export const makeMcpServer = (client: SocketBridgeClient): Effect.Effect<McpServ
       "Create a regular bot for the user with a unique stable ID, a display name, a routing specialty in the user's language and a soul. Defaults to your current harness/model and working directory, with no custom MCP servers. Report creation after a successful result.",
       CreateBotInput,
       CreateBotOutput,
+    );
+    register(
+      "create_trigger",
+      "Create a scheduled trigger for a configured Bot. Worker sessions may target their own Bot and coordinator sessions may target any configured Bot. Provide a stable id when you need to verify an uncertain result. Do not retry automatically after a timeout or connection error. Schedules support once, daily, cron, and interval rules.",
+      CreateTriggerInput,
+      CreateTriggerOutput,
+    );
+    register(
+      "get_trigger",
+      "Read one trigger by its stable ID. Use this after create_trigger returns an uncertain result. This tool never changes schedules or runs.",
+      GetTriggerInput,
+      GetTriggerOutput,
+    );
+    register(
+      "list_triggers",
+      "List at most 50 triggers, optionally filtered by Bot or enabled state. Results are ordered by most recently updated. This tool never changes schedules or runs.",
+      ListTriggersInput,
+      ListTriggersOutput,
+    );
+    register(
+      "list_trigger_runs",
+      "Read at most 50 recent runs for one trigger. Results are ordered by scheduled time. This tool never changes schedules or runs.",
+      ListTriggerRunsInput,
+      ListTriggerRunsOutput,
+    );
+    register(
+      "update_trigger",
+      "Update one trigger's name, prompt, schedule, enabled state, payload, or target Bot. Worker sessions may update only their own Bot's triggers. Use get_trigger to verify an uncertain result and do not retry automatically.",
+      UpdateTriggerToolInput,
+      UpdateTriggerOutput,
     );
     if (identity.role === "coordinator")
       register(

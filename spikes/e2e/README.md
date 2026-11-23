@@ -28,6 +28,7 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-progress-recheck.json node --experimental-
 rtk proxy env AUT_E2E_RESULT=/tmp/aut-slow-brain-recheck.json node --experimental-strip-types spikes/e2e/slow-brain-live.ts
 rtk proxy env AUT_E2E_CONTROL_RESULT=/tmp/aut-control-recheck.json node --experimental-strip-types spikes/e2e/control-live.ts
 rtk proxy env AUT_E2E_DELIVERY_RESULT=/tmp/aut-delivery-recheck.json node --experimental-strip-types spikes/e2e/delivery-live.ts
+rtk proxy env AUT_E2E_RESULT=/tmp/aut-trigger-recheck.json node --experimental-strip-types spikes/e2e/trigger-live.ts
 ```
 
 各脚本的进度输出包含临时目录和阶段。脚本退出失败不代表用户动作未送达；先只读核对该目录的
@@ -44,6 +45,7 @@ rtk proxy env AUT_E2E_DELIVERY_RESULT=/tmp/aut-delivery-recheck.json node --expe
 | `slow-brain-live.ts` | 空目录只创建 aut 并完成计算。手动添加专长助手后，同一主助手在协调任务中读取主会话、提议派发，两个任务均通过回包流程 |
 | `control-live.ts` | 取消、失败后重试、停止daemon后显式恢复；原任务游标、决策日志和Scope清理 |
 | `delivery-live.ts` | 原生问题待答时追加queue，明确回答后顺序排出；运行中steer进入当前回合，检查真实Jev选择、无降级、父turn数和同一会话游标 |
+| `trigger-live.ts` | 一次性计划触发真实 Codex 任务，核对触发器运行台账、任务回包、决策日志与 fired 事件，并验证暂停、恢复和更新 |
 
 慢脑探针只在临时系统bot与回声bot配置中添加明确的合成指令，要求慢脑通过 `propose_route`
 派活，并要求普通worker仅执行回声验证；不会通过shell直接调用后台API来伪造MCP路径。

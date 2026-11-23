@@ -27,6 +27,11 @@ HTTP请求不能自报身份，权限变更或Scope撤销立即作用于后续�
 | list_tasks | 所有合法bot | 可按bot/status过滤，默认50、上限50 |
 | get_task | 所有合法bot | 指定TaskId，返回结构化Task |
 | create_bot | worker、coordinator | 创建普通 Bot，返回 ID 和名称。模型选择与工作目录可继承调用者，可指定形象 `characterId`。与手动创建共用 Administration |
+| create_trigger | worker、coordinator | 创建 once、daily、cron 或 interval 计划。worker 只能指定自身 Bot，coordinator 可指定任一已配置 Bot。可提供稳定 `id`，超时或断线后用该 ID 核对结果 |
+| get_trigger | 所有合法bot | 按稳定 `triggerId` 读取一个触发器，用于核对 `create_trigger` 的不确定结果 |
+| list_triggers | 所有合法bot | 最多返回50个触发器，可按 `botId`、`enabled` 和 `limit` 筛选，按更新时间倒序排列 |
+| list_trigger_runs | 所有合法bot | 按 `triggerId` 读取最近50条运行记录，可用 `limit` 限制，按计划时间倒序排列 |
+| update_trigger | worker、coordinator | 修改触发器字段或暂停/恢复。worker 只能修改自身 Bot 的触发器，coordinator 可管理任一已配置 Bot |
 | propose_route | 仅主助手的协调会话 | 只接ProposableOp与rationale，进入Chief同一串行队列 |
 
 成功创建时，daemon 在主会话保存用户可操作的创建回执。撤销条件见 [ADR-0046](decisions/0046-agent-bot-creation-undo.md)。
@@ -35,7 +40,7 @@ ask_user不注册，Codex原生question仍走adapter。服务端按会话角色�
 MCP返回text content中的原输出JSON，并提供 `structuredContent: { result }`。
 
 propose_route只等待登记结果，不等待worker。日志path为slow-brain/propose_route，包含来源、理由、Op与执行结果。
-网络中断或默认10秒总超时产生Indeterminate；提议或创建 Bot 出现此结果时，先核对任务或 Bot 列表。已存在的 Bot ID 返回冲突，原配置保留。
+网络中断或默认10秒总超时产生Indeterminate；提议、创建 Bot 或创建 trigger 出现此结果时，先核对任务、Bot 或 trigger 列表。已存在的 Bot ID 或 trigger 稳定 ID 返回冲突，原记录保留。
 socket输入最多1MiB、输出最多16MiB；超限返回错误，不截断为表面成功的数据。
 
 ## 验证

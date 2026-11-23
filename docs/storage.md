@@ -6,8 +6,8 @@
 
 ## SQLite
 
-`aut.db` 使用 WAL、foreign_keys 与 busy_timeout；七张表为
-`main_thread_messages`、`tasks`、`sessions`、`session_requests`、`events`、`decision_logs`、`bot_creations`。
+aut.db 使用 WAL、foreign_keys 与 busy_timeout；九张表为
+main_thread_messages、tasks、sessions、session_requests、events、decision_logs、bot_creations、triggers、trigger_runs。
 每表保存 `seq INTEGER PRIMARY KEY AUTOINCREMENT`、`id TEXT UNIQUE`、`task_id TEXT`、`data TEXT`。
 seq 是稳定分页顺序，data 读写都经过对应 Schema；SQL 用户值全部通过参数绑定。
 
@@ -22,7 +22,7 @@ execution保存持久化投递队列、执行代次、当前所有权与不确�
 `Store.transaction(tx => Effect)` 提供 `get(table,id)`、`insert(table,value)`、`set(table,value)`、
 `list(table,{before?,limit?})`。get 返回 Option；insert 拒绝重复 ID；set 为原子 upsert。
 默认分页返回最新 50 条，页内按插入顺序排列；before 必须引用存在的 ID。回调不得重入 Store。
-空库在一次事务中创建全部表与索引，并写入 `PRAGMA user_version = 4`。daemon 可重开同版本数据库，已有表的无版本数据库及其他版本会报错。开发时可用新的 `AUT_DATA_DIR` 单独启动。见 [ADR-0048](decisions/0048-pre-release-data-baseline.md)。
+空库在一次事务中创建全部表与索引，并写入 PRAGMA user_version = 5。daemon 可重开同版本数据库，已有表的无版本数据库及其他版本会报错。开发时可用新的 AUT_DATA_DIR 单独启动。见 ADR-0048。触发器的 nextAt 与运行账本的 occurrenceKey 由同一事务更新，避免 daemon 重启或重复 tick 造成重复投递。
 私有 `bot_creations` 表保存仍需核对的创建回执身份、来源任务、配置摘要及写入阶段。启动时与实际 Bot 配置核对，完成的回执保存在原主会话消息中。任务的 Bot ID 有独立索引，所有任务状态均计入使用记录。见 [ADR-0046](decisions/0046-agent-bot-creation-undo.md)。
 批量取交接消息和读取用户事件均按 seq 排序；同一 eventRef 有多条决策日志时取最后入库的一条。见 [ADR-0043](decisions/0043-indexed-routing-reads.md)。
 事务跟踪实际写入，COMMIT 成功后以 Changes 发布去重资源集合；COMMIT 和发布之间不可中断。

@@ -10,6 +10,8 @@ import {
   type Task,
   TaskId,
   Timestamp,
+  TriggerId,
+  TriggerRunId,
 } from "@aut/protocol";
 import { it } from "@effect/vitest";
 import { Deferred, Effect, Fiber, Layer, Option, Ref, Scope } from "effect";
@@ -408,7 +410,7 @@ it.scoped("records execution failure and continues with the next event", () =>
   }),
 );
 
-it.scoped("records state-source failure without inventing an Op and rejects non-user input", () =>
+it.scoped("records state-source failure without inventing an Op for a trigger input", () =>
   Effect.gen(function* () {
     const test = setup(
       () => Effect.fail(new CoreError({ code: "NotFound", message: "Unknown input message" })),
@@ -423,10 +425,21 @@ it.scoped("records state-source failure without inventing an Op and rejects non-
       });
       expect((yield* receipt.awaitResult).execution.ok).toBe(false);
       expect(test.records.get(receipt.decisionLogId)?.output).toBeUndefined();
-      const invalid = yield* chief
-        .submit({ source: "trigger", kind: "fired", triggerId: "future", payload: {} })
-        .pipe(Effect.either);
-      expect(invalid._tag).toBe("Left");
+      const trigger = yield* chief.submit({
+        source: "trigger",
+        kind: "fired",
+        triggerId: TriggerId.make("future"),
+        runId: TriggerRunId.make("run:future"),
+        occurrenceKey: "future:1",
+        scheduledAt: 1,
+        botId: BotId.make("research"),
+        prompt: "Run the scheduled check",
+        payload: {},
+      });
+      const triggerResult = yield* trigger.awaitResult;
+      expect(triggerResult.execution.ok).toBe(false);
+      expect(test.records.get(trigger.decisionLogId)?.tree).toBe("trigger");
+      expect(test.records.get(trigger.decisionLogId)?.output).toBeUndefined();
     }).pipe(Effect.provide(test.layer));
   }),
 );

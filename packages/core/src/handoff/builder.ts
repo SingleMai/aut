@@ -68,9 +68,20 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
         const first = request[0];
         if (!first || request.length !== supplied.length)
           return yield* Effect.fail(failure("A handoff request message is missing."));
-        if (request.some((message) => message.author !== "user" || message.kind !== "text"))
+        const triggerRequest = input.task.origin.kind === "trigger";
+        if (
+          request.some((message) =>
+            triggerRequest
+              ? message.author !== "chief" || message.kind !== "notice"
+              : message.author !== "user" || message.kind !== "text",
+          )
+        )
           return yield* Effect.fail(
-            failure("Handoff request references must identify original user text messages."),
+            failure(
+              triggerRequest
+                ? "Trigger handoff request must identify its persisted notice."
+                : "Handoff request references must identify original user text messages.",
+            ),
           );
         const previous = yield* tx.list("main_thread_messages", {
           before: first.id,

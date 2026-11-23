@@ -2,12 +2,21 @@ import { mkdtemp, rm, stat } from "node:fs/promises";
 import { request as httpRequest } from "node:http";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { BotId, MessageId, type Task, TaskId, Timestamp } from "@aut/protocol";
+import {
+  BotId,
+  MessageId,
+  type Task,
+  TaskId,
+  Timestamp,
+  Trigger,
+  TriggerId,
+  TriggerRunId,
+} from "@aut/protocol";
 import { it } from "@effect/vitest";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
-import { Deferred, Effect, Exit, Fiber, Layer, Redacted, Scope, TestClock } from "effect";
+import { Deferred, Effect, Exit, Fiber, Layer, Redacted, Schema, Scope, TestClock } from "effect";
 import { expect } from "vitest";
 import { mcpServerConfig } from "./config.js";
 import { BridgeBackend, BridgeError, type SessionIdentity } from "./interface.js";
@@ -41,6 +50,26 @@ const task: Task = {
   pendingRequestIds: [],
   queue: [],
   origin: { kind: "user" },
+};
+const fixtureTrigger: Trigger = {
+  id: TriggerId.make("fixture-trigger"),
+  name: "Fixture schedule",
+  enabled: true,
+  botId: worker.botId,
+  prompt: "Run the fixture schedule",
+  payload: {},
+  schedule: { kind: "once", at: Timestamp.make(10) },
+  overlap: "skip",
+  createdAt: Timestamp.make(1),
+  updatedAt: Timestamp.make(1),
+};
+const fixtureTriggerRun = {
+  id: TriggerRunId.make("run:fixture-trigger:1"),
+  triggerId: fixtureTrigger.id,
+  occurrenceKey: "fixture-trigger:1",
+  scheduledAt: Timestamp.make(10),
+  status: "ran" as const,
+  taskId: task.id,
 };
 const sdk = <A>(run: () => Promise<A>) =>
   Effect.tryPromise({
@@ -123,6 +152,39 @@ const setup = Effect.gen(function* () {
         ? Effect.succeed(task)
         : Effect.fail(new BridgeError({ code: "NotFound", message: "Unknown task." })),
     createBot: (_identity, { id, name }) => Effect.succeed({ id, name }),
+    createTrigger: (_identity, input) =>
+      Effect.succeed({
+        ...input,
+        id: input.id ?? TriggerId.make("fixture-trigger"),
+        enabled: input.enabled ?? true,
+        payload: input.payload ?? {},
+        overlap: "skip" as const,
+        createdAt: Timestamp.make(1),
+        updatedAt: Timestamp.make(1),
+      }),
+    getTrigger: (_identity, input) =>
+      input.triggerId === fixtureTrigger.id
+        ? Effect.succeed(fixtureTrigger)
+        : Effect.fail(new BridgeError({ code: "NotFound", message: "Unknown trigger." })),
+    listTriggers: (_identity, input) =>
+      Effect.succeed(
+        input.botId !== undefined && input.botId !== fixtureTrigger.botId ? [] : [fixtureTrigger],
+      ),
+    listTriggerRuns: (_identity, input) =>
+      input.triggerId === fixtureTrigger.id
+        ? Effect.succeed([fixtureTriggerRun])
+        : Effect.fail(new BridgeError({ code: "NotFound", message: "Unknown trigger." })),
+    updateTrigger: (_identity, input) =>
+      input.triggerId === fixtureTrigger.id
+        ? Effect.succeed(
+            Schema.decodeUnknownSync(Trigger)({
+              ...fixtureTrigger,
+              ...input.update,
+              id: input.triggerId,
+              updatedAt: Timestamp.make(2),
+            }),
+          )
+        : Effect.fail(new BridgeError({ code: "NotFound", message: "Unknown trigger." })),
     proposeRoute: () =>
       Effect.sync(() => {
         proposals += 1;
@@ -156,6 +218,27 @@ it.scoped(
         { id: "m1", at: 1, author: "user", text: "Synthetic context" },
       ]);
       expect(yield* client.call("get_task", { taskId: "task" })).toEqual(task);
+      expect(
+        yield* client.call("create_trigger", {
+          id: "fixture-trigger",
+          name: "Fixture schedule",
+          botId: worker.botId,
+          prompt: "Run the fixture schedule",
+          schedule: { kind: "once", at: 10 },
+        }),
+      ).toMatchObject({ id: "fixture-trigger", overlap: "skip" });
+      expect(yield* client.call("get_trigger", { triggerId: "fixture-trigger" })).toEqual(
+        fixtureTrigger,
+      );
+      expect(yield* client.call("list_triggers", { botId: worker.botId })).toEqual([
+        fixtureTrigger,
+      ]);
+      expect(
+        yield* client.call("update_trigger", {
+          triggerId: fixtureTrigger.id,
+          update: { enabled: false },
+        }),
+      ).toMatchObject({ id: fixtureTrigger.id, enabled: false, updatedAt: 2 });
       expect((yield* client.call("get_task", { taskId: "missing" }).pipe(Effect.flip)).code).toBe(
         "NotFound",
       );
@@ -378,11 +461,71 @@ it.scoped("serves role-specific tools through the official SDK and keeps ask_use
         "list_tasks",
         "get_task",
         "create_bot",
+        "create_trigger",
+        "get_trigger",
+        "list_triggers",
+        "list_trigger_runs",
+        "update_trigger",
         ...(identity.role === "coordinator" ? ["propose_route"] : []),
       ]);
       const child = { id: "calendar", name: "日程助手", description: "整理日程", soul: "" };
       const created = yield* sdk(() => client.callTool({ name: "create_bot", arguments: child }));
       expect(created.structuredContent).toEqual({ result: { id: child.id, name: child.name } });
+      const trigger = yield* sdk(() =>
+        client.callTool({
+          name: "create_trigger",
+          arguments: {
+            id: `trigger-${identity.role}`,
+            name: "Fixture schedule",
+            botId: identity.botId,
+            prompt: "Run the fixture schedule",
+            schedule: { kind: "once", at: 10 },
+          },
+        }),
+      );
+      expect(trigger.isError).not.toBe(true);
+      expect(trigger.structuredContent).toMatchObject({
+        result: { id: `trigger-${identity.role}`, overlap: "skip" },
+      });
+      const readTrigger = yield* sdk(() =>
+        client.callTool({
+          name: "get_trigger",
+          arguments: { triggerId: "fixture-trigger" },
+        }),
+      );
+      expect(readTrigger.structuredContent).toMatchObject({
+        result: { id: "fixture-trigger" },
+      });
+      const listedTriggers = yield* sdk(() =>
+        client.callTool({
+          name: "list_triggers",
+          arguments: { limit: 10 },
+        }),
+      );
+      expect(listedTriggers.structuredContent).toMatchObject({
+        result: [{ id: "fixture-trigger" }],
+      });
+      const listedRuns = yield* sdk(() =>
+        client.callTool({
+          name: "list_trigger_runs",
+          arguments: { triggerId: fixtureTrigger.id, limit: 10 },
+        }),
+      );
+      expect(listedRuns.structuredContent).toMatchObject({
+        result: [{ id: fixtureTriggerRun.id, status: "ran" }],
+      });
+      const updatedTrigger = yield* sdk(() =>
+        client.callTool({
+          name: "update_trigger",
+          arguments: {
+            triggerId: "fixture-trigger",
+            update: { enabled: false },
+          },
+        }),
+      );
+      expect(updatedTrigger.structuredContent).toMatchObject({
+        result: { id: "fixture-trigger", enabled: false },
+      });
       const elevated = yield* sdk(() =>
         client.callTool({ name: "create_bot", arguments: { ...child, system: "primary" } }),
       );
@@ -439,6 +582,11 @@ it.scoped("runs the actual stdio child with a scoped session credential", () =>
       "list_tasks",
       "get_task",
       "create_bot",
+      "create_trigger",
+      "get_trigger",
+      "list_triggers",
+      "list_trigger_runs",
+      "update_trigger",
     ]);
     const taskResult = yield* sdk(() =>
       client.callTool({ name: "get_task", arguments: { taskId: "task" } }),

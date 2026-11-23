@@ -131,7 +131,7 @@ describe("SQLite persistence and domain services", () => {
     expect(reopened.sessions[0]?.cursor?.data).toEqual({ threadId: "native" });
     expect(reopened.messages[0]?.text).toContain("DROP TABLE");
     const db = new DatabaseSync(join(path, "aut.db"));
-    expect(db.prepare("PRAGMA user_version").get()?.user_version).toBe(4);
+    expect(db.prepare("PRAGMA user_version").get()?.user_version).toBe(5);
     db.close();
   });
 

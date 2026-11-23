@@ -33,6 +33,26 @@ const request = {
   raw: {},
   questions: [{ id: "q1", text: "Which color?", multiSelect: false, allowFreeText: true }],
 };
+const trigger = {
+  id: "trigger-1",
+  name: "Morning check",
+  enabled: true,
+  botId: "b1",
+  prompt: "Run the morning check",
+  payload: { source: "schedule" },
+  schedule: { kind: "daily", at: "09:00", timeZone: "UTC" },
+  overlap: "skip",
+  createdAt: 1,
+  updatedAt: 1,
+  nextAt: 2,
+};
+const triggerRun = {
+  id: "run:trigger-1:2",
+  triggerId: "trigger-1",
+  occurrenceKey: "trigger-1:2",
+  scheduledAt: 2,
+  status: "queued",
+};
 const cases: Record<string, { valid: unknown; invalid: unknown }> = {
   DaemonResource: { valid: "messages", invalid: "events" },
   ResourcesChanged: {
@@ -102,6 +122,25 @@ const cases: Record<string, { valid: unknown; invalid: unknown }> = {
   HealthResponse: { valid: { status: "ok" }, invalid: { status: "down" } },
   AcceptedResponse: { valid: { accepted: true }, invalid: { accepted: false } },
   DeletedResponse: { valid: { deleted: true }, invalid: { deleted: false } },
+  CreateTriggerInput: {
+    valid: {
+      id: "trigger-morning",
+      name: "Morning check",
+      botId: "b1",
+      prompt: "Run the morning check",
+      payload: { source: "schedule" },
+      schedule: { kind: "daily", at: "09:00", timeZone: "UTC" },
+      enabled: true,
+    },
+    invalid: { name: "", botId: "b1", prompt: "Run", schedule: { kind: "once", at: -1 } },
+  },
+  UpdateTriggerInput: {
+    valid: { enabled: false, prompt: "Run a different check" },
+    invalid: { enabled: "no" },
+  },
+  TriggerResponse: { valid: { trigger }, invalid: { trigger: { ...trigger, id: "" } } },
+  TriggersResponse: { valid: { triggers: [trigger] }, invalid: { triggers: [{}] } },
+  TriggerRunsResponse: { valid: { runs: [triggerRun] }, invalid: { runs: [{}] } },
   ApiErrorResponse: {
     valid: { error: { code: "NotFound", message: "Not found" } },
     invalid: { error: { message: "Missing code" } },

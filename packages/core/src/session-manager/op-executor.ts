@@ -12,7 +12,7 @@ export const SessionOpExecutorLive = Layer.effect(
     const questions = yield* QuestionsService;
     return {
       execute: (op, decisionLogId, corrects) => {
-        if (op.op === "new" || op.op === "send" || op.op === "control")
+        if (op.op === "new" || op.op === "new-trigger" || op.op === "send" || op.op === "control")
           return sessions.register(op, decisionLogId, corrects ? { corrects } : undefined);
         if (op.op === "clarify") return Effect.succeed({ execution: { ok: true } });
         if (op.op === "answer") return questions.register(op, decisionLogId);

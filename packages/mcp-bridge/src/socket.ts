@@ -8,17 +8,27 @@ import type { Socket } from "node:net";
 import {
   CreateBotInput,
   CreateBotOutput,
+  CreateTriggerInput,
+  CreateTriggerOutput,
   GetTaskInput,
   GetTaskOutput,
+  GetTriggerInput,
+  GetTriggerOutput,
   JsonValue,
   ListTasksInput,
   ListTasksOutput,
+  ListTriggerRunsInput,
+  ListTriggerRunsOutput,
+  ListTriggersInput,
+  ListTriggersOutput,
   NonEmptyString,
   PositiveInteger,
   ProposeRouteInput,
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  UpdateTriggerOutput,
+  UpdateTriggerToolInput,
 } from "@aut/protocol";
 import { Effect, Fiber, Redacted, Runtime, Schema, type Scope } from "effect";
 import { BridgeBackend, BridgeError, SessionIdentity } from "./interface.js";
@@ -29,6 +39,7 @@ const ErrorCode = Schema.Literal(
   "Unauthorized",
   "Forbidden",
   "InvalidInput",
+  "Conflict",
   "NotFound",
   "Unavailable",
   "Indeterminate",
@@ -44,6 +55,31 @@ export const BridgeCall = Schema.Union(
   Schema.Struct({
     tool: Schema.Literal("create_bot"),
     input: CreateBotInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("create_trigger"),
+    input: CreateTriggerInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("get_trigger"),
+    input: GetTriggerInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("list_triggers"),
+    input: ListTriggersInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("list_trigger_runs"),
+    input: ListTriggerRunsInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("update_trigger"),
+    input: UpdateTriggerToolInput,
     requestId: NonEmptyString,
   }),
   Schema.Struct({
@@ -172,6 +208,26 @@ export const makeBridgeSocket = (options: {
           return backend
             .createBot(identity, call.input)
             .pipe(Effect.flatMap((output) => checked(CreateBotOutput, output)));
+        case "create_trigger":
+          return backend
+            .createTrigger(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(CreateTriggerOutput, output)));
+        case "get_trigger":
+          return backend
+            .getTrigger(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(GetTriggerOutput, output)));
+        case "list_triggers":
+          return backend
+            .listTriggers(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(ListTriggersOutput, output)));
+        case "list_trigger_runs":
+          return backend
+            .listTriggerRuns(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(ListTriggerRunsOutput, output)));
+        case "update_trigger":
+          return backend
+            .updateTrigger(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(UpdateTriggerOutput, output)));
         case "get_task":
           return backend
             .getTask(identity, call.input)
@@ -242,7 +298,9 @@ export const makeBridgeSocket = (options: {
                   ? 401
                   : reply.error.code === "Forbidden"
                     ? 403
-                    : 400,
+                    : reply.error.code === "Conflict"
+                      ? 409
+                      : 400,
               { "content-type": "application/json" },
             );
             response.end(contents);

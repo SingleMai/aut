@@ -65,8 +65,8 @@ export const StateSourceLive = Layer.effect(
       prepare: (input: ChiefInput) =>
         Effect.gen(function* () {
           const checked = yield* validate(ChiefInput, input);
-          if (checked.event.source !== "user")
-            return yield* invalid("Only user events enter the inbound tree");
+          if (checked.event.source === "session")
+            return yield* invalid("Session events do not enter the inbound tree");
           const event = checked.event;
           const bots = yield* config.readBots;
           const primary = bots.find((bot) => bot.system === "primary");
@@ -96,8 +96,31 @@ export const StateSourceLive = Layer.effect(
               let messageIds: readonly MessageId[] = [];
               let fixedTargetId: TaskId | null = null;
               let selectedOp: Op | null = null;
-              const uiAction = event.kind === "ui-action" ? event.action : null;
-              if (event.kind === "message") {
+              const uiAction =
+                event.source === "user" && event.kind === "ui-action" ? event.action : null;
+              if (event.source === "trigger") {
+                if (
+                  !event.runId ||
+                  !event.occurrenceKey ||
+                  event.scheduledAt === undefined ||
+                  !event.botId ||
+                  !event.prompt
+                )
+                  return yield* invalid("Scheduled trigger events are missing run metadata");
+                if (!bots.some((bot) => bot.id === event.botId))
+                  return yield* invalid("The trigger target Bot is unavailable");
+                message = event.prompt;
+                selectedOp = {
+                  op: "new-trigger",
+                  triggerId: event.triggerId,
+                  runId: event.runId,
+                  occurrenceKey: event.occurrenceKey,
+                  scheduledAt: event.scheduledAt,
+                  botId: event.botId,
+                  prompt: event.prompt,
+                  payload: event.payload,
+                };
+              } else if (event.kind === "message") {
                 const source = yield* required(tx, "main_thread_messages", event.messageId);
                 if (source.author !== "user" || source.kind !== "text")
                   return yield* invalid("The inbound message must be original user text");

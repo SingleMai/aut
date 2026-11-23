@@ -10,6 +10,12 @@
 | POST | `/v1/actions` | `UiAction` | `{ accepted:true }`，202 |
 | GET | `/v1/tasks` | `status?`（逗号分隔）, `botId?`, `limit?` | `{ tasks:Task[] }` |
 | GET | `/v1/tasks/:id` | — | `{ task:Task }` 或 404 |
+| GET | `/v1/triggers` | — | `{ triggers:Trigger[] }` |
+| POST | `/v1/triggers` | `CreateTriggerInput` | `{ trigger:Trigger }`，201 |
+| PUT | `/v1/triggers/:id` | `UpdateTriggerInput` | `{ trigger:Trigger }` |
+| GET | `/v1/triggers/:id/runs` | — | `{ runs:TriggerRun[] }` |
+| POST | `/v1/triggers/:id/pause` | — | `{ trigger:Trigger }` |
+| POST | `/v1/triggers/:id/resume` | — | `{ trigger:Trigger }` |
 | GET | `/v1/requests/:id` | — | `{ request:SessionRequest, answerState?, deliveredAnswer?:QuestionAnswer }` 或 404（仅原生 question 的 claim 为 delivered 时附答案），问题卡片可按 requestId 读取完整题组和投递状态 |
 | GET | `/v1/reports/:ref` | — | `{ ref, text }`，精确读取历史原始报告；未知或非成功完成事件 404 |
 | POST | `/v1/route-test` | `{ text }` | `{ decisionLogId, selectedBotId, probabilities:[{botId,name,probability}], backend, model }`；未配置/分类失败 503 |
@@ -28,6 +34,7 @@ HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 hea
 `aut`、`aut-token.<token>`；服务只协商 `aut`。不提供跨域匿名访问。
 
 消息文本非空；同一个指定 ID 与相同文本重复提交返回已有消息（200），不重复投递；相同 ID 不同内容返回 409。
+触发器创建可提供稳定 `id`，重复 ID 返回 409 并保留原记录，便于在客户端无法确认响应时核对结果。
 路由试验仅写决策日志，不执行 Op 或追加主会话消息。历史报告引用 `event:<事件ID>`，
 路径参数应 URL 编码；它指向不可变成功完成事件，不随 Task.lastReport 更新（ADR-0027）。
 分页以 Store 的插入顺序为准，before 是排他的消息游标。错误统一为
@@ -49,11 +56,11 @@ HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 hea
 
 ```ts
 { type: "event", event: AutEvent }
-{ type: "changed", resources: ["messages", "tasks", "requests", "bots", "config"] }
+{ type: "changed", resources: ["messages", "tasks", "requests", "bots", "config", "triggers"] }
 ```
 
 `resources` 是非空去重子集。`event` 保留输入/会话事件；`changed` 通知 UI 回读对应 API，
-覆盖 chief ack/reply/card、任务状态、问题、bot 和配置变更。输出不会再次作为用户输入送给 chief。
+覆盖 chief ack/reply/card、任务状态、问题、bot、配置和触发器变更。输出不会再次作为用户输入送给 chief。
 每个已提交 SQLite 事务最多发一条资源变更通知；读取、回滚和失败不会发。
 JSON 配置原子保存成功后发对应通知。通知是当前连接的实时失效信号，不是持久化事件回放；
 首次连接或重连后应重新读取 API，以获得断开期间的最终状态。

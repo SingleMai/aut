@@ -12,6 +12,7 @@ import { Cause, Deferred, Effect, Exit, Fiber, Layer, Option, TestClock } from "
 import { expect } from "vitest";
 import { DecisionLog } from "../decision-log.js";
 import { DecisionTree, DecisionTreeLive, type TreeOptions } from "./engine.js";
+import { triggerV1 } from "./trigger.js";
 
 const sample: TreeConfig = {
   name: "request",
@@ -183,6 +184,32 @@ it.effect("rejects direct action escalation and records the invalid output failu
     expect(result._tag).toBe("Left");
     expect(test.records[0]?.output).toBeUndefined();
     expect(test.records[0]?.execution.error).toContain("does not belong");
+  }),
+);
+
+it.effect("routes a trigger fixture through the data-only trigger tree", () =>
+  Effect.gen(function* () {
+    const test = setup(backend(() => Effect.die("Must not classify")));
+    const result = yield* Effect.gen(function* () {
+      return yield* (yield* DecisionTree).run(triggerV1, {
+        eventRef: "trigger:event",
+        state: {
+          selectedOp: {
+            op: "new-trigger",
+            triggerId: "trigger-1",
+            runId: "run:trigger-1:1",
+            occurrenceKey: "trigger-1:1",
+            scheduledAt: 1,
+            botId: "b1",
+            prompt: "Run the check",
+            payload: {},
+          },
+        },
+      });
+    }).pipe(Effect.provide(test.layer));
+    expect(result.output).toMatchObject({ op: "new-trigger", triggerId: "trigger-1" });
+    expect(test.records[0]?.path).toEqual(["new-trigger"]);
+    expect(test.records[0]?.classifierCalls).toEqual([]);
   }),
 );
 

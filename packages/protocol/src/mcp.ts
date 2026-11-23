@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+import { UpdateTriggerInput as ApiUpdateTriggerInput } from "./api.js";
 import {
   BotId,
   MessageId,
@@ -8,10 +9,19 @@ import {
   RequestId,
   TaskId,
   Timestamp,
+  TriggerId,
   uniqueBy,
 } from "./common.js";
 import { BotConfig, McpServerConfig, ModelSelection } from "./config.js";
-import { MessageAuthor, ProposableOp, Questions, Task, TaskStatus } from "./domain.js";
+import {
+  MessageAuthor,
+  ProposableOp,
+  Questions,
+  Task,
+  TaskStatus,
+  Trigger,
+  TriggerRun,
+} from "./domain.js";
 
 export const MainThreadExcerpt = Schema.Struct({
   id: MessageId,
@@ -71,6 +81,34 @@ export const CreateBotInput = Schema.Struct({
 export type CreateBotInput = typeof CreateBotInput.Type;
 export const CreateBotOutput = BotConfig.pick("id", "name");
 export type CreateBotOutput = typeof CreateBotOutput.Type;
+export const CreateTriggerOutput = Trigger;
+export type CreateTriggerOutput = typeof CreateTriggerOutput.Type;
+export const GetTriggerInput = Schema.Struct({ triggerId: TriggerId });
+export type GetTriggerInput = typeof GetTriggerInput.Type;
+export const GetTriggerOutput = Trigger;
+export type GetTriggerOutput = typeof GetTriggerOutput.Type;
+export const ListTriggersInput = Schema.Struct({
+  botId: optional(BotId),
+  enabled: optional(Schema.Boolean),
+  limit: optional(PositiveInteger.pipe(Schema.lessThanOrEqualTo(50))),
+});
+export type ListTriggersInput = typeof ListTriggersInput.Type;
+export const ListTriggersOutput = Schema.Array(Trigger).pipe(Schema.maxItems(50));
+export type ListTriggersOutput = typeof ListTriggersOutput.Type;
+export const ListTriggerRunsInput = Schema.Struct({
+  triggerId: TriggerId,
+  limit: optional(PositiveInteger.pipe(Schema.lessThanOrEqualTo(50))),
+});
+export type ListTriggerRunsInput = typeof ListTriggerRunsInput.Type;
+export const ListTriggerRunsOutput = Schema.Array(TriggerRun).pipe(Schema.maxItems(50));
+export type ListTriggerRunsOutput = typeof ListTriggerRunsOutput.Type;
+export const UpdateTriggerToolInput = Schema.Struct({
+  triggerId: TriggerId,
+  update: ApiUpdateTriggerInput,
+});
+export type UpdateTriggerToolInput = typeof UpdateTriggerToolInput.Type;
+export const UpdateTriggerOutput = Trigger;
+export type UpdateTriggerOutput = typeof UpdateTriggerOutput.Type;
 export const ProposeRouteInput = Schema.Struct({ op: ProposableOp, rationale: NonEmptyString });
 export type ProposeRouteInput = typeof ProposeRouteInput.Type;
 export const ProposeRouteOutput = Schema.Struct({

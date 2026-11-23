@@ -70,7 +70,7 @@ const transact = <A, E, R>(
     }),
   );
 
-const databaseVersion = 4;
+const databaseVersion = 5;
 
 const initializeDatabase = (db: DatabaseSync) =>
   transact(
@@ -116,6 +116,9 @@ const initializeDatabase = (db: DatabaseSync) =>
           CREATE INDEX messages_open_task_cards_idx ON main_thread_messages(task_id) WHERE json_extract(data, '$.card.state') = 'open';
           CREATE INDEX session_requests_open_idx ON session_requests(task_id) WHERE json_extract(data, '$.state') = 'open';
           CREATE INDEX tasks_bot_id_idx ON tasks(json_extract(data, '$.botId'));
+          CREATE INDEX triggers_enabled_idx ON triggers(json_extract(data, '$.enabled'));
+          CREATE INDEX trigger_runs_trigger_idx ON trigger_runs(json_extract(data, '$.triggerId'), seq);
+          CREATE INDEX trigger_runs_occurrence_idx ON trigger_runs(json_extract(data, '$.occurrenceKey'));
           PRAGMA user_version = ${databaseVersion};
         `);
       });
@@ -264,6 +267,8 @@ export const StoreLive = (options: CoreOptions = {}) =>
         events: [],
         decision_logs: [],
         bot_creations: [],
+        triggers: ["triggers"],
+        trigger_runs: ["triggers"],
       };
       const directory = resolveDataDirectory(options);
       if (directory.length === 0)

@@ -12,7 +12,7 @@ import {
   type SessionHandle,
   StartSessionInput,
   type Task,
-  type TaskId,
+  TaskId,
   TurnInput,
 } from "@aut/protocol";
 import {
@@ -311,7 +311,12 @@ export const SessionManagerLive = (options: SessionManagerOptions = {}) =>
 
       const register: typeof SessionManager.Service.register = (op, decisionLogId, options) =>
         Effect.gen(function* () {
-          const taskId = op.op === "new" ? dispatchTaskId(decisionLogId) : op.taskId;
+          const taskId =
+            op.op === "new"
+              ? dispatchTaskId(decisionLogId)
+              : op.op === "new-trigger"
+                ? TaskId.make(`trigger:${op.runId}`)
+                : op.taskId;
           const at = yield* Clock.currentTimeMillis;
           const execution = yield* store.transaction((tx) =>
             registerOperation(tx, config, op, { taskId, decisionLogId, at, ...options }),

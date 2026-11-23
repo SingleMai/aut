@@ -1,0 +1,261 @@
+{
+  "at": "2026-11-21T14:52:03.515Z",
+  "cliVersion": "codex-cli 0.169.0",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-e2e-luXz7b",
+  "model": "codex/gpt-6.1-sol",
+  "trigger": {
+    "id": "trigger-e2e",
+    "name": "触发器集成测试",
+    "enabled": true,
+    "botId": "echo-fixture",
+    "prompt": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+    "payload": {
+      "marker": "TRIGGER_E2E_OK",
+      "source": "trigger-live"
+    },
+    "schedule": {
+      "kind": "once",
+      "at": 1795272642092
+    },
+    "overlap": "skip",
+    "createdAt": 1795272639097,
+    "updatedAt": 1795272639097,
+    "nextAt": 1795272642092
+  },
+  "run": {
+    "id": "run:trigger-e2e:1795272642092",
+    "triggerId": "trigger-e2e",
+    "occurrenceKey": "trigger-e2e:1795272642092",
+    "scheduledAt": 1795272642092,
+    "status": "ran",
+    "taskId": "trigger:run:trigger-e2e:1795272642092",
+    "startedAt": 1795272643044,
+    "finishedAt": 1795272723319
+  },
+  "task": {
+    "id": "trigger:run:trigger-e2e:1795272642092",
+    "botId": "echo-fixture",
+    "title": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+    "status": "idle",
+    "createdAt": 1795272643067,
+    "updatedAt": 1795272722857,
+    "lastActivityAt": 1795272722857,
+    "session": {
+      "instanceId": "aut-codex",
+      "cursor": {
+        "kind": "codex",
+        "data": {
+          "threadId": "01a1fe96-92a9-7da0-a4f9-066ca706e196"
+        }
+      }
+    },
+    "pendingRequestIds": [],
+    "lastReport": {
+      "full": "TRIGGER_E2E_OK",
+      "delivered": "TRIGGER_E2E_OK…\n详情见任务面板",
+      "rewrites": 2
+    },
+    "queue": [],
+    "origin": {
+      "kind": "trigger",
+      "decisionLogId": "fdbf2a6a-085f-48eb-9ec3-b7cdf5ce4387"
+    }
+  },
+  "finishedTrigger": {
+    "id": "trigger-e2e",
+    "name": "触发器集成测试",
+    "enabled": false,
+    "botId": "echo-fixture",
+    "prompt": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+    "payload": {
+      "marker": "TRIGGER_E2E_OK",
+      "source": "trigger-live"
+    },
+    "schedule": {
+      "kind": "once",
+      "at": 1795272642092
+    },
+    "overlap": "skip",
+    "createdAt": 1795272639097,
+    "updatedAt": 1795272643041
+  },
+  "reply": {
+    "id": "reply:trigger:run:trigger-e2e:1795272642092:1",
+    "at": 1795272722857,
+    "author": {
+      "botId": "echo-fixture",
+      "taskId": "trigger:run:trigger-e2e:1795272642092"
+    },
+    "kind": "reply",
+    "text": "TRIGGER_E2E_OK…\n详情见任务面板",
+    "taskId": "trigger:run:trigger-e2e:1795272642092",
+    "fullReportRef": "event:session:trigger:run:trigger-e2e:1795272642092:9024df14-07ab-4bb4-b0a4-46bacace93ca"
+  },
+  "report": {
+    "ref": "event:session:trigger:run:trigger-e2e:1795272642092:9024df14-07ab-4bb4-b0a4-46bacace93ca",
+    "text": "TRIGGER_E2E_OK"
+  },
+  "control": {
+    "trigger": {
+      "id": "trigger-e2e-control",
+      "name": "触发器控制测试",
+      "enabled": true,
+      "botId": "echo-fixture",
+      "prompt": "这个控制测试不会在探针内到期。",
+      "payload": {
+        "source": "trigger-live-control"
+      },
+      "schedule": {
+        "kind": "interval",
+        "startAt": 1795273323488,
+        "everyMs": 3600000
+      },
+      "overlap": "skip",
+      "createdAt": 1795272723503,
+      "updatedAt": 1795272723503,
+      "nextAt": 1795273323488
+    },
+    "paused": {
+      "id": "trigger-e2e-control",
+      "name": "触发器控制测试",
+      "enabled": false,
+      "botId": "echo-fixture",
+      "prompt": "这个控制测试不会在探针内到期。",
+      "payload": {
+        "source": "trigger-live-control"
+      },
+      "schedule": {
+        "kind": "interval",
+        "startAt": 1795273323488,
+        "everyMs": 3600000
+      },
+      "overlap": "skip",
+      "createdAt": 1795272723503,
+      "updatedAt": 1795272723506,
+      "nextAt": 1795273323488
+    },
+    "resumed": {
+      "id": "trigger-e2e-control",
+      "name": "触发器控制测试",
+      "enabled": true,
+      "botId": "echo-fixture",
+      "prompt": "这个控制测试不会在探针内到期。",
+      "payload": {
+        "source": "trigger-live-control"
+      },
+      "schedule": {
+        "kind": "interval",
+        "startAt": 1795273323488,
+        "everyMs": 3600000
+      },
+      "overlap": "skip",
+      "createdAt": 1795272723503,
+      "updatedAt": 1795272723508,
+      "nextAt": 1795273323488
+    },
+    "updated": {
+      "id": "trigger-e2e-control",
+      "name": "触发器控制测试（已更新）",
+      "enabled": true,
+      "botId": "echo-fixture",
+      "prompt": "更新后的控制测试。",
+      "payload": {
+        "source": "trigger-live-control"
+      },
+      "schedule": {
+        "kind": "interval",
+        "startAt": 1795273323488,
+        "everyMs": 3600000
+      },
+      "overlap": "skip",
+      "createdAt": 1795272723503,
+      "updatedAt": 1795272723510,
+      "nextAt": 1795273323488
+    }
+  },
+  "triggerDecisionLog": {
+    "id": "fdbf2a6a-085f-48eb-9ec3-b7cdf5ce4387",
+    "at": 1795272643060,
+    "tree": "trigger",
+    "treeVersion": "1.0.0",
+    "input": {
+      "eventRef": "trigger:run:trigger-e2e:1795272642092",
+      "state": {
+        "message": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+        "messageId": null,
+        "messageIds": [],
+        "uiAction": null,
+        "selectedOp": {
+          "op": "new-trigger",
+          "triggerId": "trigger-e2e",
+          "runId": "run:trigger-e2e:1795272642092",
+          "occurrenceKey": "trigger-e2e:1795272642092",
+          "scheduledAt": 1795272642092,
+          "botId": "echo-fixture",
+          "prompt": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+          "payload": {
+            "marker": "TRIGGER_E2E_OK",
+            "source": "trigger-live"
+          }
+        },
+        "fixedTargetId": null,
+        "primaryBotId": "aut",
+        "bots": [
+          {
+            "id": "aut",
+            "name": "aut",
+            "description": "General assistance for requests without a matching specialist. Complete the work or help the user clarify what to do next."
+          },
+          {
+            "id": "echo-fixture",
+            "name": "回声助手",
+            "description": "Handle synthetic integration verification and echo test requests, including echoing short test results."
+          }
+        ],
+        "taskCandidates": [],
+        "olderTasks": [],
+        "pendingRequests": [],
+        "recentMessages": []
+      },
+      "dynamicOptions": {}
+    },
+    "classifierCalls": [],
+    "path": [
+      "new-trigger"
+    ],
+    "output": {
+      "op": "new-trigger",
+      "triggerId": "trigger-e2e",
+      "runId": "run:trigger-e2e:1795272642092",
+      "occurrenceKey": "trigger-e2e:1795272642092",
+      "scheduledAt": 1795272642092,
+      "botId": "echo-fixture",
+      "prompt": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。",
+      "payload": {
+        "marker": "TRIGGER_E2E_OK",
+        "source": "trigger-live"
+      }
+    },
+    "execution": {
+      "ok": true
+    }
+  },
+  "firedEvent": {
+    "id": "trigger:run:trigger-e2e:1795272642092",
+    "at": 1795272643044,
+    "event": {
+      "source": "trigger",
+      "kind": "fired",
+      "triggerId": "trigger-e2e",
+      "payload": {
+        "marker": "TRIGGER_E2E_OK",
+        "source": "trigger-live"
+      },
+      "runId": "run:trigger-e2e:1795272642092",
+      "occurrenceKey": "trigger-e2e:1795272642092",
+      "scheduledAt": 1795272642092,
+      "botId": "echo-fixture",
+      "prompt": "这是触发器集成测试。请只回复唯一标记 TRIGGER_E2E_OK。不要提问，不要执行外部操作。"
+    }
+  }
+}

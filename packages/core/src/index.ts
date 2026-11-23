@@ -8,6 +8,7 @@ import { MainThreadLive } from "./main-thread.js";
 import { SessionRecordsLive } from "./session-records.js";
 import { StoreLive } from "./sqlite-store.js";
 import { TaskRegistryLive } from "./task-registry.js";
+import { TriggerRegistryLive } from "./triggers.js";
 
 export * from "./bot-creation.js";
 export * from "./changes.js";
@@ -24,6 +25,7 @@ export * from "./decision-tree/handoff-prune.js";
 export * from "./decision-tree/inbound.js";
 export * from "./decision-tree/reply-gate.js";
 export * from "./decision-tree/request.js";
+export * from "./decision-tree/trigger.js";
 export * from "./errors.js";
 export * from "./event-bus.js";
 export * from "./handoff/builder.js";
@@ -46,12 +48,16 @@ export * from "./sqlite-store.js";
 export * from "./storage-model.js";
 export * from "./store.js";
 export * from "./task-registry.js";
+export * from "./triggers.js";
 
 export const CoreLive = (options: CoreOptions = {}) =>
   Layer.mergeAll(
-    Layer.mergeAll(MainThreadLive, TaskRegistryLive, DecisionLogLive, SessionRecordsLive).pipe(
-      Layer.provideMerge(StoreLive(options)),
-    ),
+    Layer.mergeAll(
+      MainThreadLive,
+      TaskRegistryLive,
+      DecisionLogLive,
+      SessionRecordsLive,
+      TriggerRegistryLive,
+    ).pipe(Layer.provideMerge(StoreLive(options)), Layer.provideMerge(ConfigStoreLive(options))),
     EventBusLive,
-    ConfigStoreLive(options),
   ).pipe(Layer.provideMerge(ChangesLive));

@@ -1,6 +1,6 @@
 # MVP 验收结果
 
-2026-11-18 已在真实 Codex 0.169.0、Jev 和 macOS arm64 开发包验收下列功能。人工评审待进行，300 ms 路由确认仍有超时样本。开发包用于本机验收。
+2026-11-18 已在真实 Codex 0.169.0、Jev 和 macOS arm64 开发包验收下列功能。2026-11-21 追加了真实本地计划触发器验收。人工评审待进行，300 ms 路由确认仍有超时样本。开发包用于本机验收。
 
 ## 验收范围
 
@@ -21,13 +21,14 @@
 | fast / deep 进度与回包门槛 | 通过；隔离查询和改写不污染原任务、报告或会话 | [主链路](../spikes/e2e/results/main-thread-0.169.0.json)、[进度](../spikes/e2e/results/progress-0.169.0.json) |
 | queue / steer | 通过；同任务同会话投递，等待问题时追加指令保持排队 | [投递](../spikes/e2e/results/delivery-0.169.0.json) |
 | 取消、故障重试与重启恢复 | 通过；取消后不发迟到回包，重启不自动重放 | [控制](../spikes/e2e/results/control-0.169.0.json) |
+| 本地计划触发器 | 通过；真实 Codex session 在 Jev 已配置的 daemon 中由数据驱动触发树创建 `trigger` 来源任务，决策日志无分类器调用。运行台账到 `ran` 并绑定任务 ID，原始报告与主线程回包均含 `TRIGGER_E2E_OK`。一次性计划自动停用，暂停、恢复和更新均通过 | [触发器](../spikes/e2e/results/trigger-0.169.0-verified.json) |
 | 主助手协调与 MCP 派活 | 同一主助手在协调会话提议派发一次，专长助手独立完成工作，双方均经回包门槛 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
 | 密钥设置、题组、草稿、菜单与历史滚动 | 通过真实 API/WS 界面验收 | [设置](../spikes/e2e/results/desktop-settings.json)、[界面](../spikes/e2e/results/ui-position-qa.json) |
 | Bot 形象与动作 | 单眼 a 与纸鸟可预演。隔离桌面数据实测保存、重开、历史静态恢复及原生回执。图片渲染器覆盖自定义状态、动作替换和减少动态效果 | [编辑器实录](assets/desktop/bot-characters.gif)、[播放器](../apps/desktop/src/character-player.dom.test.tsx)、[预演与配置](../apps/desktop/src/characters/character-editor.dom.test.tsx) |
 | 桌面外观与配置表单 | arm64 实包在下拉菜单打开时切换外观，原生控件与弹层同步。键盘可从 Bot 头像进入并返回。折起的 MCP 字段和多实例配置错误均可定位与修正 | [实包验收](../spikes/desktop/packaged-smoke.ts)、[字段定位](../apps/desktop/src/settings-page.dom.test.tsx)、[组件预览入口](desktop.md#组件预览) |
 | 本机首次启动、答题与重开 | 通过；继承已认证开发环境，结果持久化 | [本机补验](../spikes/e2e/results/local-desktop-0.169.0.json) |
 | 工作会话与工具展示 | 分页、实时更新、折叠、定位及原生 IPC 通过；查看不恢复任务 | [会话](../spikes/desktop/task-session-qa-results.md)、[工具对照](omb-tool-parity.md) |
-| 构建、类型、格式、依赖检查及打包 | 69 个测试文件、1,159 个用例全部通过，包含在线 Jev 检查。macOS arm64 开发包通过主助手展示、创建回执撤销和设置页检查 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
+| 构建、类型、格式、依赖检查及打包 | 78 个测试文件、1,226 个用例全部通过，另有 1 个在线 Jev 用例按条件跳过。macOS arm64 开发包通过主助手展示、创建回执撤销和设置页检查 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
 
 验收 JSON 保存决策日志样例，包含输入、分类问题、概率、路径及执行结果。
 

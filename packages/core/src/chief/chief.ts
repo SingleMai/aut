@@ -26,6 +26,7 @@ import { ConfigStore } from "../config-store.js";
 import { DecisionLog } from "../decision-log.js";
 import { DecisionTree } from "../decision-tree/engine.js";
 import { inboundV1 } from "../decision-tree/inbound.js";
+import { triggerV1 } from "../decision-tree/trigger.js";
 import { CoreError, validate } from "../errors.js";
 import { isCoordinationTask } from "../primary-assistant.js";
 import { questionCardState, requireCardMessage } from "../request-cards.js";
@@ -74,6 +75,8 @@ const acknowledgement = (op: Op, state: Pick<InboundState, "bots">): string => {
   switch (op.op) {
     case "new":
       return `已交给『${state.bots.find((bot) => bot.id === op.botId)?.name ?? op.botId}』`;
+    case "new-trigger":
+      return `已启动计划任务『${state.bots.find((bot) => bot.id === op.botId)?.name ?? op.botId}』`;
     case "send":
       return "已提交到任务";
     case "ask":
@@ -109,11 +112,12 @@ export const ChiefLive = Layer.scoped(
         let state: InboundState | undefined;
         let op: Op | undefined;
         let logged = false;
+        const treeConfig = pending.event.source === "trigger" ? triggerV1 : inboundV1;
         const run = Effect.gen(function* () {
           state = yield* source
             .prepare(pending)
             .pipe(Effect.flatMap((value) => validate(InboundState, value)));
-          const decision = yield* tree.run(inboundV1, {
+          const decision = yield* tree.run(treeConfig, {
             id: pending.decisionLogId,
             eventRef: pending.eventRef,
             state,
@@ -194,8 +198,8 @@ export const ChiefLive = Layer.scoped(
                 const log: LogRecord = {
                   id: pending.decisionLogId,
                   at: Timestamp.make(yield* Clock.currentTimeMillis),
-                  tree: "inbound",
-                  treeVersion: inboundV1.version,
+                  tree: treeConfig.name,
+                  treeVersion: treeConfig.version,
                   input: {
                     eventRef: pending.eventRef,
                     state: state ?? { event: pending.event },
@@ -302,11 +306,11 @@ export const ChiefLive = Layer.scoped(
       submit: (event: AutEvent, eventRef?: string) =>
         Effect.gen(function* () {
           const checked = yield* validate(AutEvent, event);
-          if (checked.source !== "user")
+          if (checked.source === "session")
             return yield* Effect.fail(
               new CoreError({
                 code: "InvalidRequest",
-                message: "The inbound Chief accepts user events only.",
+                message: "Session events are handled by SessionManager, not the inbound Chief.",
               }),
             );
           const decisionLogId = randomUUID();

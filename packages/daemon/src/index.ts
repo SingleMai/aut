@@ -34,6 +34,7 @@ import { type DaemonOptions, DaemonRuntimeLive, environmentOptions } from "./run
 import { SecretReaderLive } from "./secret-reader.js";
 import { SecretStoreLive } from "./secret-store.js";
 import { HarnessResolverLive, SessionBridgeLive, SessionSetupLive } from "./session-setup.js";
+import { TriggerSchedulerLive } from "./triggers.js";
 
 export * from "./admin.js";
 export * from "./admission.js";
@@ -51,6 +52,7 @@ export * from "./runtime.js";
 export * from "./secret-reader.js";
 export * from "./secret-store.js";
 export * from "./session-setup.js";
+export * from "./triggers.js";
 
 /** API contract harness, without worker execution or default configuration discovery. */
 export const DaemonApiLive = (options: DaemonOptions = {}) => {
@@ -118,7 +120,11 @@ export const DaemonLive = (options: DaemonOptions = {}) => {
     Layer.provideMerge(BridgeBackendLive.pipe(Layer.provideMerge(chief))),
   );
   const ingress = ChiefIngressLive.pipe(Layer.provideMerge(bridge));
-  return HttpServerLive(options.port).pipe(Layer.provideMerge(ingress));
+  const scheduler = TriggerSchedulerLive.pipe(
+    Layer.provideMerge(chief),
+    Layer.provideMerge(recovered),
+  );
+  return HttpServerLive(options.port).pipe(Layer.provideMerge(Layer.merge(ingress, scheduler)));
 };
 
 export const DaemonFromEnvironmentLive = Layer.unwrapEffect(

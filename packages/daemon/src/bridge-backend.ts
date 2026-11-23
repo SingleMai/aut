@@ -5,19 +5,30 @@ import {
   isCoordinationTask,
   MainThread,
   TaskRegistry,
+  TriggerRegistry,
 } from "@aut/core";
 import { BridgeBackend, BridgeError, SessionIdentity } from "@aut/mcp-bridge";
 import {
   CreateBotInput,
   CreateBotOutput,
+  CreateTriggerInput,
+  CreateTriggerOutput,
   GetTaskInput,
   GetTaskOutput,
+  GetTriggerInput,
+  GetTriggerOutput,
   ListTasksInput,
   ListTasksOutput,
+  ListTriggerRunsInput,
+  ListTriggerRunsOutput,
+  ListTriggersInput,
+  ListTriggersOutput,
   ProposeRouteInput,
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  UpdateTriggerOutput,
+  UpdateTriggerToolInput,
 } from "@aut/protocol";
 import { Effect, Layer, Option, Schema } from "effect";
 
@@ -28,9 +39,11 @@ const boundaryError = (error: CoreError) =>
     code:
       error.code === "NotFound"
         ? "NotFound"
-        : error.code === "Validation"
-          ? "InvalidInput"
-          : "Unavailable",
+        : error.code === "Conflict"
+          ? "Conflict"
+          : error.code === "Validation" || error.code === "Configuration"
+            ? "InvalidInput"
+            : "Unavailable",
     message:
       error.code === "NotFound"
         ? "The requested record was not found"
@@ -51,6 +64,7 @@ export const BridgeBackendLive = Layer.effect(
     const admin = yield* Administration;
     const config = yield* ConfigStore;
     const tasks = yield* TaskRegistry;
+    const triggers = yield* TriggerRegistry;
     const messages = yield* MainThread;
     const chief = yield* Chief;
     const authorize = (input: SessionIdentity) =>
@@ -162,6 +176,81 @@ export const BridgeBackendLive = Layer.effect(
               ),
             );
           return yield* checked(CreateBotOutput, { id: bot.id, name: bot.name });
+        }),
+      createTrigger: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(CreateTriggerInput, input);
+          yield* authorize(identity);
+          if (identity.role === "worker" && args.botId !== identity.botId)
+            return yield* Effect.fail(
+              new BridgeError({
+                code: "Forbidden",
+                message: "A worker session may only create triggers for its own Bot",
+              }),
+            );
+          const trigger = yield* triggers.create(args).pipe(Effect.mapError(boundaryError));
+          return yield* checked(CreateTriggerOutput, trigger);
+        }),
+      getTrigger: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(GetTriggerInput, input);
+          yield* authorize(identity);
+          const trigger = yield* triggers.get(args.triggerId).pipe(Effect.mapError(boundaryError));
+          if (Option.isNone(trigger))
+            return yield* Effect.fail(
+              new BridgeError({ code: "NotFound", message: "The requested trigger was not found" }),
+            );
+          return yield* checked(GetTriggerOutput, trigger.value);
+        }),
+      listTriggers: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(ListTriggersInput, input);
+          yield* authorize(identity);
+          const values = yield* triggers.list().pipe(Effect.mapError(boundaryError));
+          const filtered = values
+            .filter((trigger) => args.botId === undefined || trigger.botId === args.botId)
+            .filter((trigger) => args.enabled === undefined || trigger.enabled === args.enabled)
+            .slice(0, args.limit ?? 50);
+          return yield* checked(ListTriggersOutput, filtered);
+        }),
+      listTriggerRuns: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(ListTriggerRunsInput, input);
+          yield* authorize(identity);
+          const trigger = yield* triggers.get(args.triggerId).pipe(Effect.mapError(boundaryError));
+          if (Option.isNone(trigger))
+            return yield* Effect.fail(
+              new BridgeError({ code: "NotFound", message: "The requested trigger was not found" }),
+            );
+          const runs = yield* triggers
+            .listRuns(args.triggerId)
+            .pipe(Effect.mapError(boundaryError));
+          return yield* checked(ListTriggerRunsOutput, runs.slice(0, args.limit ?? 50));
+        }),
+      updateTrigger: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(UpdateTriggerToolInput, input);
+          yield* authorize(identity);
+          const current = yield* triggers.get(args.triggerId).pipe(Effect.mapError(boundaryError));
+          if (Option.isNone(current))
+            return yield* Effect.fail(
+              new BridgeError({ code: "NotFound", message: "The requested trigger was not found" }),
+            );
+          const targetBotId = args.update.botId ?? current.value.botId;
+          if (
+            identity.role === "worker" &&
+            (current.value.botId !== identity.botId || targetBotId !== identity.botId)
+          )
+            return yield* Effect.fail(
+              new BridgeError({
+                code: "Forbidden",
+                message: "A worker session may only update its own Bot's triggers",
+              }),
+            );
+          const updated = yield* triggers
+            .update(args.triggerId, args.update)
+            .pipe(Effect.mapError(boundaryError));
+          return yield* checked(UpdateTriggerOutput, updated);
         }),
       proposeRoute: (identity, input, requestId) =>
         Effect.gen(function* () {

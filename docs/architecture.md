@@ -13,7 +13,7 @@
 **非目标（MVP）**
 - 不做 bot 记忆（交给 harness 读取 workdir 文件）。
 - 不向用户开放底层 session 的直接交互界面（只读的任务面板除外）。
-- 不做主动型（后台触发）agent —— 但事件模型为其预留（见 §10）。
+- 不做云端或外部事件驱动的主动型 agent。v1 的本地主动型 agent 通过 TriggerRegistry 实现，触发器定义和 occurrence 运行账本持久化在 SQLite，daemon scoped scheduler 只负责到期检查和把 trigger.fired 事件投递给 Chief。调度语义与重启追赶边界见 ADR-0056。
 - 不做多用户/云端/团队功能。
 
 ## 2. 快与慢
@@ -174,10 +174,9 @@ worker 回合结束 → 取最终报告
 - 不设并发上限。
 - 回合取消/重启沿用 OpenMausBot 的执行所有权保护：取消先持久化终态再中断；旧 turn ID/执行代次的迟到事件只审计，不能覆盖新回合。意外中断进入 `interrupted` 等待恢复；重启投递则在旧回合清理后从队列排出。底层中断是结束结果，不是成功报告（ADR-0017）。
 
-## 10. 事件模型（为主动型 bot 预留）
+## 10. 事件模型与主动型 bot
 
-所有输入统一为 `Event { source: user | session | trigger, ... }`。MVP 只有 `user` 与 `session`；
-未来 `trigger`（cron / webhook / 文件变化）直接走决策树的 `new` 分支到指定 bot，回包照常进 main thread。
+所有输入统一为 Event { source: user | session | trigger, ... }。trigger 事件经过独立声明式 trigger 树输出 new-trigger，到指定 Bot 创建独立 Task，回包照常进 main thread。v1 支持本地 once、daily、cron、interval，Webhook 和文件变化事件另行设计。
 
 ## 11. 存储布局
 
@@ -185,7 +184,7 @@ worker 回合结束 → 取最终报告
 ~/.aut/
   config.json        harness 实例、classifier 后端与密钥引用
   bots.json          bot 配置
-  aut.db             SQLite：main_thread_messages, tasks, sessions, session_requests, events, decision_logs
+  aut.db             SQLite：main_thread_messages, tasks, sessions, session_requests, events, decision_logs, triggers, trigger_runs
   workspace/         全空配置首次初始化时的默认 workdir；已有 bot 始终使用配置的 cwd
   logs/
 ```

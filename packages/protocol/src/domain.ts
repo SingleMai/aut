@@ -9,10 +9,13 @@ import {
   NonNegativeInteger,
   NonNegativeNumber,
   optional,
+  PositiveInteger,
   Probability,
   RequestId,
   TaskId,
   Timestamp,
+  TriggerId,
+  TriggerRunId,
   uniqueBy,
 } from "./common.js";
 import { BotConfig, McpServerConfig } from "./config.js";
@@ -129,6 +132,16 @@ export const ProposableOp = Schema.Union(
   Schema.Struct({ op: Schema.Literal("answer"), requestId: RequestId, answer: QuestionAnswer }),
 );
 export type ProposableOp = typeof ProposableOp.Type;
+const TriggerOp = Schema.Struct({
+  op: Schema.Literal("new-trigger"),
+  triggerId: TriggerId,
+  runId: TriggerRunId,
+  occurrenceKey: NonEmptyString,
+  scheduledAt: Timestamp,
+  botId: BotId,
+  prompt: NonEmptyString,
+  payload: JsonValue,
+});
 const EscalateOp = Schema.Struct({
   op: Schema.Literal("escalate"),
   reason: NonEmptyString,
@@ -148,10 +161,12 @@ const CardOptionFields = Schema.Struct({ id: NonEmptyString, label: NonEmptyStri
 // Only recursive edges need explicit declarations; all other fields derive from the schemas above.
 export type Op =
   | typeof ProposableOp.Type
+  | typeof TriggerOp.Type
   | typeof EscalateOp.Type
   | { readonly op: "clarify"; readonly card: Card };
 type OpEncoded =
   | Schema.Schema.Encoded<typeof ProposableOp>
+  | Schema.Schema.Encoded<typeof TriggerOp>
   | Schema.Schema.Encoded<typeof EscalateOp>
   | { readonly op: "clarify"; readonly card: CardEncoded };
 export type CardOption = typeof CardOptionFields.Type & { readonly op?: Op };
@@ -175,6 +190,7 @@ export const Card: Schema.Schema<Card, CardEncoded> = Schema.Struct({
 });
 export const Op: Schema.Schema<Op, OpEncoded> = Schema.Union(
   ProposableOp,
+  TriggerOp,
   EscalateOp,
   Schema.Struct({ op: Schema.Literal("clarify"), card: Card }),
 );
@@ -269,6 +285,52 @@ export const Task = Schema.Struct({
   ),
 });
 export type Task = typeof Task.Type;
+
+export const TriggerSchedule = Schema.Union(
+  Schema.Struct({ kind: Schema.Literal("once"), at: Timestamp }),
+  Schema.Struct({
+    kind: Schema.Literal("interval"),
+    startAt: Timestamp,
+    everyMs: PositiveInteger,
+  }),
+  Schema.Struct({
+    kind: Schema.Literal("daily"),
+    at: Schema.String.pipe(Schema.pattern(/^([01]\d|2[0-3]):[0-5]\d$/)),
+    timeZone: optional(NonEmptyString),
+  }),
+  Schema.Struct({
+    kind: Schema.Literal("cron"),
+    expression: NonEmptyString,
+    timeZone: optional(NonEmptyString),
+  }),
+);
+export type TriggerSchedule = typeof TriggerSchedule.Type;
+export const Trigger = Schema.Struct({
+  id: TriggerId,
+  name: NonEmptyString,
+  enabled: Schema.Boolean,
+  botId: BotId,
+  prompt: NonEmptyString,
+  payload: JsonValue,
+  schedule: TriggerSchedule,
+  overlap: Schema.Literal("skip"),
+  createdAt: Timestamp,
+  updatedAt: Timestamp,
+  nextAt: optional(Timestamp),
+});
+export type Trigger = typeof Trigger.Type;
+export const TriggerRun = Schema.Struct({
+  id: TriggerRunId,
+  triggerId: TriggerId,
+  occurrenceKey: NonEmptyString,
+  scheduledAt: Timestamp,
+  status: Schema.Literal("queued", "running", "ran", "failed", "missed", "skipped"),
+  taskId: optional(TaskId),
+  startedAt: optional(Timestamp),
+  finishedAt: optional(Timestamp),
+  error: optional(Schema.String),
+});
+export type TriggerRun = typeof TriggerRun.Type;
 export const AdapterCapabilities = Schema.Struct({
   resume: Schema.Boolean,
   fork: Schema.Boolean,
@@ -361,8 +423,13 @@ export const AutEvent = Schema.Union(
   Schema.Struct({
     source: Schema.Literal("trigger"),
     kind: Schema.Literal("fired"),
-    triggerId: NonEmptyString,
+    triggerId: TriggerId,
     payload: JsonValue,
+    runId: optional(TriggerRunId),
+    occurrenceKey: optional(NonEmptyString),
+    scheduledAt: optional(Timestamp),
+    botId: optional(BotId),
+    prompt: optional(NonEmptyString),
   }),
 );
 export type AutEvent = typeof AutEvent.Type;
@@ -457,7 +524,7 @@ export type DecisionCorrection = typeof DecisionCorrection.Type;
 export const DecisionLog = Schema.Struct({
   id: NonEmptyString,
   at: Timestamp,
-  tree: Schema.Literal("inbound", "reply-gate", "request", "handoff-prune"),
+  tree: Schema.Literal("inbound", "trigger", "reply-gate", "request", "handoff-prune"),
   treeVersion: NonEmptyString,
   input: Schema.Struct({
     eventRef: NonEmptyString,

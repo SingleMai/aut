@@ -207,7 +207,7 @@ export const TreeNode = Schema.Union(
 export type TreeNode = typeof TreeNode.Type;
 
 const TreeConfigFields = Schema.Struct({
-  name: Schema.Literal("inbound", "reply-gate", "request", "handoff-prune"),
+  name: Schema.Literal("inbound", "trigger", "reply-gate", "request", "handoff-prune"),
   version: NonEmptyString,
   entry: SafeKey,
   thresholds: safeRecord(FiniteNumber),

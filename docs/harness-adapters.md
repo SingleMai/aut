@@ -39,6 +39,7 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
 
 ### 3.1 进程与会话
 - 启动常驻 `codex app-server`，stdio 上收发 NDJSON JSON-RPC。
+- `thread/start`、`thread/resume` 与 `thread/fork` 的 RPC 等待预算为 30 秒。Codex 0.169.0 冷启动内置 MCP 服务时可能超过 15 秒，较短预算会把尚未确认的会话误判为失败。
 - 实测方法：`initialize` → `initialized`；`thread/start`、`thread/resume`、`thread/fork`、`thread/read`、`turn/start`、`turn/steer`、`turn/interrupt`。
 - `initialize.capabilities.experimentalApi = true`；普通 turn、同进程和新进程 resume 均已录制。
 - 通知事件（OMB 消费）：`turn/started`、`turn/completed`、`item/started`、`item/completed`、`item/agentMessage/delta`、

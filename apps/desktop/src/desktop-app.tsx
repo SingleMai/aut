@@ -1,6 +1,7 @@
 import type { Task } from "@aut/protocol";
 import { IconButton } from "@radix-ui/themes";
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { AutomationsPage } from "./automations-page.js";
 import { BotsPage } from "./bots-page.js";
 import { ConversationPage } from "./conversation-page.js";
 import { createDesktopData } from "./desktop-data.js";
@@ -157,6 +158,9 @@ export function DesktopApp() {
             )}
             {view === "bots" && config && (
               <BotsPage {...{ bots, config, data, flash }} settings={() => navigate("settings")} />
+            )}
+            {view === "automations" && (
+              <AutomationsPage {...{ bots, data, flash }} triggers={snapshot.triggers} />
             )}
             {view === "settings" && config && <SettingsPage {...{ config, data, flash }} />}
           </section>

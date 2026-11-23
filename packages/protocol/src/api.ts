@@ -1,7 +1,24 @@
 import { Schema } from "effect";
-import { BotId, MessageId, NonEmptyString, PositiveInteger, Probability } from "./common.js";
+import {
+  BotId,
+  JsonValue,
+  MessageId,
+  NonEmptyString,
+  PositiveInteger,
+  Probability,
+  TriggerId,
+} from "./common.js";
 import { AutConfig, BotConfig, BotsConfig } from "./config.js";
-import { AutEvent, MainThreadMessage, QuestionAnswer, SessionRequest, Task } from "./domain.js";
+import {
+  AutEvent,
+  MainThreadMessage,
+  QuestionAnswer,
+  SessionRequest,
+  Task,
+  Trigger,
+  TriggerRun,
+  TriggerSchedule,
+} from "./domain.js";
 import { SessionHistory } from "./session-history.js";
 
 export const SendMessageInput = Schema.Struct({
@@ -69,11 +86,40 @@ export const ConfigResponse = AutConfig;
 export const HealthResponse = Schema.Struct({ status: Schema.Literal("ok") });
 export const AcceptedResponse = Schema.Struct({ accepted: Schema.Literal(true) });
 export const DeletedResponse = Schema.Struct({ deleted: Schema.Literal(true) });
+export const CreateTriggerInput = Schema.Struct({
+  id: Schema.optional(TriggerId),
+  name: NonEmptyString,
+  botId: BotId,
+  prompt: NonEmptyString,
+  payload: Schema.optionalWith(JsonValue, { default: () => ({}) }),
+  schedule: TriggerSchedule,
+  enabled: Schema.optionalWith(Schema.Boolean, { default: () => true }),
+});
+export type CreateTriggerInput = typeof CreateTriggerInput.Type;
+export const UpdateTriggerInput = Schema.Struct({
+  name: Schema.optional(NonEmptyString),
+  botId: Schema.optional(BotId),
+  prompt: Schema.optional(NonEmptyString),
+  payload: Schema.optional(JsonValue),
+  schedule: Schema.optional(TriggerSchedule),
+  enabled: Schema.optional(Schema.Boolean),
+});
+export type UpdateTriggerInput = typeof UpdateTriggerInput.Type;
+export const TriggerResponse = Schema.Struct({ trigger: Trigger });
+export const TriggersResponse = Schema.Struct({ triggers: Schema.Array(Trigger) });
+export const TriggerRunsResponse = Schema.Struct({ runs: Schema.Array(TriggerRun) });
 export const ApiErrorResponse = Schema.Struct({
   error: Schema.Struct({ code: NonEmptyString, message: Schema.String }),
 });
 
-export const DaemonResource = Schema.Literal("messages", "tasks", "requests", "bots", "config");
+export const DaemonResource = Schema.Literal(
+  "messages",
+  "tasks",
+  "requests",
+  "bots",
+  "config",
+  "triggers",
+);
 export type DaemonResource = typeof DaemonResource.Type;
 export const ResourcesChanged = Schema.Struct({
   type: Schema.Literal("changed"),

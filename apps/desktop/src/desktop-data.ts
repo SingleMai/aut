@@ -5,6 +5,7 @@ import type {
   MainThreadMessage,
   MessageId,
   Task,
+  Trigger,
 } from "@aut/protocol";
 import { Effect, Either, Fiber } from "effect";
 import { desktopApi, messagePageSize, type UiError } from "./api.js";
@@ -16,6 +17,7 @@ interface Snapshot {
   readonly hasOlder: boolean;
   readonly tasks: readonly Task[];
   readonly bots: readonly BotConfig[];
+  readonly triggers: readonly Trigger[];
   readonly config?: AutConfig;
   readonly requestRevision: number;
   readonly taskRevision: number;
@@ -29,6 +31,7 @@ export function createDesktopData() {
     hasOlder: false,
     tasks: [],
     bots: [],
+    triggers: [],
     requestRevision: 0,
     taskRevision: 0,
   };
@@ -79,11 +82,12 @@ export function createDesktopData() {
           tasks: changed.has("tasks") ? taskData.readList : Effect.succeed(undefined),
           bots: changed.has("bots") ? desktopApi.listBots() : Effect.succeed(undefined),
           config: changed.has("config") ? desktopApi.getConfig() : Effect.succeed(undefined),
+          triggers: changed.has("triggers") ? desktopApi.listTriggers() : Effect.succeed(undefined),
         },
         { concurrency: "unbounded", mode: "either" },
       );
       const errors = new Map<DaemonResource, UiError>();
-      for (const key of ["messages", "tasks", "bots", "config"] as const) {
+      for (const key of ["messages", "tasks", "bots", "config", "triggers"] as const) {
         const result = results[key];
         if (result._tag === "Left") errors.set(key, result.left);
       }
@@ -92,12 +96,14 @@ export function createDesktopData() {
       if (list?.error) errors.set("tasks", list.error);
       const bots = Either.getOrUndefined(results.bots);
       const config = Either.getOrUndefined(results.config);
+      const triggers = Either.getOrUndefined(results.triggers);
       publish({
         ...(errors.has("messages") && !state.messages.length && { messageStatus: "unavailable" }),
         ...Either.getOrUndefined(results.messages),
         ...(list && { tasks: list.tasks }),
         ...(bots && { bots: bots.bots }),
         ...(config && { config }),
+        ...(triggers && { triggers: triggers.triggers }),
         requestRevision: state.requestRevision + Number(changed.has("requests")),
         taskRevision: state.taskRevision + Number(changed.has("requests") || changed.has("tasks")),
       });
@@ -159,6 +165,44 @@ export function createDesktopData() {
           .saveConfig(config)
           .pipe(Effect.tap((value) => Effect.sync(() => publish({ config: value })))),
       ),
+    createTrigger: (input: Parameters<typeof desktopApi.createTrigger>[0]) =>
+      lock.withPermits(1)(
+        desktopApi
+          .createTrigger(input)
+          .pipe(
+            Effect.tap((value) =>
+              Effect.sync(() => publish({ triggers: [value.trigger, ...state.triggers] })),
+            ),
+          ),
+      ),
+    updateTrigger: (id: string, input: Parameters<typeof desktopApi.updateTrigger>[1]) =>
+      lock.withPermits(1)(
+        desktopApi.updateTrigger(id, input).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                triggers: [value.trigger, ...state.triggers.filter((trigger) => trigger.id !== id)],
+              }),
+            ),
+          ),
+        ),
+      ),
+    toggleTrigger: (id: string, enabled: boolean) =>
+      lock.withPermits(1)(
+        (enabled ? desktopApi.resumeTrigger(id) : desktopApi.pauseTrigger(id)).pipe(
+          Effect.tap((value) =>
+            Effect.sync(() =>
+              publish({
+                triggers: state.triggers.map((trigger) =>
+                  trigger.id === id ? value.trigger : trigger,
+                ),
+              }),
+            ),
+          ),
+        ),
+      ),
+    listTriggerRuns: (id: string) =>
+      desktopApi.listTriggerRuns(id).pipe(Effect.map((value) => value.runs)),
   };
 }
 export type DesktopData = ReturnType<typeof createDesktopData>;

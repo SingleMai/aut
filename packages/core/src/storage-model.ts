@@ -13,6 +13,8 @@ import {
   Task,
   TaskId,
   Timestamp,
+  Trigger,
+  TriggerRun,
 } from "@aut/protocol";
 import { Schema } from "effect";
 import { SessionExecution } from "./session-manager/model.js";
@@ -65,6 +67,8 @@ export const storageSchemas = {
   events: StoredEvent,
   decision_logs: DecisionLog,
   bot_creations: StoredBotCreation,
+  triggers: Trigger,
+  trigger_runs: TriggerRun,
 } as const;
 export type StoreTable = keyof typeof storageSchemas;
 export type StoreRecords = {

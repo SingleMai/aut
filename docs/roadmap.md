@@ -60,6 +60,7 @@
 | MVP-15 | 主助手与协调会话 | 09, 10, 11, 13 | P6 |
 | MVP-16 | Electron 桌面端 | 05（可先 mock 03） | P6 |
 | MVP-17 | 端到端验收 | 全部 | — |
+| MVP-18 | Trigger and Automation：本地计划触发、运行账本、Chief/Task/Session 接入与桌面管理 | 03, 04, 05, 08, 09, 16 | P6 |
 
 可并行起步：01 ∥ 02；03 完成后 04 ∥ 06 ∥ 07（需 01）∥ 16（mock）。
 
@@ -68,5 +69,5 @@
 - 通用 ACP adapter 已接入 OpenCode 1.19.5，并复用 provider 的 ACP 认证握手。Grok、Gemini、Qwen 仍需各自的真实回合探针和能力确认。
 - 备用 Classifier 后端（LiteLLM 等结构化输出）。
 - 基于决策日志的评测集与阈值调优工具。
-- trigger 事件源与主动型 bot。
+- 主动型 bot 的 Webhook、文件变化事件、可配置 overlap 策略和失败自动重试，首个本地计划触发切片与 MCP trigger 工具的边界见 ADR-0056 至 ADR-0060。
 - request 树的"只有用户能回答吗"自动默认策略（需 ADR）。

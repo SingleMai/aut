@@ -17,6 +17,7 @@ export const OperationExecutorLive = Layer.effect(
       execute: (op, decisionLogId, corrects) => {
         switch (op.op) {
           case "new":
+          case "new-trigger":
           case "send":
           case "control":
             return sessions.register(op, decisionLogId, corrects ? { corrects } : undefined);

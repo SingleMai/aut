@@ -123,7 +123,9 @@ export const makeCodexAdapter = (
         ],
         cwd: input.cwd,
         ...(options.env ? { env: options.env } : {}),
-        rpcTimeoutMs: options.rpcTimeoutMs ?? 15_000,
+        // Codex 0.169.0 can spend more than 15 seconds starting its built-in MCP
+        // servers before replying to thread/start on a cold app-server.
+        rpcTimeoutMs: options.rpcTimeoutMs ?? 30_000,
       });
       const bus = yield* PubSub.unbounded<SessionEvent>();
       yield* Effect.addFinalizer(() => PubSub.shutdown(bus));
@@ -772,7 +774,7 @@ export const makeCodexAdapter = (
             command: options.command ?? "codex",
             args: ["app-server", "--stdio", ...(options.args ?? [])],
             cwd: process.cwd(),
-            rpcTimeoutMs: options.rpcTimeoutMs ?? 15_000,
+            rpcTimeoutMs: options.rpcTimeoutMs ?? 30_000,
             ...(options.env ? { env: options.env } : {}),
           });
           yield* transport.request("initialize", {

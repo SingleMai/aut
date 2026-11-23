@@ -7,6 +7,7 @@ import {
   SessionReader,
   SessionRecords,
   TaskRegistry,
+  TriggerRegistry,
 } from "@aut/core";
 import {
   AcceptedResponse,
@@ -17,6 +18,7 @@ import {
   BotResponse,
   BotsResponse,
   ConfigResponse,
+  CreateTriggerInput,
   DaemonEvent,
   DeletedResponse,
   HealthResponse,
@@ -40,7 +42,12 @@ import {
   TaskResponse,
   TaskSessionInput,
   TaskSessionResponse,
+  TriggerId,
+  TriggerResponse,
+  TriggerRunsResponse,
+  TriggersResponse,
   UiAction,
+  UpdateTriggerInput,
 } from "@aut/protocol";
 import {
   Cause,
@@ -175,6 +182,7 @@ export const HttpServerLive = (port = 4317) =>
       const secretReader = yield* SecretReader;
       const thread = yield* MainThread;
       const tasks = yield* TaskRegistry;
+      const triggers = yield* TriggerRegistry;
       const sessions = yield* SessionReader;
       const records = yield* SessionRecords;
       const bus = yield* EventBus;
@@ -247,6 +255,35 @@ export const HttpServerLive = (port = 4317) =>
           if (method === "POST" && path === "/v1/actions") {
             yield* inbound.action(yield* body(request, UiAction));
             return yield* respond(response, 202, AcceptedResponse, { accepted: true });
+          }
+          if (method === "GET" && path === "/v1/triggers")
+            return yield* respond(response, 200, TriggersResponse, {
+              triggers: yield* triggers.list(),
+            });
+          if (method === "POST" && path === "/v1/triggers")
+            return yield* respond(response, 201, TriggerResponse, {
+              trigger: yield* triggers.create(yield* body(request, CreateTriggerInput)),
+            });
+          const triggerRunsMatch = /^\/v1\/triggers\/([^/]+)\/runs$/.exec(path);
+          if (method === "GET" && triggerRunsMatch?.[1]) {
+            const id = yield* decode(TriggerId, yield* pathId(triggerRunsMatch[1]));
+            return yield* respond(response, 200, TriggerRunsResponse, {
+              runs: yield* triggers.listRuns(id),
+            });
+          }
+          const triggerLifecycle = /^\/v1\/triggers\/([^/]+)\/(pause|resume)$/.exec(path);
+          if (method === "POST" && triggerLifecycle?.[1] && triggerLifecycle[2]) {
+            const id = yield* decode(TriggerId, yield* pathId(triggerLifecycle[1]));
+            return yield* respond(response, 200, TriggerResponse, {
+              trigger: yield* triggers.update(id, { enabled: triggerLifecycle[2] === "resume" }),
+            });
+          }
+          const triggerMatch = /^\/v1\/triggers\/([^/]+)$/.exec(path);
+          if (method === "PUT" && triggerMatch?.[1]) {
+            const id = yield* decode(TriggerId, yield* pathId(triggerMatch[1]));
+            return yield* respond(response, 200, TriggerResponse, {
+              trigger: yield* triggers.update(id, yield* body(request, UpdateTriggerInput)),
+            });
           }
           if (method === "GET" && path === "/v1/tasks") {
             const raw = { ...rawQuery };

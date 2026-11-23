@@ -122,6 +122,188 @@
 .settings-section .section-heading h2 {
   margin-bottom: 0;
 }
+
+.automation-page {
+  width: 100%;
+  max-width: 960px;
+}
+
+.automation-heading {
+  align-items: flex-start;
+  max-width: 850px;
+}
+
+.automation-heading .muted + .muted {
+  margin-top: 4px;
+  color: var(--warning);
+}
+
+.automation-list {
+  display: grid;
+  gap: 16px;
+  max-width: 850px;
+}
+
+.automation-card {
+  min-width: 0;
+}
+
+.automation-card .section-heading {
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.automation-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.automation-card .automation-title h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.automation-actions {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.automation-meta {
+  color: var(--secondary);
+  font-size: var(--text-small);
+  line-height: 1.6;
+}
+
+.automation-prompt {
+  margin-top: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+
+.automation-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--edge);
+}
+
+.automation-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+
+.automation-next .ui-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.automation-card .identifier {
+  margin-top: 0;
+}
+
+.automation-empty {
+  max-width: 850px;
+}
+
+.automation-runs {
+  margin-top: 14px;
+  border-top: 1px solid var(--edge);
+  padding-top: 12px;
+}
+
+.automation-runs summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--secondary);
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+.automation-run-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.automation-run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--secondary);
+  font-size: var(--text-small);
+}
+
+.automation-run > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.automation-run-status {
+  color: var(--secondary);
+}
+
+.automation-run-status[data-status="running"],
+.automation-run-status[data-status="queued"] {
+  color: var(--accent);
+}
+
+.automation-run-status[data-status="ran"] {
+  color: var(--success);
+}
+
+.automation-run-status[data-status="failed"] {
+  color: var(--danger);
+}
+
+.automation-run-status[data-status="missed"],
+.automation-run-status[data-status="skipped"] {
+  color: var(--warning);
+}
+
+.automation-run code {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: inherit;
+}
+
+.automation-run-error {
+  grid-column: 1 / -1;
+  color: var(--danger);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .automation-card .section-heading {
+    flex-direction: column;
+  }
+
+  .automation-actions {
+    width: 100%;
+  }
+
+  .automation-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 .credential-row {
   display: flex;
   align-items: flex-end;

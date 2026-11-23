@@ -72,6 +72,27 @@ const task = {
   queue: [],
   origin: { kind: "user" },
 };
+const triggerSchedule = { kind: "daily", at: "09:00", timeZone: "UTC" };
+const trigger = {
+  id: "trigger-1",
+  name: "Morning check",
+  enabled: true,
+  botId: "b1",
+  prompt: "Run the morning check",
+  payload: { source: "schedule" },
+  schedule: triggerSchedule,
+  overlap: "skip",
+  createdAt: 1,
+  updatedAt: 1,
+  nextAt: 2,
+};
+const triggerRun = {
+  id: "run:trigger-1:2",
+  triggerId: "trigger-1",
+  occurrenceKey: "trigger-1:2",
+  scheduledAt: 2,
+  status: "queued",
+};
 const capabilities = {
   resume: true,
   fork: true,
@@ -164,8 +185,55 @@ const cases: Record<string, Case> = {
     valid: { id: "b", name: "Bot" },
     invalid: { id: "b" },
   },
+  CreateTriggerOutput: {
+    schema: Mcp.CreateTriggerOutput,
+    valid: trigger,
+    invalid: { ...trigger, id: "" },
+  },
+  GetTriggerInput: {
+    schema: Mcp.GetTriggerInput,
+    valid: { triggerId: "trigger-1" },
+    invalid: { triggerId: "" },
+  },
+  GetTriggerOutput: {
+    schema: Mcp.GetTriggerOutput,
+    valid: trigger,
+    invalid: { ...trigger, id: "" },
+  },
+  ListTriggersInput: {
+    schema: Mcp.ListTriggersInput,
+    valid: { botId: "b1", enabled: true, limit: 10 },
+    invalid: { limit: 51 },
+  },
+  ListTriggersOutput: {
+    schema: Mcp.ListTriggersOutput,
+    valid: [trigger],
+    invalid: [{}],
+  },
+  ListTriggerRunsInput: {
+    schema: Mcp.ListTriggerRunsInput,
+    valid: { triggerId: "trigger-1", limit: 10 },
+    invalid: { triggerId: "", limit: 51 },
+  },
+  ListTriggerRunsOutput: {
+    schema: Mcp.ListTriggerRunsOutput,
+    valid: [triggerRun],
+    invalid: [{}],
+  },
+  UpdateTriggerToolInput: {
+    schema: Mcp.UpdateTriggerToolInput,
+    valid: { triggerId: "trigger-1", update: { enabled: false } },
+    invalid: { triggerId: "", update: { enabled: false } },
+  },
+  UpdateTriggerOutput: {
+    schema: Mcp.UpdateTriggerOutput,
+    valid: trigger,
+    invalid: { ...trigger, id: "" },
+  },
   RoutingCandidateId: { schema: Common.RoutingCandidateId, valid: "天文", invalid: "older_task" },
   TaskId: { schema: Common.TaskId, valid: "t1", invalid: "" },
+  TriggerId: { schema: Common.TriggerId, valid: "trigger-1", invalid: "" },
+  TriggerRunId: { schema: Common.TriggerRunId, valid: "run:trigger-1:2", invalid: "" },
   MessageId: { schema: Common.MessageId, valid: "m1", invalid: "" },
   RequestId: { schema: Common.RequestId, valid: "r1", invalid: "" },
   BotId: { schema: Common.BotId, valid: "b1", invalid: "" },
@@ -287,6 +355,17 @@ const cases: Record<string, Case> = {
     invalid: { ...message, at: 0.1 },
   },
   Task: { schema: Domain.Task, valid: task, invalid: { ...task, pendingRequestIds: ["r1", "r1"] } },
+  TriggerSchedule: {
+    schema: Domain.TriggerSchedule,
+    valid: triggerSchedule,
+    invalid: { kind: "daily", at: "25:00", timeZone: "UTC" },
+  },
+  Trigger: { schema: Domain.Trigger, valid: trigger, invalid: { ...trigger, overlap: "queue" } },
+  TriggerRun: {
+    schema: Domain.TriggerRun,
+    valid: triggerRun,
+    invalid: { ...triggerRun, status: "done" },
+  },
   AdapterCapabilities: {
     schema: Domain.AdapterCapabilities,
     valid: capabilities,

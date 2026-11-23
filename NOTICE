@@ -94,6 +94,17 @@ Session delivery admission, queue draining and execution ownership:
   packages/core/src/session-manager/{manager,registration,execution,model}.ts.
   No enterprise-directory code is included.
 
+Trigger scheduling and occurrence recovery:
+- OpenMausBot, Copyright 2026 Milind Soni and OpenMausBot contributors.
+  Sources: server/routines.ts, server/routine-schedules.ts, server/due-timer.ts,
+  server/routine-catch-up.ts, server/routine-ledger.ts and
+  server/routine-recovery.ts. Commit:
+  738ec88472a3b888ff7b7793755d89da613ed301
+  https://github.com/milind-soni/OpenMausBot
+  Licensed under Apache License 2.0; adapted in
+  packages/core/src/triggers.ts and packages/daemon/src/triggers.ts.
+  No enterprise-directory code is included.
+
 Directly reused OpenMausBot task-session tool UI:
 - Copyright 2026 Milind Soni and OpenMausBot contributors. Apache-2.0.
   Commit: 738ec88472a3b888ff7b7793755d89da613ed301

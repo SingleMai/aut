@@ -5,6 +5,7 @@ import {
   BotResponse,
   BotsResponse,
   ConfigResponse,
+  type CreateTriggerInput,
   DeletedResponse,
   JsonValue,
   MessagePageResponse,
@@ -20,7 +21,11 @@ import {
   TaskListResponse,
   TaskResponse,
   TaskSessionResponse,
+  TriggerResponse,
+  TriggerRunsResponse,
+  TriggersResponse,
   UiAction,
+  type UpdateTriggerInput,
 } from "@aut/protocol";
 import { Data, Effect, Schema } from "effect";
 import type { ApiRequest } from "./bridge.js";
@@ -94,6 +99,17 @@ export const desktopApi = {
   testRoute: (input: RouteTestInput) => request("POST", "/v1/route-test", RouteTestResponse, input),
   getConfig: () => request("GET", "/v1/config", ConfigResponse),
   saveConfig: (config: AutConfig) => request("PUT", "/v1/config", ConfigResponse, config),
+  listTriggers: () => request("GET", "/v1/triggers", TriggersResponse),
+  createTrigger: (input: typeof CreateTriggerInput.Encoded) =>
+    request("POST", "/v1/triggers", TriggerResponse, input),
+  updateTrigger: (id: string, input: typeof UpdateTriggerInput.Encoded) =>
+    request("PUT", `/v1/triggers/${encodeURIComponent(id)}`, TriggerResponse, input),
+  pauseTrigger: (id: string) =>
+    request("POST", `/v1/triggers/${encodeURIComponent(id)}/pause`, TriggerResponse),
+  resumeTrigger: (id: string) =>
+    request("POST", `/v1/triggers/${encodeURIComponent(id)}/resume`, TriggerResponse),
+  listTriggerRuns: (id: string) =>
+    request("GET", `/v1/triggers/${encodeURIComponent(id)}/runs`, TriggerRunsResponse),
   saveSecret: (input: SecretSaveInput) => request("POST", "/v1/secrets", SecretSaveResponse, input),
   getSecretStatus: (ref: string) =>
     request("GET", `/v1/secrets/status?ref=${encodeURIComponent(ref)}`, SecretStatusResponse),

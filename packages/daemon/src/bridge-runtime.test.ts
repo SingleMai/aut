@@ -17,6 +17,11 @@ it("binds a private ready listener and revokes session credentials before cleani
     listTasks: () => Effect.succeed([]),
     getTask: () => Effect.dieMessage("Unused task lookup"),
     createBot: (_identity, { id, name }) => Effect.succeed({ id, name }),
+    createTrigger: () => Effect.dieMessage("Unused trigger creation"),
+    getTrigger: () => Effect.dieMessage("Unused trigger lookup"),
+    listTriggers: () => Effect.dieMessage("Unused trigger listing"),
+    listTriggerRuns: () => Effect.dieMessage("Unused trigger run listing"),
+    updateTrigger: () => Effect.dieMessage("Unused trigger update"),
     proposeRoute: () => Effect.succeed({ accepted: true }),
   });
   const layer = BridgeRuntimeLive.pipe(

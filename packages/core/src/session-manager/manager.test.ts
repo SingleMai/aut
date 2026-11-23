@@ -341,7 +341,12 @@ const withHarness = <A>(
           yield* logs.complete(operationId, result.execution);
           if (activate && result.activate) yield* result.activate;
           return {
-            id: op.op === "new" ? TaskId.make(`task:${operationId}`) : op.taskId,
+            id:
+              op.op === "new"
+                ? TaskId.make(`task:${operationId}`)
+                : op.op === "new-trigger"
+                  ? TaskId.make(`trigger:${op.runId}`)
+                  : op.taskId,
             operationId,
             activate: result.activate ?? Effect.void,
           };
