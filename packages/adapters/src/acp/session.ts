@@ -60,6 +60,7 @@ export interface AcpOptions {
 }
 
 export const acpCapabilities: AdapterShape["capabilities"] = {
+  sessionContext: false,
   resume: true,
   fork: false,
   steer: false,

@@ -241,6 +241,12 @@ type SessionEvent =
 
 ### 6.1 完整会话只读快照（ADR-0035）
 
+上下文状态扩展见 [ADR-0067](decisions/0067-native-context-status-ui.md)：`AdapterCapabilities.sessionContext?: boolean`
+声明是否提供 `SessionHistory.context?: { usage?: { tokens, window? }, compaction?: { turnId, itemId, status, startedAt?, completedAt? } }`。
+数值均为原生读数，tokens 是非负整数、window 是正整数；缺失表示未知。压缩项通过
+`SessionItem.noteKind?: "context-compaction"` 标识，保留原生状态；不是工具调用或业务状态转移。
+context 属于完整会话，在分页时保持，不由某一页的回合重新推算。没有手动压缩接口。
+
 `AdapterCapabilities.sessionHistory?: boolean` 声明完整会话读取能力。可选的
 `HarnessAdapter.readSession(cursor): Effect<SessionHistory, AdapterError, Scope>` 用于无 worker 时的只读读取，
 `SessionHandle.readSession(): Effect<SessionHistory, AdapterError>` 用于现有 worker；不得启动回合或改变业务状态。

@@ -249,3 +249,15 @@ File inputs and deliverables reuse OpenMausBot (Apache-2.0), commit
   in apps/desktop/src/message-files.tsx and styles/conversation.css.
 Source: https://github.com/milind-soni/OpenMausBot
 No enterprise/ source is included.
+
+OpenMausBot native context presentation (Apache License 2.0):
+- Copyright 2026 Milind Soni and OpenMausBot contributors.
+- Commit 619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc,
+  https://github.com/milind-soni/OpenMausBot
+- src/components/ComposerContextMenu.tsx: ContextRing and Meter adapted into
+  apps/desktop/src/session-context-status.tsx and styles/session.css.
+- src/lib/context-usage.ts contextReading and src/lib/usage.ts formatTokens
+  adapted into apps/desktop/src/openmausbot/lib/context-usage.ts.
+- Changes: aut SessionHistory, Radix Popover, theme tokens and Chinese labels;
+  read-only native status, with no manual compaction, fresh-start or room actions.
+  Upstream's removal of readings after compaction informs the native history cache.

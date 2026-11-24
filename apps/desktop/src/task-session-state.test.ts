@@ -35,6 +35,26 @@ const page = (
 });
 
 describe("session snapshot reconciliation", () => {
+  it("older pages cannot restore pre-compaction usage and latest snapshots can clear a reading", () => {
+    const withContext = (
+      ids: readonly string[],
+      context: NonNullable<TaskSessionResponse["history"]["context"]>,
+    ) => {
+      const response = page(ids);
+      return { ...response, history: { ...response.history, context } };
+    };
+    const previous = withContext(["2", "3"], {
+      compaction: { turnId: "3", itemId: "compact", status: "completed" },
+    });
+    const earlier = withContext(["1", "2"], { usage: { tokens: 90000, window: 100000 } });
+    const merged = mergeSessionPage(previous, earlier, true);
+    expect(merged.history.context).toEqual(previous.history.context);
+    const next = withContext(["3", "4"], { usage: { tokens: 12000, window: 100000 } });
+    const refreshed = mergeSessionPage(merged, next, false);
+    expect(refreshed.history.context?.usage?.tokens).toBe(12000);
+    const unknown = withContext(["4"], {});
+    expect(mergeSessionPage(refreshed, unknown, false).history.context).toEqual({});
+  });
   it("keeps missing intermediate turns reachable after a long disconnected window", () => {
     const previous = page(["1", "2"], { hasEarlier: false, nextBefore: undefined });
     const next = page(["5", "6"]);

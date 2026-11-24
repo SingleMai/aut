@@ -1,4 +1,18 @@
 export const zhCN = {
+  sessionContext: "上下文",
+  sessionContextDetails: "上下文详情",
+  sessionContextEmpty: "尚未收到原生用量读数。",
+  sessionContextUnavailable: "当前无法读取原生上下文状态。",
+  sessionContextReading: "最近一次原生输入读数",
+  sessionContextAwaiting: "等待整理后的新用量读数。",
+  sessionContextUsed: (percent: number) => `已使用 ${percent}%`,
+  sessionCompaction: {
+    running: "正在整理上下文…",
+    completed: "上下文已整理",
+    interrupted: "上下文整理已中断",
+    failed: "上下文整理失败",
+    unknown: "上次上下文整理状态未确认",
+  },
   retry: "重试",
   fileAdd: "添加文件",
   filePreview: "预览",

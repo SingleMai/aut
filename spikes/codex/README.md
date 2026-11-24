@@ -1,5 +1,23 @@
 # Codex P0 协议探针
 
+## 原生上下文状态（0.171.0）
+
+`fixtures/session-context-0.171.0.jsonl` 在独立临时目录，以进程级
+`model_auto_compact_token_limit=2000` 完成两次无工具合成回合，未修改全局配置或调用手动压缩。
+模型沿用本机配置，本次为 `agy-cli/gemini-4-neon`；能力结论是 Codex app-server 协议，不是对模型供应商的泛化。
+第二次回合自动发出 `contextCompaction` 的 item/started、item/completed，随后继续回答保留的标记。
+用量来自 `thread/tokenUsage/updated.tokenUsage.last.inputTokens` 与 `modelContextWindow`。
+中间通知的 inputTokens 为 0，而 totalTokens 非零；不能将该过渡通知或累计 total 当作新上下文读数。
+
+`session-context-read-0.171.0.jsonl` 由独立进程冷读同一合成会话，只 initialize / thread/read，
+确认压缩节点仍带时间与原生 ID，但没有 token 用量字段。生产适配、失效规则与回放断言见
+`packages/adapters/src/codex/context.test.ts`；历史记录和用户文件不参与压缩探针。
+
+```sh
+rtk proxy node spikes/codex/probe.ts session-context /tmp/aut-context-new.jsonl
+rtk proxy env AUT_CODEX_READ_FIXTURE=/tmp/aut-context-new.jsonl node spikes/codex/probe.ts session-read /tmp/aut-context-read-new.jsonl
+```
+
 2026-11-16 在 macOS 上实测 **codex-cli 0.167.0 / gpt-6.1-sol / openai**。CLI、模型、Provider 均沿用现有配置；没有修改用户 `config.toml`、登录或 Provider。每个进程使用新建的系统临时工作目录，普通测试只输出固定标记；steer/interrupt/async 测试只执行无副作用的 `sleep`。
 
 本目录是开发探针，不进入生产构建。`probe.ts` 直接操作第三方 CLI 的 stdio 边界，使用 Node 原生子进程、Promise 和超时；生产 adapter 必须遵守 Effect/Schema/Scope 约定，不能把本脚本当生产实现搬入。

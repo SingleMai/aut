@@ -58,6 +58,7 @@ export interface HarnessAdapter {
   ) => Effect.Effect<SessionHistory, AdapterError, Scope.Scope>;
 }
 
+/** The harness owns this session's model context and any native compaction. */
 export interface SessionHandle {
   readonly cursor: ResumeCursor;
   readonly events: Stream.Stream<SessionEvent>;

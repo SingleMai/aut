@@ -29,8 +29,23 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
 | 原生提问 | ✅ Plan 阻塞请求；Default 可选非阻塞请求；async 通知（见 §3.3） | ✅ 通过 aut 注入的 MCP `ask_user` 工具拦截，答案回填为 tool result（2.1.325 实测） | ✅ `session/request_permission`（`interaction_` 前缀），Grok 扩展 `_x.ai/ask_user_question` |
 | 多问题 / 多选 / 自由文本 | ✅ 两题实测 / ❌ 保守声明（协议无多选字段） / ✅ 非选项文本实测 | ✅ / ✅ / ✅（aut `ask_user` MCP 工具） | 通用能力保守声明为 ❌ / ❌ / ❌，Grok 扩展已实现多问题和自由文本解析 |
 | transcript 导出 | ✅ `thread/read({includeTurns:true})` | ✅ 运行期 transcript（Claude 会话 JSONL 可作为后续只读实现依据） | ✅ 运行期 transcript，`sessionHistory: false` |
+| 原生上下文状态 | ✅ `sessionContext: true`（0.171.0 自动压缩与用量通知实测） | 暂未声明，`sessionContext: false` | 暂未声明，`sessionContext: false` |
 
 能力表的最终值写进各 adapter 的 `capabilities` 常量，并在本文同步。
+
+### 2.1 会话上下文与原生压缩
+
+工作会话的模型上下文由 Harness 管理，包括其原生压缩策略。aut 不增加第二套摘要器、
+不按交接片段的估算成本触发压缩、不重放同一会话的完整 transcript，也不覆盖用户的压缩配置。
+这是 Harness 的职责边界，不保证所有 Provider 或版本均支持相同的压缩功能（[ADR-0066](decisions/0066-native-session-context.md)）。
+
+- [交接包](handoff.md)只管理本次请求附带的主会话片段；其预算不是工作会话的模型窗口或 token 用量。
+- `transcript` / `readSession` 负责历史读取，分页是历史展示与读取性能问题；原生压缩不授权 aut 删除持久化消息或任务报告。
+- ReplyGate 的独立 fork 只改写面向用户的回包，不整理或替换原工作会话上下文。
+- Codex 0.171.0 已录制自动压缩与用量探针，声明 `sessionContext: true`，通过只读 `SessionHistory.context`
+  提供最近原生输入 token、窗口与压缩节点。`last.inputTokens` 是最近读数，`total` 是累计计费，不能混用。
+  压缩过程和完成后先隐藏旧读数，等待新的有效输入 token 通知；冷读没有用量字段时保持未知。
+  Claude / ACP 暂未声明此能力。接入与 UI 边界见 [ADR-0067](decisions/0067-native-context-status-ui.md)，不提供手动压缩操作。
 
 ## 3. Codex（MVP）
 

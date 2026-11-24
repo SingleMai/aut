@@ -1,7 +1,9 @@
 # 交接包
 
 `HandoffBuilderLive()` 实现 SessionManager 的必需 HandoffBuilder 端口，依赖 Store、ConfigStore、DecisionTree 与 DecisionLog。
-new/send 都先从持久化消息ID恢复user/text原话；拒绝把bot/chief输出当作用户请求。
+它只构造本次交接，不管理工作会话的模型上下文；原生压缩与历史读取的边界见[Harness 适配层](harness-adapters.md#21-会话上下文与原生压缩)。
+用户触发的 new/send 都先从持久化消息ID恢复user/text原话；拒绝把bot/chief输出当作用户请求。
+计划触发的请求使用该次触发已持久化的 chief/notice，不将其冒充用户原话。
 顺序以主会话入库序号为准，不受时钟回拨或同时间戳影响；send 使用后续任务模板，不重放整个会话。
 
 候选只取本次最早请求之前最近20条主会话消息。`handoffPruneV1` 将候选按固定ID批量提出英文noul问题，
@@ -9,7 +11,10 @@ new/send 都先从持久化消息ID恢复user/text原话；拒绝把bot/chief输
 空候选不调用分类器。分类失败时只考虑最近2条，并应用相同预算；降级片段不填 relevance。
 
 默认2000预算只用于相关片段，计入消息ID、epoch毫秒时间、作者、原文和分隔符。
-`estimateTokens` 使用UTF-8字节数作为保守token上界，因此中文或emoji可能比真实token计数更早触及上限。
+默认值只在 `handoffPruneV1.thresholds.tokenBudget` 声明，builder 不维护另一份默认预算。
+`handoff/excerpts.ts` 集中管理片段渲染和成本：使用UTF-8字节数作为保守token上界，
+因此中文或emoji可能比真实token计数更早触及上限；这不是 Harness 的原生 token 用量。
+选择前先扣除片段标题，每个候选保守预留一个分隔符；完成后按实际渲染的整段文本校验。
 原话永不裁剪；`excerptTokenBudget` 可覆盖预算，包括0。超大候选跳过，继续尝试较小的候选。
 
 模板提供任务头、多条原话、引用上下文、相关任务ID与工具提示，不复制其他任务的完整报告或bot soul。

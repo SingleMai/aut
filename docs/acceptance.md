@@ -43,6 +43,15 @@
 
 验收 JSON 保存决策日志样例，包含输入、分类问题、概率、路径及执行结果。
 
+2026-11-24 原生上下文状态增量验收：Codex 0.171.0 真实自动压缩和独立进程冷读探针通过；
+界面以隔离 API/WS 的合成状态验证用量环、只读详情、整理中/完成、新读数、未知窗口、
+读取失败恢复及深色窄窗口。未增加手动压缩按钮或写 API；当前仅 Codex 声明支持。
+`pnpm check` 通过：95 个文件、1,368 个用例通过、1 个在线用例按条件跳过；桌面 bundle 通过。
+本轮未重新验收 Electron 安装包。证据见 [原生探针](../spikes/codex/README.md)、
+[协议回放](../packages/adapters/src/codex/context.test.ts)、
+[界面增量记录](../spikes/desktop/task-session-qa-results.md#原生上下文状态增量验收2026-11-24)、
+[用量界面](assets/desktop/session-context.png) 和 [整理状态](assets/desktop/session-context-compacting.png)。
+
 ## 当前限制
 
 - 主会话问答验收使用默认模式；Plan 阻塞行为仅由 [独立协议探针](../spikes/codex/fixtures/plan-free-0.169.0.jsonl) 验证，产品未提供 Plan 切换。

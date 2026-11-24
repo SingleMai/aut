@@ -23,6 +23,7 @@ import {
   ExecutionStrategy,
   Exit,
   Layer,
+  Option,
   PubSub,
   Queue,
   Schema,
@@ -45,6 +46,7 @@ import {
   type RpcMessage,
   ThreadResult,
   ThreadTranscript,
+  TokenUsageNotification,
   TurnNotification,
   TurnResult,
 } from "./wire.js";
@@ -64,6 +66,7 @@ export const codexCapabilities: AdapterShape["capabilities"] = {
   questions: { native: true, multiQuestion: true, multiSelect: false, freeText: true },
   transcript: true,
   sessionHistory: true,
+  sessionContext: true,
 };
 const threadAccess = {
   approvalPolicy: "never",
@@ -153,6 +156,11 @@ export const makeCodexAdapter = (
         Effect.gen(function* () {
           const previous = active;
           if (!previous) return;
+          if (event.kind === "turn.failed" || (event.kind === "turn.completed" && !event.ok))
+            history.turn({
+              id: previous.id,
+              status: event.kind === "turn.failed" ? "failed" : "interrupted",
+            });
           active = undefined;
           seenRequests.clear();
           yield* closeRequests(previous.stopping ? "cancelled" : "turn-ended");
@@ -268,6 +276,22 @@ export const makeCodexAdapter = (
             return;
           }
           switch (message.method) {
+            case "thread/tokenUsage/updated": {
+              // Observational data must not fail a working turn when a provider omits a field.
+              const decoded = yield* decode(TokenUsageNotification, message.params).pipe(
+                Effect.option,
+              );
+              if (Option.isNone(decoded)) break;
+              const event = decoded.value;
+              if (event.threadId !== threadId || active?.id !== event.turnId) break;
+              const window = event.tokenUsage.modelContextWindow;
+              history.recordUsage({
+                tokens: event.tokenUsage.last.inputTokens,
+                ...(window != null && window > 0 ? { window } : {}),
+              });
+              yield* publish({ kind: "session.changed", turnId: event.turnId });
+              break;
+            }
             case "serverRequest/resolved": {
               const resolved = yield* decode(ResolvedRequest, message.params);
               if (resolved.threadId !== threadId) break;

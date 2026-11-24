@@ -1,4 +1,10 @@
-import type { JsonValue, SessionHistory, SessionItem, SessionTurn } from "@aut/protocol";
+import type {
+  JsonValue,
+  SessionContext,
+  SessionHistory,
+  SessionItem,
+  SessionTurn,
+} from "@aut/protocol";
 import type { Item, NativeTurn } from "./wire.js";
 
 type NativeItem = typeof Item.Type;
@@ -55,6 +61,8 @@ export const normalizeItem = (
           ? { phase: "final" as const }
           : {}),
     };
+  if (item.type === "contextCompaction")
+    return { ...common, kind: "note", noteKind: "context-compaction", text: "" };
   if (item.type === "commandExecution")
     return {
       ...common,
@@ -158,6 +166,31 @@ export const normalizeItem = (
 /** Stable IDs join native snapshots with stream items; an absent snapshot item never deletes a live item. */
 export class SessionHistoryCache {
   private readonly turns = new Map<string, SessionTurn>();
+  private usage: SessionContext["usage"];
+  private usageCompaction: SessionContext["compaction"];
+
+  private latestCompaction(): SessionContext["compaction"] {
+    for (const turn of [...this.turns.values()].reverse()) {
+      const item = turn.items.findLast((entry) => entry.noteKind === "context-compaction");
+      if (item)
+        return {
+          turnId: turn.id,
+          itemId: item.id,
+          status: item.status,
+          ...(item.startedAt === undefined ? {} : { startedAt: item.startedAt }),
+          ...(item.completedAt === undefined ? {} : { completedAt: item.completedAt }),
+        };
+    }
+    return undefined;
+  }
+
+  /** Native last-input reading, never the accumulated billing total or a local estimate. */
+  recordUsage(usage: NonNullable<SessionContext["usage"]>): void {
+    const compaction = this.latestCompaction();
+    if (compaction?.status === "running") return;
+    this.usage = usage.tokens > 0 ? usage : undefined;
+    this.usageCompaction = compaction;
+  }
 
   turn(value: NativeTurnValue, nativeOrder = false): void {
     const previous = this.turns.get(value.id);
@@ -271,7 +304,16 @@ export class SessionHistoryCache {
   }
 
   snapshot(): SessionHistory {
+    const compaction = this.latestCompaction();
+    // A reading from before a newly observed compaction cannot describe the current context.
+    const usage =
+      compaction?.status !== "running" &&
+      this.usageCompaction?.turnId === compaction?.turnId &&
+      this.usageCompaction?.itemId === compaction?.itemId
+        ? this.usage
+        : undefined;
     return {
+      context: { ...(usage ? { usage } : {}), ...(compaction ? { compaction } : {}) },
       turns: [...this.turns.values()].map((turn) => ({ ...turn, items: [...turn.items] })),
     };
   }

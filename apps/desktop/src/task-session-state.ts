@@ -33,6 +33,7 @@ export const mergeSessionPage = (
     return {
       ...next,
       history: {
+        ...previous.history,
         turns: [
           ...next.history.turns.filter((turn) => !current.has(turn.id)),
           ...previous.history.turns,
@@ -47,7 +48,10 @@ export const mergeSessionPage = (
   if (overlap <= 0) return next;
   return {
     ...next,
-    history: { turns: [...previous.history.turns.slice(0, overlap), ...next.history.turns] },
+    history: {
+      ...next.history,
+      turns: [...previous.history.turns.slice(0, overlap), ...next.history.turns],
+    },
     hasEarlier: previous.hasEarlier,
     nextBefore: previous.nextBefore,
   };

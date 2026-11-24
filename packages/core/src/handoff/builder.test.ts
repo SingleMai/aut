@@ -23,7 +23,7 @@ import { HandoffBuilder } from "../session-manager/ports.js";
 import { Store } from "../store.js";
 import { insertTaskWithSession } from "../task-registry.js";
 import { buildHandoff, HandoffBuilderLive } from "./builder.js";
-import { EXCERPT_HEADING, estimateTokens, renderExcerpt, renderHandoff } from "./render.js";
+import { renderHandoff } from "./render.js";
 
 const bot = Schema.decodeUnknownSync(BotConfig)({
   id: "bot",
@@ -177,21 +177,16 @@ it("keeps UTF-8 excerpt metadata within budget without truncating the user reque
       const previous = message("context", 1, "中文上下文😀");
       const request = message("request", 2, "长原话".repeat(1_000));
       yield* seed([previous, request]);
-      const cost =
-        estimateTokens(EXCERPT_HEADING) +
-        estimateTokens(
-          `${renderExcerpt({ messageId: previous.id, at: previous.at, author: "user", text: previous.text })}\n`,
-        );
+      const expectedExcerpts =
+        '[Relevant excerpts]\n[message "context" | at 1 | author "user"]\n中文上下文😀\n';
+      // Selection also reserves the separator after each candidate.
+      const cost = Buffer.byteLength(`${expectedExcerpts}\n`, "utf8");
       const included = yield* buildHandoff(
         { task, bot, messages: [request], mode: "new" },
         { excerptTokenBudget: cost },
       );
       expect(included.packet.excerpts).toHaveLength(1);
-      expect(
-        estimateTokens(
-          `${EXCERPT_HEADING}${included.packet.excerpts.map(renderExcerpt).join("\n")}`,
-        ),
-      ).toBeLessThanOrEqual(cost);
+      expect(included.turn.text).toContain(expectedExcerpts);
       expect(included.packet.request[0]?.text).toBe(request.text);
       const omitted = yield* buildHandoff(
         { task, bot, messages: [request], mode: "new" },

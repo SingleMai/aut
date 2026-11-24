@@ -16,9 +16,11 @@ import { CoreError, validate } from "../errors.js";
 import { isCoordinationTask } from "../primary-assistant.js";
 import { HandoffBuilder, type HandoffInput } from "../session-manager/ports.js";
 import { Store } from "../store.js";
-import { EXCERPT_HEADING, estimateTokens, renderExcerpt, renderHandoff } from "./render.js";
+import { availableExcerptBudget, estimateExcerptCost, excerptsFitBudget } from "./excerpts.js";
+import { renderHandoff } from "./render.js";
 
 export interface HandoffOptions {
+  /** Bounds only selected main-thread excerpts; original requests remain intact. */
   readonly excerptTokenBudget?: number;
 }
 const toolHint =
@@ -40,7 +42,7 @@ const summary = (log: LogRecord): string | undefined => {
   });
 };
 
-/** Builds and validates the packet before rendering; no classifier is called outside the tree. */
+/** Builds a delivery packet, not a session summary; classification stays inside the tree. */
 export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) =>
   Effect.gen(function* () {
     const store = yield* Store;
@@ -58,9 +60,9 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
       return yield* Effect.fail(
         failure("Handoff requires a matching bot and unique request messages."),
       );
-    const budget = yield* validate(
+    const excerptBudget = yield* validate(
       NonNegativeInteger,
-      options.excerptTokenBudget ?? handoffPruneV1.thresholds.tokenBudget ?? 2_000,
+      options.excerptTokenBudget ?? handoffPruneV1.thresholds.tokenBudget,
     );
     const snapshot = yield* store.transaction((tx) =>
       Effect.gen(function* () {
@@ -108,7 +110,7 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
         ...excerpt,
         key: `candidate_${order}`,
         order,
-        cost: estimateTokens(`${renderExcerpt(excerpt)}\n`),
+        cost: estimateExcerptCost(excerpt),
       };
     });
     const request = snapshot.request.map((message) => ({
@@ -123,7 +125,7 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
         state: {
           request,
           candidates,
-          excerptBudget: Math.max(0, budget - estimateTokens(EXCERPT_HEADING)),
+          excerptBudget: availableExcerptBudget(excerptBudget),
           mode: input.mode,
         },
       })
@@ -201,10 +203,7 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
         toolHint,
         ...(decisionSummary ? { decisionSummary } : {}),
       });
-      if (
-        excerpts.length &&
-        estimateTokens(`${EXCERPT_HEADING}${excerpts.map(renderExcerpt).join("\n")}`) > budget
-      )
+      if (!excerptsFitBudget(packet.excerpts, excerptBudget))
         return yield* Effect.fail(failure("Rendered handoff excerpts exceed their budget."));
       const turn = yield* validate(TurnInput, {
         text: renderHandoff(packet),

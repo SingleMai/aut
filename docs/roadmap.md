@@ -66,6 +66,7 @@
 可并行起步：01 ∥ 02；03 完成后 04 ∥ 06 ∥ 07（需 01）∥ 16（mock）。
 
 ## 之后
+- 原生上下文状态已接入 Codex 只读视图；其他 Harness 需先补真实探针再声明能力。不提供手动压缩按钮，边界见 [Harness 适配层](harness-adapters.md#21-会话上下文与原生压缩)。
 - Claude Code adapter 已完成 2.1.325 的协议探针和生产 adapter，后续继续做 provider 版本复验。
 - 通用 ACP adapter 已接入 OpenCode 1.19.5，并复用 provider 的 ACP 认证握手。Grok、Gemini、Qwen 仍需各自的真实回合探针和能力确认。
 - 备用 Classifier 后端（LiteLLM 等结构化输出）。

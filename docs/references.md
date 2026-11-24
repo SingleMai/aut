@@ -3,6 +3,9 @@
 > 参考代码只是线索，不是事实（AGENTS.md 铁律 13）。借用任何代码须在文件头注明来源并更新 `NOTICE`。
 
 ## OpenMausBot
+- 原生上下文 UI 采用 `619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc` 的 `ComposerContextMenu` 用量环与仪表，
+  以及 `context-usage.ts` / `usage.ts` 的读数和 token 格式化。aut 适配只读 SessionHistory、Radix Popover 和主题，
+  省去所有手动压缩及重开会话操作；协议事实来自自身 Codex 0.171.0 自动压缩探针，见 ADR-0067。
 - 仓库：https://github.com/milind-soni/OpenMausBot （阅读时 commit `738ec88`，2026-11-16）
 - 许可：Apache-2.0，**`enterprise/` 目录除外**（源码可见许可，禁止借用）。
 - 定位差异：它的协调者 Chief of Staff 是 LLM bot（`server/chief-of-staff.ts`，用 `coordinate_bots` 工具委派），与 aut 的非 LLM chief 相反；仅房间路由用了 Jev。

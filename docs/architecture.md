@@ -163,6 +163,7 @@ worker 回合结束 → 取最终报告
 ```
 - 剪枝：对候选消息批量提 Jev `noul`「与本次请求相关吗」，按概率排序截断到预算。
 - 引用遵循"给 ID、按需拉取"原则（参考 DeepSeek super-agent 的 Chain of Recall）。
+- 工作会话上下文与原生压缩的职责见 [Harness 适配层](harness-adapters.md#21-会话上下文与原生压缩)，不与交接片段预算混用。
 
 ## 9. 进程模型与恢复
 

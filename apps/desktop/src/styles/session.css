@@ -201,6 +201,83 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Context ring and meter adapted from OpenMausBot ComposerContextMenu.tsx,
+ * commit 619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc. Apache-2.0; see NOTICE. */
+.session-context {
+  margin-right: auto;
+  align-self: center;
+  color: var(--secondary);
+}
+.session-context-trigger {
+  margin: 0;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.session-context-ring {
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+.session-context-popover {
+  width: min(300px, calc(100vw - 32px));
+}
+.session-context-title {
+  font-size: var(--text-small);
+  font-weight: 500;
+  margin: 0 0 12px;
+}
+.session-context-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--secondary);
+}
+.session-context-figures {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+.session-context-figures strong {
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.session-context-track {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--edge);
+}
+.session-context-track::-webkit-meter-bar {
+  height: 4px;
+  border: 0;
+  border-radius: inherit;
+  background: var(--edge);
+}
+.session-context-track::-webkit-meter-optimum-value {
+  border-radius: inherit;
+  background: currentColor;
+}
+.session-context[data-tone="warning"],
+.session-context-meter[data-tone="warning"] {
+  color: var(--warning);
+}
+.session-context[data-tone="danger"],
+.session-context-meter[data-tone="danger"] {
+  color: var(--danger);
+}
+.session-context-note,
+.session-context-caption {
+  color: var(--secondary);
+  font-size: var(--text-caption);
+  line-height: 1.6;
+  margin: 4px 0 0;
+}
 .task-session-items[data-session-simple] {
   gap: 16px;
 }

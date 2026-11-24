@@ -1,21 +1,22 @@
 import type { HandoffPacket } from "@aut/protocol";
+import { renderExcerpts } from "./excerpts.js";
 
-export const EXCERPT_HEADING = "[Relevant excerpts]\n";
-export const renderExcerpt = (
-  excerpt: Pick<HandoffPacket["excerpts"][number], "messageId" | "at" | "author" | "text">,
-): string =>
-  `[message ${JSON.stringify(excerpt.messageId)} | at ${excerpt.at} | author ${JSON.stringify(excerpt.author)}]\n${excerpt.text}\n`;
-
-/** UTF-8 bytes conservatively bound byte-tokenizer tokens, including rendered metadata. */
-export const estimateTokens = (text: string): number => Buffer.byteLength(text, "utf8");
+const renderRequest = (request: HandoffPacket["request"][number]): string =>
+  [
+    `[message ${JSON.stringify(request.messageId)} | at ${request.at}]\n${request.text}`,
+    ...(request.files?.length
+      ? [
+          "[Attached file snapshots; read only. Copy to your working directory before editing.]",
+          ...request.files.map((file) => JSON.stringify(file)),
+        ]
+      : []),
+  ].join("\n");
 
 export const renderHandoff = (packet: HandoffPacket): string =>
   [
     `[Task]\n${packet.header}`,
-    `[Current request]\n${packet.request.map((request) => `[message ${JSON.stringify(request.messageId)} | at ${request.at}]\n${request.text}${request.files?.length ? `\n[Attached file snapshots; read only. Copy to your working directory before editing.]\n${request.files.map((file) => JSON.stringify(file)).join("\n")}` : ""}`).join("\n\n")}`,
-    ...(packet.excerpts.length
-      ? [`${EXCERPT_HEADING}${packet.excerpts.map(renderExcerpt).join("\n")}`]
-      : []),
+    `[Current request]\n${packet.request.map(renderRequest).join("\n\n")}`,
+    ...(packet.excerpts.length ? [renderExcerpts(packet.excerpts)] : []),
     ...(packet.relatedTasks.length
       ? [
           `[Related task references]\n${packet.relatedTasks.map((task) => JSON.stringify(task)).join("\n")}`,

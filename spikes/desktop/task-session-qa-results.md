@@ -56,3 +56,28 @@ pnpm exec tsc --noEmit --strict --noUncheckedIndexedAccess --exactOptionalProper
   clientWidth 与 scrollWidth 相等，均完整可见，computed max-width 为 360 px。
 - 截图 `.artifacts/task-session-tool-width-final.png` 已检查。最终审计 `startAttempts: 0`、
   `userActions: []`；浏览器测试空间和本轮 fixture / preview 均关闭。
+
+## 原生上下文状态增量验收（2026-11-24）
+
+使用当前桌面 bundle、隔离数据目录和真实 API/WS，session 用量与压缩记录为合成数据。
+Codex 的真实自动压缩与独立进程冷读另见 [协议探针](../codex/README.md)，二者不混作整包端到端验收。
+
+| 检查 | 结果 |
+| --- | --- |
+| 原生用量展示 | 104,000 / 200,000 显示 52%，展开详情可读 token 数和仪表；详情内没有操作按钮 |
+| 自动整理开始 | 通过 `session.changed` 自动回读；打开中的详情、顶部入口、过程记录及运行提示均更新，旧百分比和仪表撤下 |
+| 自动整理完成 | 显示“上下文已整理”，等待新用量读数；尚未收到读数时不显示 0% |
+| 新读数 | 24,000 / 200,000 更新为 12%，保持打开的详情无需重开 |
+| 未知窗口 | 只显示 24k tokens，不推测窗口或百分比 |
+| 读取失败与恢复 | 详情显示当前无法读取，撤下旧用量；恢复后读数重新出现 |
+| 能力缺失 | 不支持的会话没有可见的上下文入口；其他会话的缓存不会显示到当前会话 |
+| 键盘 | Escape 关闭详情后，焦点返回上下文入口 |
+| 深浅主题与窄窗口 | 截图人工检查；1040 × 800 深色窗口 documentWidth 为 1040，详情完整位于视口内 |
+
+最终审计：`reads: 9`、`startAttempts: 0`、`messageCount: 2`、`userActions: []`。
+没有启动 Harness、发送消息或回答问题。测试浏览器空间与 fixture / preview 进程已关闭。
+
+用量和整理截图分别位于 `docs/assets/desktop/session-context.png`、
+`docs/assets/desktop/session-context-compacting.png`；深色检查截图位于 `docs/assets/desktop/session-context-dark.png`。
+回归覆盖真实协议通知回放、无手动压缩 RPC、压缩后旧读数失效、冷读不伪造用量、
+失败/中断、分页保留最新上下文以及打开中面板的状态刷新。

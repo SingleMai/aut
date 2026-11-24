@@ -1,4 +1,10 @@
-import { AdapterError, JsonValue, NonEmptyString, optional } from "@aut/protocol";
+import {
+  AdapterError,
+  JsonValue,
+  NonEmptyString,
+  NonNegativeInteger,
+  optional,
+} from "@aut/protocol";
 import { Effect, Schema } from "effect";
 
 export const RpcId = Schema.Union(Schema.String, Schema.Int);
@@ -122,6 +128,14 @@ export const ThreadTranscript = Schema.Struct({
   thread: Schema.Struct({ id: NonEmptyString, turns: Schema.Array(NativeTurn) }),
 });
 export const NativeIdentity = Schema.Struct({ threadId: NonEmptyString, turnId: NonEmptyString });
+export const TokenUsageNotification = Schema.Struct({
+  threadId: NonEmptyString,
+  turnId: NonEmptyString,
+  tokenUsage: Schema.Struct({
+    last: Schema.Struct({ inputTokens: NonNegativeInteger }),
+    modelContextWindow: optional(Schema.NullOr(NonNegativeInteger)),
+  }),
+});
 export const ResolvedRequest = Schema.Struct({ threadId: NonEmptyString, requestId: RpcId });
 export const McpConfig = Schema.Struct({
   config: Schema.Struct({

@@ -58,6 +58,7 @@ export interface ClaudeOptions {
 }
 
 export const claudeCapabilities: AdapterShape["capabilities"] = {
+  sessionContext: false,
   resume: true,
   fork: true,
   steer: true,

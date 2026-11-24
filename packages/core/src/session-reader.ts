@@ -94,7 +94,11 @@ export const SessionReaderLive = Layer.effect(
                 Effect.flatMap((value) => validate(SessionHistory, value)),
                 Effect.timeout("20 seconds"),
               );
-              return { availability: "available" as const, history };
+              return {
+                availability: "available" as const,
+                history,
+                sessionContext: adapter.capabilities.sessionContext === true,
+              };
             }).pipe(
               Effect.catchAll(() => Effect.succeed({ availability: "unavailable" as const })),
             );
@@ -120,7 +124,12 @@ export const SessionReaderLive = Layer.effect(
             const nextBefore = start > 0 ? page[0]?.id : undefined;
             return {
               task,
-              history: { turns: page },
+              history: {
+                turns: page,
+                ...(loaded.sessionContext && loaded.history.context
+                  ? { context: loaded.history.context }
+                  : {}),
+              },
               availability: "available" as const,
               hasEarlier: start > 0,
               ...(nextBefore ? { nextBefore } : {}),

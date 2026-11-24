@@ -9,7 +9,7 @@ import { once } from "node:events";
 
 type Rpc = { id?: number | string; method?: string; params?: any; result?: any; error?: any };
 const scenario = process.argv[2] ?? "normal";
-const supportedScenarios = ["normal", "resume-persisted", "default", "default-enabled", "default-delayed", "plan", "plan-free", "async", "async-enabled", "async-delayed", "session-view", "session-mcp", "session-read"];
+const supportedScenarios = ["normal", "resume-persisted", "default", "default-enabled", "default-delayed", "plan", "plan-free", "async", "async-enabled", "async-delayed", "session-view", "session-mcp", "session-read", "session-context"];
 if (!supportedScenarios.includes(scenario)) throw new Error(`Unknown probe scenario: ${scenario}`);
 const output = resolve(process.argv[3] ?? `spikes/codex/fixtures/${scenario}.jsonl`);
 const executable = process.env.AUT_CODEX_BIN ?? "codex";
@@ -20,6 +20,8 @@ writeFileSync(output, "", { flag: "wx" });
 const record = (direction: string, payload: unknown) =>
   appendFileSync(output, JSON.stringify({ at: new Date().toISOString(), direction, payload }) + "\n");
 const args = ["app-server", "--stdio"];
+// Process-local override for an isolated synthetic thread; never change user configuration.
+if (scenario === "session-context") args.push("-c", "model_auto_compact_token_limit=2000");
 if (["default-enabled", "default-delayed"].includes(scenario)) args.push("--enable", "default_mode_request_user_input");
 if (scenario === "async-enabled") args.push("--enable", "send_message_to_user_async");
 if (scenario === "session-mcp") {
@@ -126,6 +128,14 @@ try {
   record("probe", { selectedModel: thread.model, threadId, ...(savedThreadId ? { resumeFixture } : {}) });
   if (scenario === "session-read") {
     record("probe", { coldReadOnly: true, readFixture, turns: thread.thread.turns.length });
+  } else if (scenario === "session-context") {
+    await runTurn("Synthetic context fixture. Do not use tools, access files, or ask questions. Remember the marker AUT_CONTEXT_BLUE. Reply exactly AUT_CONTEXT_READY.");
+    await runTurn("Synthetic context fixture follow-up. Do not use tools, access files, or ask questions. Reply with the marker from the previous request, and nothing else.");
+    await rpc("thread/read", { threadId, includeTurns: true });
+    const compacted = received.some((message) => message.method === "item/completed" && message.params?.threadId === threadId && message.params?.item?.type === "contextCompaction");
+    const measured = received.some((message) => message.method === "thread/tokenUsage/updated" && message.params?.threadId === threadId);
+    record("probe", { automaticCompaction: compacted, nativeUsage: measured, manualCompactionRequested: false });
+    if (!compacted || !measured) throw new Error("Native automatic compaction or token usage was not observed");
   } else if (scenario === "session-mcp") {
     await runTurn("Synthetic UI protocol fixture: call the MCP tool mcp__aut_session_view__fixture_echo exactly once with text='aut-session-ui-mcp-probe'. It is a local synthetic server, not an external service. Do not use any other tool and do not ask questions. Then reply exactly AUT_SESSION_MCP_OK.");
     await rpc("thread/read", { threadId, includeTurns: true });

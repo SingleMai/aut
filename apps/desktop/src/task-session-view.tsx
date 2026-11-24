@@ -4,6 +4,7 @@
 import type { Task, TaskSessionResponse } from "@aut/protocol";
 import { Button } from "@radix-ui/themes";
 import { type ComponentProps, memo, useMemo, useSyncExternalStore } from "react";
+import { SessionContextStatus } from "./session-context-status.js";
 import { sessionDisplay } from "./session-display-preferences.js";
 import { SessionTranscript } from "./session-transcript.js";
 
@@ -93,6 +94,11 @@ export function TaskSessionView({
         )}
       </div>
       <div className="task-session-view-controls">
+        <SessionContextStatus
+          context={response?.history.context}
+          available={response?.availability === "available" && !error}
+          active={task.status === "running" || task.status === "waiting_user"}
+        />
         <Button
           type="button"
           size="1"

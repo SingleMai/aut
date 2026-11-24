@@ -5,6 +5,7 @@
 // retain native status and full recorded input/output without importing a driver or store.
 import type { SessionItem, SessionTurn, TaskSessionResponse } from "@aut/protocol";
 import { Schema } from "effect";
+import { t } from "./i18n.js";
 import type { Message, Tool } from "./openmausbot/types.js";
 
 export interface SessionPresentation {
@@ -97,7 +98,11 @@ export const projectSession = (response: TaskSessionResponse): SessionPresentati
   for (const turn of response.history.turns) {
     for (const item of turn.items) {
       // Codex's empty reasoning entries are not visible conversation messages.
-      if (item.kind === "note" && !item.text.trim()) continue;
+      if (item.kind === "note" && !item.noteKind && !item.text.trim()) continue;
+      const noteStatus =
+        item.status === "running" && !["running", "waiting_user"].includes(response.task.status)
+          ? "unknown"
+          : item.status;
       const id = `${turn.id}:${item.id}`;
       const tool = item.kind === "tool" ? projectTool(item) : undefined;
       messages.push({
@@ -105,7 +110,7 @@ export const projectSession = (response: TaskSessionResponse): SessionPresentati
         at: timestamp(item, turn),
         role: item.kind === "user" ? "user" : item.kind === "note" ? "system" : "bot",
         kind: tool ? "activity" : "text",
-        text: item.text,
+        text: item.noteKind === "context-compaction" ? t.sessionCompaction[noteStatus] : item.text,
         turnId: turn.id,
         ...(item.kind === "assistant" && item.phase === "final" && item.status === "completed"
           ? { turnTerminal: true }

@@ -49,7 +49,7 @@ const task = Schema.decodeUnknownSync(Task)({
 });
 const unsupported = () =>
   Effect.fail(new AdapterError({ code: "NotSupported", message: "No work may start in a read" }));
-const fixture = () => {
+const fixture = (sessionContext = false) => {
   const state = {
     snapshot: { task } as SessionSnapshot,
     history,
@@ -68,6 +68,7 @@ const fixture = () => {
       questions: { native: true, multiQuestion: true, multiSelect: false, freeText: true },
       transcript: true,
       sessionHistory: true,
+      sessionContext,
     },
     startSession: () => Effect.die("History reads cannot start sessions"),
     resumeSession: () => Effect.die("History reads cannot resume sessions"),
@@ -98,6 +99,32 @@ const fixture = () => {
   );
   return { state, adapter, layer };
 };
+
+it.effect(
+  "pages turns without paging native context and respects capability-based omission",
+  () => {
+    const context = {
+      usage: { tokens: 1234, window: 200000 },
+      compaction: { turnId: "turn-24", itemId: "compact", status: "completed" as const },
+    };
+    const f = fixture(true);
+    f.state.read = Effect.succeed({ ...history, context });
+    const unsupported = fixture();
+    unsupported.state.read = Effect.succeed({ ...history, context });
+    return Effect.gen(function* () {
+      const reader = yield* SessionReader;
+      const newest = yield* reader.read(task.id, { limit: 1 });
+      const earlier = yield* reader.read(task.id, { before: newest.nextBefore, limit: 1 });
+      expect(newest.history.context).toEqual(context);
+      expect(earlier.history.context).toEqual(context);
+      expect(earlier.history.turns[0]?.id).toBe("turn-23");
+      const hidden = yield* Effect.gen(function* () {
+        return yield* (yield* SessionReader).read(task.id);
+      }).pipe(Effect.provide(unsupported.layer));
+      expect(hidden.history.context).toBeUndefined();
+    }).pipe(Effect.provide(f.layer));
+  },
+);
 
 it.effect(
   "reads the configured native history without starting/resuming work and releases only its reader",

@@ -364,6 +364,7 @@ export const AdapterCapabilities = Schema.Struct({
   }),
   transcript: Schema.Boolean,
   sessionHistory: optional(Schema.Boolean),
+  sessionContext: optional(Schema.Boolean),
 });
 export type AdapterCapabilities = typeof AdapterCapabilities.Type;
 export const StartSessionInput = Schema.Struct({
@@ -506,6 +507,7 @@ export const DecisionResponse = Schema.Struct({
 });
 export type DecisionResponse = typeof DecisionResponse.Type;
 
+/** Per-delivery input with selected main-thread excerpts, not a session summary. */
 export const HandoffPacket = Schema.Struct({
   header: Schema.String,
   request: Schema.Array(

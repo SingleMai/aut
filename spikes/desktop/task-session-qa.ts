@@ -26,6 +26,8 @@ import {
   HttpServer,
   HttpServerLive,
   InboundGatewayLive,
+  McpOAuthLive,
+  McpSupervisorLive,
   OwnershipLive,
   RecoveryLive,
   RouteTestLive,
@@ -38,6 +40,7 @@ import {
   type HarnessAdapter,
   MessageId,
   RequestId,
+  type SessionContext,
   SessionHistory,
   type SessionItem,
   type SessionTurn,
@@ -315,6 +318,7 @@ let updates = 0;
 let reads = 0;
 let startAttempts = 0;
 let available = true;
+let nativeContext: SessionContext = { usage: { tokens: 104000, window: 200000 } };
 let holdNextRead = false;
 let heldRead: Deferred.Deferred<void> | undefined;
 const replacementHistory: SessionHistory = {
@@ -356,6 +360,7 @@ const adapter = (instanceId: string): HarnessAdapter => ({
     nativeFullAccess: false,
     transcript: false,
     sessionHistory: instanceId !== "qa-unsupported",
+    sessionContext: instanceId !== "qa-unsupported",
     questions: { native: true, multiQuestion: true, multiSelect: true, freeText: true },
   },
   startSession: () => blockedExecution,
@@ -383,7 +388,31 @@ const adapter = (instanceId: string): HarnessAdapter => ({
         );
         yield* Deferred.await(heldRead);
       }
-      return snapshot;
+      const contextTurnId = cursor.data === "parity" ? parityTurnId : currentTurnId;
+      const compaction = nativeContext.compaction
+        ? { ...nativeContext.compaction, turnId: contextTurnId }
+        : undefined;
+      return {
+        ...snapshot,
+        context: { ...nativeContext, ...(compaction ? { compaction } : {}) },
+        turns: snapshot.turns.map((turn) =>
+          turn.id !== contextTurnId || !compaction
+            ? turn
+            : {
+                ...turn,
+                items: [
+                  ...turn.items,
+                  {
+                    id: compaction.itemId,
+                    kind: "note" as const,
+                    noteKind: "context-compaction" as const,
+                    text: "",
+                    status: compaction.status,
+                  },
+                ],
+              },
+        ),
+      };
     }),
 });
 
@@ -403,7 +432,11 @@ const services = Layer.mergeAll(
   InboundGatewayLive,
   AdministrationLive,
   RouteTestLive,
-).pipe(Layer.provideMerge(tree));
+).pipe(
+  Layer.provideMerge(
+    McpSupervisorLive.pipe(Layer.provide(McpOAuthLive), Layer.provideMerge(tree)),
+  ),
+);
 const readers = SessionReaderLive.pipe(
   Layer.provideMerge(
     Layer.merge(
@@ -417,6 +450,10 @@ const readers = SessionReaderLive.pipe(
 const fixtureRuntime = HttpServerLive(0).pipe(Layer.provideMerge(readers));
 
 const commandNames = [
+  "context-start",
+  "context-complete",
+  "context-usage",
+  "context-window-unknown",
   "audit",
   "tick",
   "finish",
@@ -688,6 +725,18 @@ const program = Effect.scoped(
             }
             if (command.command === "unavailable") available = false;
             if (command.command === "available") available = true;
+            if (command.command === "context-start" || command.command === "context-complete")
+              nativeContext = {
+                compaction: {
+                  turnId: currentTurnId,
+                  itemId: "qa-context-compaction",
+                  status: command.command === "context-start" ? "running" : "completed",
+                },
+              };
+            if (command.command === "context-usage")
+              nativeContext = { ...nativeContext, usage: { tokens: 24000, window: 200000 } };
+            if (command.command === "context-window-unknown")
+              nativeContext = { ...nativeContext, usage: { tokens: 24000 } };
             if (command.command === "bury-question") {
               yield* store.transaction((tx) =>
                 Effect.gen(function* () {
@@ -744,7 +793,7 @@ const program = Effect.scoped(
               yield* Deferred.succeed(heldRead, undefined);
               heldRead = undefined;
             }
-            if (["tick", "finish", "unavailable", "available"].includes(command.command)) {
+            if (["tick", "finish", "unavailable", "available"].includes(command.command) || command.command.startsWith("context-")) {
               const event = {
                 source: "session" as const,
                 kind: "session.changed" as const,

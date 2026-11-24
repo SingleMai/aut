@@ -11,6 +11,7 @@ import { readSettingsForm } from "../configuration-forms.js";
 import { ConversationBody } from "../conversation-body.js";
 import { ConfigurationForm } from "../ui/configuration-form.js";
 import { type DesktopAppearance, DesktopTheme } from "../ui/theme.js";
+import { ContextPreview } from "./context-preview.js";
 import { QuestionPreview } from "./question-preview.js";
 
 const bot: BotConfig = {
@@ -109,6 +110,7 @@ function ComponentPreview() {
             </div>
             <div className="preview-frame" data-width={width}>
               <div className="preview-grid">
+                <ContextPreview />
                 <QuestionPreview />
                 <CharacterEditor bot={bot} name={bot.name} />
                 <FormPreview />

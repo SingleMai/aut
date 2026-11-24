@@ -4,6 +4,7 @@
 import type { TaskSessionResponse } from "@aut/protocol";
 import { Fragment, useEffect, useMemo, useRef } from "react";
 import { ConversationBody } from "./conversation-body.js";
+import { t as uiText } from "./i18n.js";
 import { ActivityRun } from "./openmausbot/components/ActivityRun.js";
 import type { BubbleJoin } from "./openmausbot/components/chat-bubble.js";
 import { ToolActivity } from "./openmausbot/components/ToolActivity.js";
@@ -260,11 +261,13 @@ export function SessionTranscript({
             role="status"
           >
             <WorkingDots />
-            {inFlight
-              ? toolStepLabel(inFlight)
-              : response.task.status === "waiting_user"
-                ? "有待答问题"
-                : "助手正在工作…"}
+            {response.history.context?.compaction?.status === "running"
+              ? uiText.sessionCompaction.running
+              : inFlight
+                ? toolStepLabel(inFlight)
+                : response.task.status === "waiting_user"
+                  ? "有待答问题"
+                  : "助手正在工作…"}
             {advanced && lastTurn.startedAt != null && lastTurn.startedAt > 0 && (
               <span aria-hidden="true">
                 {" "}

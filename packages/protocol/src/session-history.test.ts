@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import { expect, it } from "vitest";
 import { AutEvent, SessionEvent } from "./domain.js";
 import {
+  SessionContext,
   SessionHistory,
   SessionItem,
   SessionItemStatus,
@@ -25,6 +26,37 @@ const turn = {
   completedAt: 1300,
   items: [item],
 };
+
+it("keeps native usage and compaction identity while rejecting invalid token counts and windows", () => {
+  const context = {
+    usage: { tokens: 1234, window: 200000 },
+    compaction: {
+      turnId: "turn",
+      itemId: "compact",
+      status: "completed",
+      startedAt: 1,
+      completedAt: 2,
+    },
+  };
+  expect(Schema.decodeUnknownSync(SessionContext)(context)).toEqual(context);
+  expect(Schema.decodeUnknownSync(SessionHistory)({ turns: [], context }).context).toEqual(context);
+  expect(
+    Schema.decodeUnknownSync(SessionItem)({
+      ...item,
+      kind: "note",
+      noteKind: "context-compaction",
+      text: "",
+    }).noteKind,
+  ).toBe("context-compaction");
+  for (const usage of [
+    { tokens: -1 },
+    { tokens: 1.5 },
+    { tokens: Number.NaN },
+    { tokens: 1, window: 0 },
+    { tokens: 1, window: Infinity },
+  ])
+    expect(Schema.decodeUnknownEither(SessionContext)({ usage })._tag).toBe("Left");
+});
 
 it.each(["running", "completed", "failed", "interrupted", "unknown"])(
   "preserves native-normalized %s statuses",
