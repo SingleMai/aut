@@ -211,3 +211,14 @@ Agent skill writing-for-agents:
   Source: skills/productivity/writing-for-agents/ (SKILL.md, SKILL-MECHANICS.md,
   agents/openai.yaml), copied unchanged except for a source header into
   .agents/skills/writing-for-agents/ (linked from .claude/skills/).
+
+OpenMausBot MCP paste onboarding (Apache License 2.0):
+- Copyright 2026 Milind Soni and OpenMausBot contributors.
+- Commit d6660e2d79782c99c9688324e47e1835c8aa1e26,
+  https://github.com/milind-soni/OpenMausBot
+- src/lib/mcp-paste.ts and shared/mcp-name.ts copied into
+  apps/desktop/src/openmausbot/lib/{mcp-paste,mcp-name}.ts.
+  Changes: local import paths, aut reserved bridge name, cwd preservation,
+  compact Docker environment flags, project formatting; Effect validation,
+  credential storage and UI are aut adapters.
+  No enterprise/ source was used.

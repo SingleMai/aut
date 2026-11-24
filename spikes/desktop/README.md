@@ -38,6 +38,7 @@ node --experimental-strip-types spikes/desktop/chat-ui-qa.ts
 ```json
 {"command":"audit"}
 {"command":"create-bot"}
+{"command":"source-report"}
 {"command":"append","text":"验收追加消息：阅读历史时不应被强制滚到底部。"}
 {"command":"phase","requestId":"qa-single","phase":"submitting"}
 {"command":"settle","requestId":"qa-single"}
@@ -45,6 +46,7 @@ node --experimental-strip-types spikes/desktop/chat-ui-qa.ts
 
 `audit` 输出实际保存的 UI 动作、用户消息和数量，另写入临时目录 `audit.json`。
 `create-bot` 经同一配置服务创建合成的「观测助手」。在主会话点击「撤销创建」后重载页面，可核对回执状态和 Bot 列表。
+`source-report` 保存一份含普通来源和超长 URL 的合成原报告，调用实际末次截断与来源提取函数，并发出真实变更通知。检查正文不含被切断的 URL，消息下方的来源能复制完整地址，刷新后仍保留；此场景不调用模型或分类器。
 `append` 经 Store 事务提交并触发真实变更通知，可检查未提交输入是否保留。
 `phase` 更新题目投递状态；可选 `registered/submitting/indeterminate/queued/delivered`。
 `settle` 将已明确提交的合成答案标记送达，并折叠其问题卡片。

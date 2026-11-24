@@ -1,6 +1,6 @@
 # MVP 验收结果
 
-2026-11-18 已在真实 Codex 0.169.0、Jev 和 macOS arm64 开发包验收下列功能。2026-11-21 追加了真实本地计划触发器验收。人工评审待进行，300 ms 路由确认仍有超时样本。开发包用于本机验收。
+2026-11-18 已在真实 Codex 0.169.0、Jev 和 macOS arm64 开发包验收下列功能。2026-11-21 追加真实本地计划触发器验收，2026-11-23 使用 Codex 0.171.0 追加 MCP 管理与搜索计划验收。人工评审待进行，300 ms 路由确认仍有超时样本。开发包用于本机验收。
 
 ## 验收范围
 
@@ -22,6 +22,11 @@
 | queue / steer | 通过；同任务同会话投递，等待问题时追加指令保持排队 | [投递](../spikes/e2e/results/delivery-0.169.0.json) |
 | 取消、故障重试与重启恢复 | 通过；取消后不发迟到回包，重启不自动重放 | [控制](../spikes/e2e/results/control-0.169.0.json) |
 | 本地计划触发器 | 通过；真实 Codex session 在 Jev 已配置的 daemon 中由数据驱动触发树创建 `trigger` 来源任务，决策日志无分类器调用。运行台账到 `ran` 并绑定任务 ID，原始报告与主线程回包均含 `TRIGGER_E2E_OK`。一次性计划自动停用，暂停、恢复和更新均通过 | [触发器](../spikes/e2e/results/trigger-0.169.0-verified.json) |
+| 主助手 MCP 管理与计划搜索 | 通过；隔离目录中的真实主助手使用 `mcp_info` / `mcp_server` 创建、测试和启用 You.com 公开搜索服务，只向自身授权 `you-search`，再用 `create_trigger` 创建一次性计划。原生 transcript 记录实际搜索参数及成功结果；运行台账到 `ran`，主会话收到 `MCP_LIVE_OK`，触发决策日志已保存 | [MCP 实测](../spikes/e2e/results/mcp-management-live.json) |
+| MCP 粘贴接入和桌面授权 | 通过浏览器预览的实际 IPC/API 路径；粘贴 URL、保存测试发现 3 个工具、启用和逐工具勾选，刷新后授权仍保留。自动化页同样可读取 API。解析器另覆盖 JSON、带引号的命令、占位符、Docker 环境值与凭据引用；本轮未重打 Electron 安装包 | [导入边界](../apps/desktop/src/mcp-import.test.ts)、[授权界面](../apps/desktop/src/mcp-page.dom.test.tsx)、[桌面 IPC](../apps/desktop/src/bridge.test.ts)、[截图](assets/desktop/mcp-management.png) |
+| Bot 编辑器 MCP 授权 | 创建、编辑和 MCP 服务页复用逐工具勾选。保存后刷新、重开保留精确授权，未启用的全局服务保持关闭。回归覆盖取消不写授权、读取失败不撤权，以及部分保存失败后仅重试未完成授权、不重复创建 Bot | [界面实测](../spikes/e2e/results/bot-mcp-sources-ui.json)、[表单回归](../apps/desktop/src/bot-editor.dom.test.tsx)、[截图](assets/desktop/bot-mcp-grants.png) |
+| 回包来源链接 | 普通及 deep 回包从不可变原报告保留来源元数据，`read_main_thread` 可按需读取；末次截断保留标签，门槛和改写次数不变。隔离桌面预览实测刷新后来源仍在，点击复制的 447 字符 URL 与原值完全一致 | [界面实测](../spikes/e2e/results/bot-mcp-sources-ui.json)、[提取与截断](../packages/core/src/report-sources.test.ts)、[截图](assets/desktop/report-sources.png) |
+| MCP 连接、撤权及登录竞态 | 真实 stdio 子进程经过 proxy 保留参数、输出 Schema、annotations 和结构化结果；分页目录、撤权、禁用、更新配置、退出登录及删除通过。OAuth 合成服务验证 PKCE，以及回调/刷新与退出、更新、删除、重新登录的 8 个竞态场景 | [supervisor](../packages/daemon/src/mcp-supervisor.test.ts)、[OAuth](../packages/daemon/src/mcp-oauth.test.ts) |
 | 主助手协调与 MCP 派活 | 同一主助手在协调会话提议派发一次，专长助手独立完成工作，双方均经回包门槛 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
 | 密钥设置、题组、草稿、菜单与历史滚动 | 通过真实 API/WS 界面验收 | [设置](../spikes/e2e/results/desktop-settings.json)、[界面](../spikes/e2e/results/ui-position-qa.json) |
 | Bot 形象与动作 | 单眼 a 与纸鸟可预演。隔离桌面数据实测保存、重开、历史静态恢复及原生回执。图片渲染器覆盖自定义状态、动作替换和减少动态效果 | [编辑器实录](assets/desktop/bot-characters.gif)、[播放器](../apps/desktop/src/character-player.dom.test.tsx)、[预演与配置](../apps/desktop/src/characters/character-editor.dom.test.tsx) |
@@ -29,6 +34,7 @@
 | 本机首次启动、答题与重开 | 通过；继承已认证开发环境，结果持久化 | [本机补验](../spikes/e2e/results/local-desktop-0.169.0.json) |
 | 工作会话与工具展示 | 分页、实时更新、折叠、定位及原生 IPC 通过；查看不恢复任务 | [会话](../spikes/desktop/task-session-qa-results.md)、[工具对照](omb-tool-parity.md) |
 | 构建、类型、格式、依赖检查及打包 | 78 个测试文件、1,226 个用例全部通过，另有 1 个在线 Jev 用例按条件跳过。macOS arm64 开发包通过主助手展示、创建回执撤销和设置页检查 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
+| MCP 增量回归（2026-11-23） | `pnpm check` 通过：构建、生产/测试类型、格式、依赖边界及 89 个测试文件的 1,328 个用例；1 个在线 Jev 用例按条件跳过。桌面 bundle 构建及 `git diff --check` 通过 | [MCP 测试](../packages/daemon/src/mcp-supervisor.test.ts)、[协议边界](../packages/protocol/src/protocol.test.ts) |
 
 验收 JSON 保存决策日志样例，包含输入、分类问题、概率、路径及执行结果。
 
@@ -39,6 +45,7 @@
 - 当前数据格式的原生复验中，主助手首次直接派发到 daemon 写入确认用了 718 ms，其中 Jev 分类为 636 ms。另一次派发到专长助手为 1,519 ms。这些样本仍高于 300 ms 目标。[发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json)
 - 超长原生历史分页尚未实测；Codex 的读取兼容边界见 [Harness 适配层](harness-adapters.md)。工具输出与宿主适配边界见 [工具展示对照](omb-tool-parity.md)。
 - 开发包未完成发行签名、公证和自动更新；包名、哈希及构建对应关系以包记录为准。
+- MCP 真实服务验收使用公开搜索端点；第三方账户 OAuth 登录尚未实测。本轮 Bot 授权及来源补充验收使用隔离 daemon 和桌面浏览器预览，尚未复验 Electron 安装包。
 
 ## 复验
 

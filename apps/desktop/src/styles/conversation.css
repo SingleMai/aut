@@ -179,6 +179,23 @@
 .message-links {
   margin: 6px 8px 0;
 }
+.message-sources {
+  margin: 8px 8px 0;
+  font-size: var(--text-caption);
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
+.message-sources summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.message-sources ol {
+  padding-inline-start: 20px;
+  margin-block: 6px 0;
+}
+.message-sources li + li {
+  margin-block-start: 4px;
+}
 .report-link {
   margin: 4px 0;
 }

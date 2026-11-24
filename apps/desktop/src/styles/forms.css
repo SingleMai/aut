@@ -417,3 +417,53 @@
 .bot-avatar:hover {
   background: var(--raised);
 }
+
+.mcp-import {
+  display: grid;
+  gap: 16px;
+  margin-block: 16px;
+}
+.mcp-import-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
+.mcp-grants {
+  display: grid;
+  gap: 12px;
+  margin-block: 12px;
+}
+.mcp-grant-row {
+  display: grid;
+  gap: 8px;
+}
+.mcp-grant-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mcp-tool-check {
+  padding-inline-start: 24px;
+  overflow-wrap: anywhere;
+}
+.bot-mcp-grants {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--edge);
+  padding-block-start: 16px;
+}
+.bot-mcp-grants h3,
+.bot-mcp-grants p {
+  margin: 0;
+}
+.bot-mcp-grants h3 {
+  font-size: var(--text-body);
+}
+.bot-mcp-server {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-control);
+  padding: 12px;
+}

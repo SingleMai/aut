@@ -176,6 +176,7 @@ const asToken = (
 
 type Pending = {
   readonly server: McpServer;
+  readonly generation: number;
   readonly metadata: OAuthMetadata;
   readonly redirectUri: string;
   readonly verifier: string;
@@ -219,6 +220,8 @@ export const McpOAuthLive = Layer.scoped(
     const secretReader = yield* SecretReader;
     const runtime = yield* Effect.runtime<never>();
     const pending = new Map<string, Pending>();
+    const generations = new Map<McpServerId, number>();
+    const mutation = yield* Effect.makeSemaphore(1);
     let callbackPort = 0;
 
     const find = (id: McpServerId) =>
@@ -233,6 +236,31 @@ export const McpOAuthLive = Layer.scoped(
                 ),
           ),
         );
+    const advance = (id: McpServerId) => {
+      const generation = (generations.get(id) ?? 0) + 1;
+      generations.set(id, generation);
+      for (const [state, value] of pending) if (value.server.id === id) pending.delete(state);
+      return generation;
+    };
+    const assertCurrent = (server: McpServer, generation: number) =>
+      Effect.gen(function* () {
+        const current = yield* find(server.id);
+        if (
+          generation !== (generations.get(server.id) ?? 0) ||
+          current.transport !== server.transport ||
+          current.transport === "stdio" ||
+          server.transport === "stdio" ||
+          current.url !== server.url ||
+          JSON.stringify(current.headers ?? {}) !== JSON.stringify(server.headers ?? {}) ||
+          JSON.stringify(current.oauth ?? {}) !== JSON.stringify(server.oauth ?? {})
+        )
+          return yield* Effect.fail(
+            new DaemonError({
+              code: "Unavailable",
+              message: "The MCP login is no longer current",
+            }),
+          );
+      });
     const finish = (state: string, code: string | undefined, error: string | undefined) =>
       Effect.gen(function* () {
         const request = pending.get(state);
@@ -286,12 +314,19 @@ export const McpOAuthLive = Layer.scoped(
           catch: (cause) =>
             oauthError("Exchange", "The OAuth token response was invalid", String(cause)),
         });
-        const encoded = JSON.stringify(token);
-        yield* secrets.save(oauthSecretName(request.server.id), Redacted.make(encoded));
-        yield* registry.updateAuth(request.server.id, {
-          status: "authenticated",
-          updatedAt: Date.now(),
-        });
+        yield* mutation.withPermits(1)(
+          Effect.gen(function* () {
+            yield* assertCurrent(request.server, request.generation);
+            yield* secrets.save(
+              oauthSecretName(request.server.id),
+              Redacted.make(JSON.stringify(token)),
+            );
+            yield* registry.updateAuth(request.server.id, {
+              status: "authenticated",
+              updatedAt: Date.now(),
+            });
+          }),
+        );
       });
 
     const callbackServer = createServer((request: IncomingMessage, response: ServerResponse) => {
@@ -358,7 +393,12 @@ export const McpOAuthLive = Layer.scoped(
 
     const start = (id: McpServerId) =>
       Effect.gen(function* () {
-        const server = yield* find(id);
+        const { server, generation } = yield* mutation.withPermits(1)(
+          Effect.gen(function* () {
+            const server = yield* find(id);
+            return { server, generation: advance(id) };
+          }),
+        );
         const discovery = yield* discover(server);
         const redirectUri = `http://127.0.0.1:${callbackPort}${callbackPath}`;
         let clientId = server.transport === "stdio" ? undefined : server.oauth?.clientId;
@@ -403,20 +443,27 @@ export const McpOAuthLive = Layer.scoped(
         const challenge = createHash("sha256").update(verifier).digest("base64url");
         const state = randomUUID();
         const expiresAt = Date.now() + pendingLifetimeMs;
-        pending.set(state, {
+        const request: Pending = {
           server,
+          generation,
           metadata: discovery.metadata,
           redirectUri,
           verifier,
           clientId,
           ...(clientSecret === undefined ? {} : { clientSecret }),
           createdAt: Date.now(),
-        });
-        yield* registry.updateAuth(id, {
-          status: "required",
-          message: "等待 OAuth 登录",
-          updatedAt: Date.now(),
-        });
+        };
+        yield* mutation.withPermits(1)(
+          Effect.gen(function* () {
+            yield* assertCurrent(server, generation);
+            yield* registry.updateAuth(id, {
+              status: "required",
+              message: "等待 OAuth 登录",
+              updatedAt: Date.now(),
+            });
+            pending.set(state, request);
+          }),
+        );
         const authorization = new URL(discovery.metadata.authorizationEndpoint);
         authorization.search = new URLSearchParams({
           response_type: "code",
@@ -435,81 +482,124 @@ export const McpOAuthLive = Layer.scoped(
       });
 
     const logout = (id: McpServerId) =>
-      Effect.gen(function* () {
-        yield* find(id);
-        for (const [state, value] of pending) if (value.server.id === id) pending.delete(state);
-        yield* secrets.remove(oauthSecretName(id));
-        return yield* registry.updateAuth(id, { status: "none", updatedAt: Date.now() });
-      });
+      mutation.withPermits(1)(
+        Effect.gen(function* () {
+          yield* find(id);
+          advance(id);
+          yield* secrets.remove(oauthSecretName(id));
+          return yield* registry.updateAuth(id, { status: "none", updatedAt: Date.now() });
+        }),
+      );
 
     return {
       start,
       logout,
       accessToken: (id) =>
-        secrets.resolve(`secret:${oauthSecretName(id)}`).pipe(
-          Effect.flatMap((value) =>
+        mutation
+          .withPermits(1)(
             Effect.gen(function* () {
-              const token = yield* Effect.try({
-                try: () => Schema.decodeUnknownSync(StoredToken)(JSON.parse(Redacted.value(value))),
-                catch: () =>
-                  new DaemonError({
-                    code: "Unavailable",
-                    message: "The MCP OAuth token is invalid",
-                  }),
-              });
-              if (token.expiresAt === undefined || token.expiresAt > Date.now() + 30_000)
-                return Redacted.make(token.accessToken);
-              if (token.refreshToken === undefined)
+              const server = yield* find(id);
+              if (server.auth.status !== "authenticated")
                 return yield* Effect.fail(
                   new DaemonError({
                     code: "Unavailable",
-                    message: "The MCP OAuth token has expired",
+                    message: "The MCP server requires login",
                   }),
                 );
-              const refreshed = yield* fetchJson(token.tokenEndpoint, {
-                method: "POST",
-                headers: {
-                  "content-type": "application/x-www-form-urlencoded",
-                  accept: "application/json",
-                },
-                body: formBody({
-                  grant_type: "refresh_token",
-                  refresh_token: token.refreshToken,
-                  client_id: token.clientId,
-                  ...(token.clientSecret === undefined
-                    ? {}
-                    : { client_secret: token.clientSecret }),
-                }),
-              }).pipe(
-                Effect.mapError(
-                  () =>
+              const value = yield* secrets.resolve(`secret:${oauthSecretName(id)}`);
+              return { server, generation: generations.get(id) ?? 0, value };
+            }),
+          )
+          .pipe(
+            Effect.flatMap(({ server, generation, value }) =>
+              Effect.gen(function* () {
+                const token = yield* Effect.try({
+                  try: () =>
+                    Schema.decodeUnknownSync(StoredToken)(JSON.parse(Redacted.value(value))),
+                  catch: () =>
                     new DaemonError({
                       code: "Unavailable",
-                      message: "The MCP OAuth token refresh failed",
+                      message: "The MCP OAuth token is invalid",
                     }),
-                ),
-              );
-              const next = yield* Effect.try({
-                try: () =>
-                  asToken(
-                    refreshed,
-                    token.clientId,
-                    token.tokenEndpoint,
-                    token.clientSecret,
-                    token.refreshToken,
-                  ),
-                catch: () =>
-                  new DaemonError({
-                    code: "Unavailable",
-                    message: "The MCP OAuth refresh response was invalid",
+                });
+                if (token.expiresAt === undefined || token.expiresAt > Date.now() + 30_000)
+                  return Redacted.make(token.accessToken);
+                if (token.refreshToken === undefined)
+                  return yield* Effect.fail(
+                    new DaemonError({
+                      code: "Unavailable",
+                      message: "The MCP OAuth token has expired",
+                    }),
+                  );
+                const refreshed = yield* fetchJson(token.tokenEndpoint, {
+                  method: "POST",
+                  headers: {
+                    "content-type": "application/x-www-form-urlencoded",
+                    accept: "application/json",
+                  },
+                  body: formBody({
+                    grant_type: "refresh_token",
+                    refresh_token: token.refreshToken,
+                    client_id: token.clientId,
+                    ...(token.clientSecret === undefined
+                      ? {}
+                      : { client_secret: token.clientSecret }),
                   }),
-              });
-              yield* secrets.save(oauthSecretName(id), Redacted.make(JSON.stringify(next)));
-              yield* registry.updateAuth(id, { status: "authenticated", updatedAt: Date.now() });
-              return Redacted.make(next.accessToken);
-            }),
+                }).pipe(
+                  Effect.mapError(
+                    () =>
+                      new DaemonError({
+                        code: "Unavailable",
+                        message: "The MCP OAuth token refresh failed",
+                      }),
+                  ),
+                );
+                const next = yield* Effect.try({
+                  try: () =>
+                    asToken(
+                      refreshed,
+                      token.clientId,
+                      token.tokenEndpoint,
+                      token.clientSecret,
+                      token.refreshToken,
+                    ),
+                  catch: () =>
+                    new DaemonError({
+                      code: "Unavailable",
+                      message: "The MCP OAuth refresh response was invalid",
+                    }),
+                });
+                return yield* mutation.withPermits(1)(
+                  Effect.gen(function* () {
+                    yield* assertCurrent(server, generation);
+                    yield* secrets.save(oauthSecretName(id), Redacted.make(JSON.stringify(next)));
+                    yield* registry.updateAuth(id, {
+                      status: "authenticated",
+                      updatedAt: Date.now(),
+                    });
+                    return Redacted.make(next.accessToken);
+                  }),
+                );
+              }).pipe(
+                Effect.tapError(() =>
+                  mutation
+                    .withPermits(1)(
+                      Effect.gen(function* () {
+                        yield* assertCurrent(server, generation);
+                        advance(id);
+                        yield* secrets.remove(oauthSecretName(id));
+                        yield* registry.setEnabled(id, false);
+                        yield* registry.updateAuth(id, {
+                          status: "required",
+                          updatedAt: Date.now(),
+                        });
+                      }),
+                    )
+                    .pipe(Effect.ignore),
+                ),
+              ),
+            ),
           ),
-        ),
     } satisfies McpOAuth["Type"];
   }),
 );

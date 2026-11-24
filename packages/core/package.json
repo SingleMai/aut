@@ -17,10 +17,13 @@
     "typecheck": "tsc --build"
   },
   "dependencies": {
-    "@aut/protocol": "workspace:*",
-    "@aut/classifier": "workspace:*",
     "@aut/adapters": "workspace:*",
+    "@aut/classifier": "workspace:*",
     "@aut/mcp-bridge": "workspace:*",
-    "effect": "catalog:"
+    "@aut/protocol": "workspace:*",
+    "effect": "catalog:",
+    "mdast-util-from-markdown": "2.1.0",
+    "mdast-util-gfm-autolink-literal": "2.1.0",
+    "micromark-extension-gfm-autolink-literal": "2.1.0"
   }
 }

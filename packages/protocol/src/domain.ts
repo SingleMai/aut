@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import {
   BotId,
   FiniteNumber,
+  HttpUrl,
   JsonRecord,
   JsonValue,
   MessageId,
@@ -235,6 +236,20 @@ export const BotCreationReceipt = Schema.Struct({
   status: Schema.Literal("available", "undone", "changed", "used", "removed"),
 });
 export type BotCreationReceipt = typeof BotCreationReceipt.Type;
+export const ReportSource = Schema.Struct({
+  url: HttpUrl.pipe(
+    Schema.filter((value) => {
+      const parsed = Schema.decodeUnknownOption(Schema.URL)(value);
+      return parsed._tag === "Some" && !parsed.value.username && !parsed.value.password;
+    }),
+  ),
+  label: NonEmptyString.pipe(Schema.filter((value) => Array.from(value).length <= 120)),
+});
+export type ReportSource = typeof ReportSource.Type;
+export const ReportSources = Schema.Array(ReportSource).pipe(
+  Schema.maxItems(32),
+  Schema.filter((sources) => uniqueBy(sources, (source) => source.url)),
+);
 export const MainThreadMessage = Schema.Struct({
   id: MessageId,
   at: Timestamp,
@@ -244,6 +259,7 @@ export const MainThreadMessage = Schema.Struct({
   taskId: optional(TaskId),
   card: optional(Card),
   fullReportRef: optional(NonEmptyString),
+  sources: optional(ReportSources),
   botCreation: optional(BotCreationReceipt),
   dispatch: optional(
     Schema.Struct({

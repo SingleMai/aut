@@ -145,13 +145,7 @@ export function BotsPage({
       {editor && (
         <BotEditor
           {...editor}
-          {...{ bots, config, flash, settings }}
-          onSave={(value) =>
-            desktopApi.saveBot(value, editor.bot?.id).pipe(
-              Effect.tap(() => Effect.sync(() => setEditor(undefined))),
-              Effect.zipRight(data.refresh(["bots"])),
-            )
-          }
+          {...{ bots, config, flash, settings, data }}
           close={() => setEditor(undefined)}
         />
       )}

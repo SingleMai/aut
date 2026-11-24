@@ -9,6 +9,7 @@ import {
 } from "@aut/core";
 import { BridgeBackend, BridgeError, SessionIdentity } from "@aut/mcp-bridge";
 import {
+  BotId,
   CreateBotInput,
   CreateBotOutput,
   CreateTriggerInput,
@@ -23,6 +24,12 @@ import {
   ListTriggerRunsOutput,
   ListTriggersInput,
   ListTriggersOutput,
+  McpInfoInput,
+  McpInfoOutput,
+  McpServerId,
+  McpServerInput,
+  McpServerToolInput,
+  McpServerToolOutput,
   ProposeRouteInput,
   ProposeRouteOutput,
   ReadMainThreadInput,
@@ -31,8 +38,8 @@ import {
   UpdateTriggerToolInput,
 } from "@aut/protocol";
 import { Effect, Layer, Option, Schema } from "effect";
-
 import { Administration } from "./admin.js";
+import { McpSupervisor } from "./mcp-supervisor.js";
 
 const boundaryError = (error: CoreError) =>
   new BridgeError({
@@ -62,6 +69,7 @@ export const BridgeBackendLive = Layer.effect(
   BridgeBackend,
   Effect.gen(function* () {
     const admin = yield* Administration;
+    const mcp = yield* McpSupervisor;
     const config = yield* ConfigStore;
     const tasks = yield* TaskRegistry;
     const triggers = yield* TriggerRegistry;
@@ -104,12 +112,13 @@ export const BridgeBackendLive = Layer.effect(
           ).pipe(Effect.mapError(boundaryError));
           return yield* checked(
             ReadMainThreadOutput,
-            rows.map(({ id, at, author, text, taskId }) => ({
+            rows.map(({ id, at, author, text, taskId, sources }) => ({
               id,
               at,
               author,
               text,
               ...(taskId === undefined ? {} : { taskId }),
+              ...(sources === undefined ? {} : { sources }),
             })),
           );
         }),
@@ -250,6 +259,106 @@ export const BridgeBackendLive = Layer.effect(
             .update(args.triggerId, args.update)
             .pipe(Effect.mapError(boundaryError));
           return yield* checked(UpdateTriggerOutput, updated);
+        }),
+      mcpInfo: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(McpInfoInput, input);
+          const caller = yield* authorize(identity);
+          const primary = caller.system === "primary";
+          const grants = yield* mcp
+            .listGrants(primary ? undefined : identity.botId)
+            .pipe(Effect.mapError(boundaryError));
+          const servers = (yield* mcp.list.pipe(Effect.mapError(boundaryError)))
+            .filter((server) => args.serverId === undefined || args.serverId === server.id)
+            .filter((server) => primary || grants.some((grant) => grant.serverId === server.id));
+          const bots = (yield* config.readBots.pipe(Effect.mapError(boundaryError))).filter(
+            (bot) => primary || bot.id === identity.botId,
+          );
+          return yield* checked(McpInfoOutput, {
+            servers: servers.map(({ id, name, transport, enabled, health, auth, tools }) => ({
+              id,
+              name,
+              transport,
+              enabled,
+              health,
+              auth,
+              tools,
+            })),
+            grants: grants.filter((grant) =>
+              servers.some((server) => server.id === grant.serverId),
+            ),
+            bots: bots.map(({ id, name }) => ({ id, name })),
+          });
+        }),
+      mcpServer: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(McpServerToolInput, input);
+          const caller = yield* authorize(identity);
+          if (caller.system !== "primary")
+            return yield* Effect.fail(
+              new BridgeError({
+                code: "Forbidden",
+                message: "Only the primary assistant may manage MCP connections",
+              }),
+            );
+          if (args.config) {
+            const values =
+              args.config.transport === "stdio" ? args.config.env : args.config.headers;
+            if (
+              Object.values(values ?? {}).some(
+                (value) => !/^(?:secret:|env:)[A-Za-z0-9_-]+$/.test(value),
+              )
+            )
+              return yield* Effect.fail(
+                new BridgeError({
+                  code: "InvalidInput",
+                  message:
+                    "Enter credentials on the MCP page; management tools accept secret: or env: references only",
+                }),
+              );
+          }
+          let id = args.serverId;
+          if (args.action === "create") {
+            const value = yield* checked(McpServerInput, args.config);
+            id = (yield* mcp.create(value).pipe(Effect.mapError(boundaryError))).id;
+          } else {
+            const serverId = yield* checked(McpServerId, args.serverId);
+            switch (args.action) {
+              case "update":
+                yield* mcp
+                  .update(serverId, yield* checked(McpServerInput, args.config))
+                  .pipe(Effect.mapError(boundaryError));
+                break;
+              case "test":
+                yield* mcp.test(serverId).pipe(Effect.mapError(boundaryError));
+                break;
+              case "enable":
+              case "disable":
+                yield* mcp
+                  .setEnabled(serverId, args.action === "enable")
+                  .pipe(Effect.mapError(boundaryError));
+                break;
+              case "restart":
+                yield* mcp.restart(serverId).pipe(Effect.mapError(boundaryError));
+                break;
+              case "remove":
+                yield* mcp.remove(serverId).pipe(Effect.mapError(boundaryError));
+                break;
+              case "grant": {
+                const botId = yield* checked(BotId, args.botId);
+                const bots = yield* config.readBots.pipe(Effect.mapError(boundaryError));
+                if (!bots.some((bot) => bot.id === botId))
+                  return yield* Effect.fail(
+                    new BridgeError({ code: "NotFound", message: "The target Bot was not found" }),
+                  );
+                yield* mcp
+                  .setGrant(botId, serverId, args.enabled ?? false, args.allowedTools ?? [])
+                  .pipe(Effect.mapError(boundaryError));
+                break;
+              }
+            }
+          }
+          return yield* checked(McpServerToolOutput, { serverId: id, action: args.action });
         }),
       proposeRoute: (identity, input, requestId) =>
         Effect.gen(function* () {

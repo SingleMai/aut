@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { chmodSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { tmpdir } from "node:os";
@@ -20,7 +20,7 @@ import {
   type McpTool,
   NonEmptyString,
 } from "@aut/protocol";
-import { Context, Effect, Layer, Redacted, Runtime, Schema, Scope } from "effect";
+import { Context, Effect, Exit, Layer, Redacted, Runtime, Schedule, Schema, Scope } from "effect";
 import type { DaemonError } from "./errors.js";
 import { McpOAuth } from "./mcp-oauth.js";
 import { SecretReader } from "./secret-reader.js";
@@ -37,7 +37,13 @@ type ProxyRegistration = {
   readonly botId: BotId;
   readonly serverId: McpServerId;
   readonly allowedTools: ReadonlySet<string>;
+};
+
+type ManagedConnection = {
   readonly connection: ExternalMcpConnection;
+  readonly scope: Scope.CloseableScope;
+  readonly fingerprint: string;
+  readonly serverId: McpServerId;
 };
 
 const coreError = (message: string, detail?: string) =>
@@ -155,6 +161,7 @@ export class McpSupervisor extends Context.Tag("aut/McpSupervisor")<
     readonly setGrant: McpRegistry["Type"]["setGrant"];
     readonly authStart: McpOAuth["Type"]["start"];
     readonly authLogout: McpOAuth["Type"]["logout"];
+    readonly restart: (id: McpServerId) => Effect.Effect<McpServer, CoreError>;
     readonly test: (id: McpServerId) => Effect.Effect<McpServer, CoreError>;
     readonly configsForBot: (
       taskId: string,
@@ -169,10 +176,10 @@ export const McpSupervisorLive = Layer.scoped(
     const registry = yield* McpRegistry;
     const reader = yield* SecretReader;
     const oauth = yield* McpOAuth;
-    const daemonScope = yield* Scope.Scope;
     const runtime = yield* Effect.runtime<never>();
     const lock = yield* Effect.makeSemaphore(1);
-    const connections = new Map<string, ExternalMcpConnection>();
+    const connections = new Map<string, ManagedConnection>();
+    const failedUntil = new Map<string, number>();
     const registrations = new Map<string, ProxyRegistration>();
     const socketDirectory = yield* Effect.acquireRelease(
       Effect.sync(() => mkdtempSync(join(tmpdir(), "aut-mcp-supervisor-"))),
@@ -203,18 +210,47 @@ export const McpSupervisorLive = Layer.scoped(
           writeJson(response, 403, { error: "The MCP tool is not authorized" });
           return;
         }
-        const result = yield* registration.connection.callTool(input.tool, input.arguments).pipe(
-          Effect.map((value) => ({ status: 200, value })),
-          Effect.catchAll((error) =>
-            Effect.succeed({
-              status: 200,
-              value: {
-                content: [{ type: "text", text: error.message }],
-                isError: true,
-              },
+        const result = yield* lock
+          .withPermits(1)(
+            Effect.gen(function* () {
+              const current = yield* findServer(registration.serverId);
+              const grant = (yield* registry.listGrants(registration.botId)).find(
+                (value) => value.serverId === current.id,
+              );
+              if (
+                !current.enabled ||
+                current.auth.status === "required" ||
+                current.auth.status === "error" ||
+                !grant?.enabled ||
+                !grant.allowedTools.includes(input.tool) ||
+                !current.tools.some((tool) => tool.name === input.tool)
+              ) {
+                return yield* Effect.fail(coreError("The MCP tool is no longer authorized"));
+              }
+              const active = yield* ensure(current, `${registration.botId}:${current.id}`);
+              if (!active.tools.some((tool) => tool.name === input.tool))
+                return yield* Effect.fail(coreError("The MCP tool is no longer available"));
+              return active.connection;
             }),
-          ),
-        );
+          )
+          .pipe(
+            Effect.flatMap((connection) => connection.callTool(input.tool, input.arguments)),
+            Effect.map((value) => ({ status: 200, value })),
+            Effect.catchAll(() =>
+              Effect.succeed({
+                status: 200,
+                value: {
+                  content: [
+                    {
+                      type: "text",
+                      text: "The MCP tool is unavailable. Check its connection and authorization.",
+                    },
+                  ],
+                  isError: true,
+                },
+              }),
+            ),
+          );
         writeJson(response, result.status, result.value);
       }).pipe(
         Effect.catchAll((error) => {
@@ -260,35 +296,100 @@ export const McpSupervisorLive = Layer.scoped(
               : Effect.fail(coreError("The MCP server was not found")),
           ),
         );
-    const ensure = (server: McpServer, key: string) =>
-      lock.withPermits(1)(
-        Effect.gen(function* () {
-          const config = yield* runtimeConfig(server, reader, oauth).pipe(
-            Effect.mapError((error) =>
-              coreError("The MCP server credentials could not be resolved", String(error)),
-            ),
+    const closeConnection = (key: string) =>
+      Effect.gen(function* () {
+        const managed = connections.get(key);
+        connections.delete(key);
+        if (managed) yield* Scope.close(managed.scope, Exit.void);
+      });
+    const invalidate = (id: McpServerId) =>
+      Effect.gen(function* () {
+        for (const [key, value] of connections)
+          if (value.serverId === id) yield* closeConnection(key);
+        failedUntil.clear();
+      });
+    const ensure = (server: McpServer, key: string, force = false) =>
+      Effect.gen(function* () {
+        if (!force && (failedUntil.get(key) ?? 0) > Date.now())
+          return yield* Effect.fail(
+            coreError("The MCP server is waiting before reconnecting; test it to retry now"),
           );
-          let connection = connections.get(key);
-          if (!connection)
-            connection = yield* connectExternalMcp(config).pipe(
-              Scope.extend(daemonScope),
+        const config = yield* runtimeConfig(server, reader, oauth).pipe(
+          Effect.mapError(() => coreError("The MCP server credentials could not be resolved")),
+        );
+        const fingerprint = createHash("sha256").update(JSON.stringify(config)).digest("hex");
+        let managed = connections.get(key);
+        if (managed && managed.fingerprint !== fingerprint) {
+          yield* closeConnection(key);
+          managed = undefined;
+        }
+        if (!managed) {
+          const connect = Effect.gen(function* () {
+            const scope = yield* Scope.make();
+            const connection = yield* connectExternalMcp(config).pipe(
+              Scope.extend(scope),
+              Effect.onExit((exit) =>
+                Exit.isFailure(exit) ? Scope.close(scope, exit) : Effect.void,
+              ),
               Effect.mapError(externalError),
             );
-          connections.set(key, connection);
-          const tools = yield* connection.listTools().pipe(Effect.mapError(externalError));
-          yield* registry.updateTools(server.id, tools);
-          const next = yield* registry.updateHealth(server.id, {
-            status: "ready",
-            checkedAt: Date.now(),
+            return { connection, scope, fingerprint, serverId: server.id };
           });
-          return { server: next, connection, tools };
-        }),
+          managed = yield* force
+            ? connect
+            : connect.pipe(
+                Effect.retry(
+                  Schedule.exponential("250 millis").pipe(Schedule.intersect(Schedule.recurs(1))),
+                ),
+              );
+          connections.set(key, managed);
+        }
+        const tools = yield* managed.connection.listTools().pipe(Effect.mapError(externalError));
+        yield* registry.updateTools(server.id, tools);
+        const next = yield* registry.updateHealth(server.id, {
+          status: "ready",
+          checkedAt: Date.now(),
+        });
+        failedUntil.delete(key);
+        return { server: next, connection: managed.connection, tools };
+      }).pipe(
+        Effect.tapError((error) =>
+          Effect.gen(function* () {
+            yield* closeConnection(key);
+            failedUntil.set(key, Date.now() + 30_000);
+            yield* registry
+              .updateHealth(server.id, {
+                status: "error",
+                checkedAt: Date.now(),
+                message: error.message,
+              })
+              .pipe(Effect.ignore);
+          }),
+        ),
       );
+    yield* Effect.addFinalizer(() =>
+      Effect.forEach([...connections.keys()], closeConnection, { discard: true }),
+    );
+    const test = (id: McpServerId) =>
+      lock.withPermits(1)(
+        findServer(id).pipe(
+          Effect.flatMap((server) =>
+            ensure(server, `test:${id}`, true).pipe(Effect.map((value) => value.server)),
+          ),
+        ),
+      );
+    const logout = (id: McpServerId) =>
+      Effect.gen(function* () {
+        yield* invalidate(id);
+        yield* registry.setEnabled(id, false);
+        return yield* oauth
+          .logout(id)
+          .pipe(Effect.mapError(() => coreError("The MCP sign-in could not be cleared")));
+      });
     const registerProxy = (
       taskId: string,
       botId: BotId,
       server: McpServer,
-      connection: ExternalMcpConnection,
       tools: readonly McpTool[],
       allowedTools: readonly string[],
     ) =>
@@ -300,7 +401,6 @@ export const McpSupervisorLive = Layer.scoped(
             botId,
             serverId: server.id,
             allowedTools: new Set(allowedTools),
-            connection,
           });
           return {
             socketPath,
@@ -321,64 +421,96 @@ export const McpSupervisorLive = Layer.scoped(
     return {
       list: registry.list,
       create: registry.create,
-      update: registry.update,
-      remove: registry.remove,
-      setEnabled: registry.setEnabled,
-      listGrants: registry.listGrants,
-      setGrant: registry.setGrant,
-      authStart: oauth.start,
-      authLogout: oauth.logout,
-      test: (id) =>
-        findServer(id).pipe(
-          Effect.flatMap((server) =>
-            ensure(server, `test:${id}`).pipe(Effect.map((value) => value.server)),
-          ),
-          Effect.mapError((error) =>
-            error instanceof CoreError
-              ? error
-              : coreError("The MCP server test failed", String(error)),
-          ),
-          Effect.tapError((error) =>
-            findServer(id).pipe(
-              Effect.flatMap((server) =>
-                registry.updateHealth(server.id, {
-                  status: "error",
-                  message: error.message,
-                  checkedAt: Date.now(),
-                }),
-              ),
-              Effect.catchAll(() => Effect.void),
-            ),
-          ),
+      update: (id, input) =>
+        lock.withPermits(1)(
+          Effect.gen(function* () {
+            const previous = yield* findServer(id);
+            const changed =
+              previous.transport !== input.transport ||
+              (input.transport === "stdio"
+                ? previous.transport !== "stdio" ||
+                  previous.command !== input.command ||
+                  JSON.stringify(previous.args) !== JSON.stringify(input.args) ||
+                  previous.cwd !== input.cwd ||
+                  JSON.stringify(previous.env ?? {}) !== JSON.stringify(input.env ?? {})
+                : previous.transport === "stdio" ||
+                  previous.url !== input.url ||
+                  JSON.stringify(previous.headers ?? {}) !== JSON.stringify(input.headers ?? {}) ||
+                  JSON.stringify(previous.oauth ?? {}) !== JSON.stringify(input.oauth ?? {}));
+            const updated = yield* registry.update(id, input);
+            if (changed) {
+              yield* logout(id);
+              return yield* findServer(id);
+            }
+            return updated;
+          }),
         ),
+      remove: (id) => lock.withPermits(1)(logout(id).pipe(Effect.zipRight(registry.remove(id)))),
+      setEnabled: (id, enabled) =>
+        lock.withPermits(1)(
+          Effect.gen(function* () {
+            const current = yield* findServer(id);
+            if (
+              enabled &&
+              (current.health.status !== "ready" ||
+                ["required", "error"].includes(current.auth.status))
+            )
+              return yield* Effect.fail(
+                new CoreError({
+                  code: "InvalidRequest",
+                  message: "Test the MCP server and complete sign-in before enabling it",
+                }),
+              );
+            const server = yield* registry.setEnabled(id, enabled);
+            if (!enabled) yield* invalidate(id);
+            return server;
+          }),
+        ),
+      listGrants: registry.listGrants,
+      setGrant: (botId, id, enabled, tools) =>
+        lock.withPermits(1)(
+          Effect.gen(function* () {
+            const grant = yield* registry.setGrant(botId, id, enabled, tools);
+            if (!enabled) yield* closeConnection(`${botId}:${id}`);
+            return grant;
+          }),
+        ),
+      authStart: (id) => lock.withPermits(1)(invalidate(id).pipe(Effect.zipRight(oauth.start(id)))),
+      authLogout: (id) => lock.withPermits(1)(logout(id)),
+      restart: (id) =>
+        lock
+          .withPermits(1)(invalidate(id))
+          .pipe(Effect.zipRight(test(id))),
+      test,
       configsForBot: (taskId, botId) =>
-        Effect.gen(function* () {
-          const grants = yield* registry.listGrants(botId);
-          const configs: McpServerConfig[] = [];
-          for (const grant of grants) {
-            if (!grant.enabled || grant.allowedTools.length === 0) continue;
-            const server = yield* findServer(grant.serverId);
-            if (!server.enabled) continue;
-            const current = yield* ensure(server, `${botId}:${server.id}`).pipe(
-              Effect.catchAll(() => Effect.succeed(undefined)),
-            );
-            if (!current) continue;
-            const allowedTools = grant.allowedTools.filter((tool) =>
-              current.tools.some((entry) => entry.name === tool),
-            );
-            if (allowedTools.length === 0) continue;
-            const credentials = yield* registerProxy(
-              taskId,
-              botId,
-              current.server,
-              current.connection,
-              current.tools,
-              allowedTools,
-            );
-            configs.push(mcpProxyServerConfig(credentials));
-          }
-          return configs;
-        }),
+        lock.withPermits(1)(
+          Effect.gen(function* () {
+            const grants = yield* registry.listGrants(botId);
+            const configs: McpServerConfig[] = [];
+            for (const grant of grants) {
+              if (!grant.enabled || grant.allowedTools.length === 0) continue;
+              const server = yield* findServer(grant.serverId);
+              if (!server.enabled || ["required", "error"].includes(server.auth.status)) continue;
+              const current = yield* ensure(server, `${botId}:${server.id}`).pipe(
+                Effect.catchAll(() => Effect.succeed(undefined)),
+              );
+              if (!current) continue;
+              const allowedTools = grant.allowedTools.filter((tool) =>
+                current.tools.some((entry) => entry.name === tool),
+              );
+              if (allowedTools.length === 0) continue;
+              const credentials = yield* registerProxy(
+                taskId,
+                botId,
+                current.server,
+                current.tools,
+                allowedTools,
+              );
+              configs.push(mcpProxyServerConfig(credentials));
+            }
+            return configs;
+          }),
+        ),
     };
   }),
 );

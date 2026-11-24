@@ -10,6 +10,8 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { ConfigStore, insertTaskWithSession, Store } from "../../packages/core/dist/index.js";
+import { reportSources } from "../../packages/core/dist/report-sources.js";
+import { truncateReport } from "../../packages/core/dist/reply-gate.js";
 import { Administration, DaemonApiLive, HttpServer } from "../../packages/daemon/dist/index.js";
 import {
   BotId, MessageId, RequestId, SessionRequest, TaskId,
@@ -32,6 +34,7 @@ const fullReport = [
 ].join("\n");
 const Command = Schema.Union(
   Schema.Struct({ command: Schema.Literal("create-bot") }),
+  Schema.Struct({ command: Schema.Literal("source-report") }),
   Schema.Struct({ command: Schema.Literal("audit") }),
   Schema.Struct({ command: Schema.Literal("append"), text: Schema.String }),
   Schema.Struct({ command: Schema.Literal("phase"), requestId: Schema.String, phase: Schema.Literal(...phases) }),
@@ -109,6 +112,13 @@ const program = Effect.scoped(Effect.gen(function* () {
       const source = (yield* config.readBots).find((bot) => bot.id === botId);
       if (!source) return yield* Effect.fail(new FixtureError({ message: "Missing fixture bot" }));
       yield* admin.createBot({ ...source, id: BotId.make("qa-observations"), name: "观测助手" }, taskId);
+    } else if (command.command === "source-report") {
+      const report = `MCP 通过统一协议连接模型与外部工具。参考 [MCP 官方文档](https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro)。\n\n[长地址复制测试](https://example.com/${"long-path/".repeat(40)}intro?q=one&lang=zh#section)\n\n${"这段合成报告用于验证最后截断时仍保留完整来源。".repeat(20)}`;
+      const id = `qa-source-${crypto.randomUUID()}`;
+      yield* store.transaction((tx) => Effect.gen(function* () {
+        yield* tx.insert("events", { id, at: Date.now(), event: { source: "session", kind: "turn.completed", taskId, event: {kind: "turn.completed", turnId: id, ok: true, finalReport: report} } });
+        yield* tx.insert("main_thread_messages", { id: MessageId.make(id), at: Date.now(), author: { botId, taskId }, kind: "reply", taskId, text: truncateReport(report), sources: reportSources(report), fullReportRef: `event:${id}` });
+      }));
     } else if (command.command === "append") {
       yield* store.transaction((tx) => tx.insert("main_thread_messages", { id: MessageId.make(`qa-live-${crypto.randomUUID()}`), at: Date.now(), author: { botId, taskId }, kind: "reply", taskId, text: command.text }));
     } else if (command.command === "phase" || command.command === "settle") {

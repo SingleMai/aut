@@ -42,7 +42,15 @@ it("manages MCP servers and rejects the removed inline Bot configuration", async
   const value = (await created.json()) as { server: { id: string; enabled: boolean } };
   expect(value.server.enabled).toBe(false);
   const id = value.server.id;
-  expect((await request(`/v1/mcp/servers/${id}/enable`, "POST")).status).toBe(200);
+  const untested = await request(`/v1/mcp/servers/${id}/enable`, "POST");
+  expect(untested.status).toBe(409);
+  expect(await untested.json()).toMatchObject({
+    error: {
+      code: "InvalidRequest",
+      message: "Test the MCP server and complete sign-in before enabling it",
+    },
+  });
+  expect((await request(`/v1/mcp/servers/${id}/disable`, "POST")).status).toBe(200);
   expect(
     (
       await request(`/v1/bots/bot-1/mcp-grants/${id}`, "PUT", {

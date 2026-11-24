@@ -141,6 +141,15 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 3.22.4
+      mdast-util-from-markdown:
+        specifier: 2.1.0
+        version: 2.1.0
+      mdast-util-gfm-autolink-literal:
+        specifier: 2.1.0
+        version: 2.1.0
+      micromark-extension-gfm-autolink-literal:
+        specifier: 2.1.0
+        version: 2.1.0
 
   packages/daemon:
     dependencies:

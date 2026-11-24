@@ -32,9 +32,13 @@ HTTP请求不能自报身份，权限变更或Scope撤销立即作用于后续�
 | list_triggers | 所有合法bot | 最多返回50个触发器，可按 `botId`、`enabled` 和 `limit` 筛选，按更新时间倒序排列 |
 | list_trigger_runs | 所有合法bot | 按 `triggerId` 读取最近50条运行记录，可用 `limit` 限制，按计划时间倒序排列 |
 | update_trigger | worker、coordinator | 修改触发器字段或暂停/恢复。worker 只能修改自身 Bot 的触发器，coordinator 可管理任一已配置 Bot |
+| mcp_info | 所有合法 bot | 主助手读取全局 server、Bot 和 grant 摘要；普通 Bot 只读自己的分配。无连接参数或凭据 |
+| mcp_server | 仅主助手可执行 | 创建/修改/测试/启停/重启/删除 server 和精确工具授权；普通与协调任务均可，凭据只接收引用 |
 | propose_route | 仅主助手的协调会话 | 只接ProposableOp与rationale，进入Chief同一串行队列 |
 
 成功创建时，daemon 在主会话保存用户可操作的创建回执。撤销条件见 [ADR-0046](decisions/0046-agent-bot-creation-undo.md)。
+
+MCP 管理工具和粘贴接入遵循 [ADR-0062](decisions/0062-mcp-onboarding-and-management.md)。管理工具不执行登录、不返回密钥；授权变化即时约束已运行 proxy 的后续调用，新增工具在下一次会话注入。
 
 ask_user不注册，Codex原生question仍走adapter。服务端按会话角色校验 propose_route。
 MCP返回text content中的原输出JSON，并提供 `structuredContent: { result }`。

@@ -107,7 +107,7 @@ function Spoiler({ children }: { children?: ReactNode }) {
   );
 }
 // Opening a URL would leave the local-only desktop boundary (ADR-0025).
-function WebAddress({ href, children }: { href: string; children?: ReactNode }) {
+export function WebAddress({ href, children }: { href: string; children?: ReactNode }) {
   const { state, copy } = useCopyFeedback(href);
   const label =
     state === "copied"

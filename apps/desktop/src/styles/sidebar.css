@@ -111,15 +111,17 @@
   background: var(--status-color, var(--secondary));
 }
 .sidebar-footer {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   padding-top: 12px;
   border-top: 1px solid var(--edge);
 }
 .sidebar-footer .nav-item {
-  flex: 1;
+  gap: 8px;
   padding: 8px 10px;
   font-size: var(--text-label);
+  white-space: nowrap;
 }
 .connection {
   color: var(--secondary);

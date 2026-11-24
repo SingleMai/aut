@@ -15,6 +15,10 @@ import { Effect, Either, Layer, Schema, Stream } from "effect";
 import { afterEach, expect, it } from "vitest";
 import { AdministrationLive } from "./admin.js";
 import { BridgeBackendLive } from "./bridge-backend.js";
+import { McpOAuthLive } from "./mcp-oauth.js";
+import { McpSupervisor, McpSupervisorLive } from "./mcp-supervisor.js";
+import { SecretReaderLive } from "./secret-reader.js";
+import { SecretStoreLive } from "./secret-store.js";
 
 const directories: string[] = [];
 afterEach(() => {
@@ -48,7 +52,7 @@ const slow: SessionIdentity = {
   role: "coordinator",
 };
 const run = <A, E>(
-  body: Effect.Effect<A, E, BridgeBackend | Store | ConfigStore>,
+  body: Effect.Effect<A, E, BridgeBackend | Store | ConfigStore | McpSupervisor>,
   proposals: ChiefProposal[] = [],
 ) => {
   const dataDirectory = mkdtempSync(join(tmpdir(), "aut-bridge-data-"));
@@ -69,8 +73,15 @@ const run = <A, E>(
       }),
     results: Stream.empty,
   });
+  const base = Layer.mergeAll(
+    CoreLive({ dataDirectory }),
+    chief,
+    SecretReaderLive.pipe(Layer.provideMerge(SecretStoreLive({ dataDirectory }))),
+  );
   const services = AdministrationLive.pipe(
-    Layer.provideMerge(Layer.merge(CoreLive({ dataDirectory }), chief)),
+    Layer.provideMerge(
+      McpSupervisorLive.pipe(Layer.provide(McpOAuthLive), Layer.provideMerge(base)),
+    ),
   );
   return Effect.runPromise(
     Effect.scoped(
@@ -133,6 +144,93 @@ it("provides bounded chronological reads, ID selection and structured task repor
   expect(result.task).toEqual(task);
   expect(Either.isLeft(result.oversized)).toBe(true);
   expect(Either.isLeft(result.mixed)).toBe(true);
+});
+
+it("preserves complete report sources in read_main_thread excerpts", async () => {
+  const url = `https://example.com/${"long/".repeat(80)}intro`;
+  const sources = [{ url, label: "Evidence" }];
+  const result = await run(
+    Effect.gen(function* () {
+      const id = MessageId.make("source-report");
+      yield* (yield* Store).transaction((tx) =>
+        tx.insert("main_thread_messages", {
+          id,
+          author: { botId: bot.id, taskId: task.id },
+          kind: "reply",
+          at: 60,
+          text: "摘要",
+          sources,
+        }),
+      );
+      return yield* (yield* BridgeBackend).readMainThread(worker, { ids: [id] });
+    }),
+  );
+  expect(result[0]).toMatchObject({ text: "摘要", sources });
+});
+
+it("allows primary MCP management, limits worker discovery and never returns connection credentials", async () => {
+  await run(
+    Effect.gen(function* () {
+      const backend = yield* BridgeBackend;
+      const config = {
+        name: "notes",
+        transport: "http" as const,
+        url: "https://example.com/mcp",
+        headers: { Authorization: "secret:test-token" },
+      };
+      const denied = yield* Effect.either(backend.mcpServer(worker, { action: "create", config }));
+      expect(Either.isLeft(denied) && denied.left.code).toBe("Forbidden");
+      const created = yield* backend.mcpServer(slow, { action: "create", config });
+      expect((yield* backend.mcpInfo(worker, {})).servers).toEqual([]);
+      const result = yield* backend.mcpInfo(slow, {});
+      expect(result.servers).toHaveLength(1);
+      expect(JSON.stringify(result)).not.toContain("example.com");
+      expect(JSON.stringify(result)).not.toContain("test-token");
+      const plaintext = yield* Effect.either(
+        backend.mcpServer(slow, {
+          action: "create",
+          config: { ...config, name: "unsafe", headers: { Authorization: "private-token" } },
+        }),
+      );
+      expect(Either.isLeft(plaintext)).toBe(true);
+      const mcp = yield* McpSupervisor;
+      yield* backend.mcpServer(slow, {
+        action: "grant",
+        serverId: created.serverId,
+        botId: bot.id,
+        enabled: false,
+        allowedTools: [],
+      });
+      expect((yield* backend.mcpInfo(worker, {})).servers.map((server) => server.id)).toEqual([
+        created.serverId,
+      ]);
+      const invalidBot = yield* Effect.either(
+        backend.mcpServer(slow, {
+          action: "grant",
+          serverId: created.serverId,
+          botId: BotId.make("missing"),
+          enabled: true,
+          allowedTools: [],
+        }),
+      );
+      expect(Either.isLeft(invalidBot)).toBe(true);
+      const premature = yield* Effect.either(
+        backend.mcpServer(slow, { action: "enable", serverId: created.serverId }),
+      );
+      expect(Either.isLeft(premature)).toBe(true);
+      expect((yield* mcp.list)[0]?.enabled).toBe(false);
+      // Ordinary primary tasks have the same configuration authority as coordination tasks.
+      const id = TaskId.make("primary-ordinary");
+      yield* (yield* Store).transaction((tx) =>
+        insertTaskWithSession(tx, { ...task, id, botId: slow.botId }),
+      );
+      yield* backend.mcpServer(
+        { botId: slow.botId, taskId: id, role: "worker" },
+        { action: "remove", serverId: created.serverId },
+      );
+      expect((yield* backend.mcpInfo(slow, {})).servers).toEqual([]);
+    }),
+  );
 });
 
 it("rechecks role and task ownership and revokes access after cancellation", async () => {

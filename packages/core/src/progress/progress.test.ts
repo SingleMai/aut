@@ -83,6 +83,7 @@ const originalTranscript = [
   { role: "assistant" as const, text: "Existing evidence" },
 ];
 interface Options {
+  readonly report?: string;
   readonly mode?: "fast" | "deep";
   readonly fork?: boolean;
   readonly live?: boolean;
@@ -197,7 +198,7 @@ const fixture = async (options: Options = {}) => {
               kind: "turn.completed",
               turnId: "query-turn",
               ok: true,
-              finalReport: "The task has gathered evidence and is still working.",
+              finalReport: options.report ?? "The task has gathered evidence and is still working.",
             });
           }
         }),
@@ -463,6 +464,16 @@ describe("read-only progress queries", () => {
           event.event.event.ok,
       ),
     ).toBe(true);
+  });
+  it("keeps full source URLs from the deep report alongside its gated summary", async () => {
+    const url = `https://example.com/${"long/".repeat(80)}intro`;
+    const test = await fixture({ report: `[Evidence](${url})` });
+    const result = await test.perform();
+    expect(result.text).toBe("已收集资料，任务仍在推进。");
+    expect(result.sources).toEqual([{ url, label: "Evidence" }]);
+    expect(
+      (await test.stored()).messages.find((message) => message.id === result.id)?.sources,
+    ).toEqual(result.sources);
   });
   it("uses transcript-only temporary context when native fork is unavailable", async () => {
     const test = await fixture({ fork: false });

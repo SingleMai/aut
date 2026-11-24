@@ -12,6 +12,8 @@ import { SessionBridge, SessionBridgeLive } from "./session-setup.js";
 it("binds a private ready listener and revokes session credentials before cleaning its own directory", async () => {
   const dataDirectory = mkdtempSync(join(tmpdir(), "aut-bridge-runtime-"));
   const backend = Layer.succeed(BridgeBackend, {
+    mcpInfo: () => Effect.succeed({ servers: [], grants: [], bots: [] }),
+    mcpServer: () => Effect.dieMessage("Unexpected MCP management call"),
     authorize: () => Effect.void,
     readMainThread: () => Effect.succeed([]),
     listTasks: () => Effect.succeed([]),

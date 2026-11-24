@@ -1,0 +1,55 @@
+{
+  "at": "2026-11-24T04:53:16.672Z",
+  "scope": "Isolated real daemon HTTP/WS + desktop preview; synthetic stdio MCP service and report; no harness or model runs.",
+  "copyVerification": {
+    "method": "Clicked source button; checked native macOS clipboard with pbpaste",
+    "status": "已复制到剪贴板",
+    "matches": true,
+    "length": 447,
+    "expectedLength": 447
+  },
+  "persisted": {
+    "message": {
+      "id": "qa-source-745e651a-a00a-44b7-a1d2-ee9d3513a77b",
+      "at": 1795495846082,
+      "author": {
+        "botId": "qa-research",
+        "taskId": "qa-review"
+      },
+      "kind": "reply",
+      "text": "MCP 通过统一协议连接模型与外部工具。参考 MCP 官方文档。 长地址复制测试 这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后截断时仍保留完整来源。这段合成报告用于验证最后…\n详情见任务面板",
+      "taskId": "qa-review",
+      "fullReportRef": "event:qa-source-745e651a-a00a-44b7-a1d2-ee9d3513a77b",
+      "sources": [
+        {
+          "url": "https://modelcontextprotocol.io/docs/2026-07-28/getting-started/intro",
+          "label": "MCP 官方文档"
+        },
+        {
+          "url": "https://example.com/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/long-path/intro?q=one&lang=zh#section",
+          "label": "长地址复制测试"
+        }
+      ]
+    },
+    "grants": [
+      {
+        "botId": "qa-research",
+        "serverId": "mcp-d37aa05d-1a43-4682-abc6-264792c38ea5",
+        "enabled": true,
+        "allowedTools": [
+          "search_documents"
+        ]
+      }
+    ],
+    "servers": [
+      {
+        "id": "mcp-d37aa05d-1a43-4682-abc6-264792c38ea5",
+        "enabled": false,
+        "tools": [
+          "search_documents",
+          "read_document"
+        ]
+      }
+    ]
+  }
+}

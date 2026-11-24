@@ -27,6 +27,15 @@ it("stores global MCP servers and prunes grants when the tool catalog changes", 
           url: "https://example.com/mcp",
         });
         expect(server.enabled).toBe(false);
+        const reserved = {
+          name: "aut",
+          transport: "http" as const,
+          url: "https://example.com/mcp",
+        };
+        expect(Either.isLeft(yield* Effect.either(registry.create(reserved)))).toBe(true);
+        expect(Either.isLeft(yield* Effect.either(registry.update(server.id, reserved)))).toBe(
+          true,
+        );
         expect(
           (yield* registry.setGrant(BotId.make("bot-1"), server.id, true, ["list"])).allowedTools,
         ).toEqual([]);

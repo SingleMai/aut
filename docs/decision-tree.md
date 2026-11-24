@@ -160,6 +160,7 @@ B1 R1 通过 且 readable ≥ 0.6 → action: deliver
 可读性 classify 失败也进入改写预算分支，不伪造 noul。rewrite 异常走 truncate；
 正常改写更新 state 并重新从长度规则开始。截断包含固定提示且同时满足两种长度上限。
 内部改写的 Scope、事件审计与原 session 隔离见 ADR-0028。
+最终截断的链接格式处理与原报告来源元数据见 [ADR-0063](decisions/0063-report-source-links.md)，不改变上述树分支、阈值和日志。
 
 ## 8. v1 `request` 树（实验）
 

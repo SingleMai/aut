@@ -17,6 +17,7 @@ import { DispatchCorrection } from "./dispatch-correction.js";
 import { formatClockTime, formatTime, t } from "./i18n.js";
 import { Icon } from "./icons.js";
 import { MessageActions, type MessageMenuItem } from "./message-actions.js";
+import { WebAddress } from "./openmausbot/components/ConversationMarkdown.js";
 import { copyText } from "./openmausbot/lib/copy-feedback.js";
 import { type Flash, runUi, useAction } from "./ui/use-action.js";
 
@@ -222,6 +223,20 @@ function MessageRow(props: MessageProps & { native?: QuestionRead }) {
             </time>
           )}
         </div>
+        {!!message.sources?.length && (
+          <details className="message-sources" open={message.sources.length <= 3}>
+            <summary>
+              {t.reportSources}（{message.sources.length}）
+            </summary>
+            <ol>
+              {message.sources.map((source) => (
+                <li key={source.url}>
+                  <WebAddress href={source.url}>{source.label}</WebAddress>
+                </li>
+              ))}
+            </ol>
+          </details>
+        )}
         {ref && (
           <div className="message-links">
             <Button

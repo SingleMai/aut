@@ -360,3 +360,16 @@ it("counts Unicode code points and keeps the truncation suffix inside both limit
     expect(text.endsWith("详情见任务面板")).toBe(true);
   }
 });
+
+it("never cuts a source URL into a broken link in the terminal fallback", async () => {
+  const url = `https://modelcontextprotocol.io/docs/${"long-path/".repeat(40)}intro`;
+  for (const report of [`文档：${url}`, `[官方文档](${url})\n${"长报告".repeat(100)}`]) {
+    const result = await execute(report, [{ text: report }, { text: report }], { readable: 0.1 });
+    expect(result.output.rewrites).toBe(2);
+    expect(result.output.delivered).not.toContain("https:");
+    expect(result.output.delivered).not.toContain("long-path");
+    expect(result.output.delivered).toContain("详情见任务面板");
+    expect(Array.from(result.output.delivered).length).toBeLessThanOrEqual(200);
+    expect(result.before).toEqual(result.after);
+  }
+});

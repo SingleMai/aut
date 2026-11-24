@@ -48,6 +48,8 @@ export class McpRegistry extends Context.Tag("aut/McpRegistry")<
 
 const missingServer = () =>
   new CoreError({ code: "NotFound", message: "The MCP server was not found" });
+const reservedName = () =>
+  new CoreError({ code: "Validation", message: "The MCP server name aut is reserved" });
 
 const createServer = (id: McpServerId, input: McpServerInput): McpServer => ({
   ...input,
@@ -82,6 +84,7 @@ export const McpRegistryLive = Layer.effect(
       get: (id) => config.readMcp.pipe(Effect.map((value) => Option.fromNullable(find(value, id)))),
       create: (input) =>
         mutate((current) => {
+          if (input.name.trim().toLowerCase() === "aut") return Effect.fail(reservedName());
           const id = McpServerId.make(`mcp-${randomUUID()}`);
           const server = createServer(id, input);
           if (current.servers.some((entry) => entry.name === input.name))
@@ -95,6 +98,7 @@ export const McpRegistryLive = Layer.effect(
         }),
       update: (id, input) =>
         mutate((current) => {
+          if (input.name.trim().toLowerCase() === "aut") return Effect.fail(reservedName());
           const previous = find(current, id);
           if (!previous) return Effect.fail(missingServer());
           if (current.servers.some((entry) => entry.id !== id && entry.name === input.name))

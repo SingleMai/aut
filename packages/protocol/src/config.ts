@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import {
   BotId,
   HttpUrl,
+  JsonRecord,
   JsonValue,
   McpServerId,
   NonEmptyString,
@@ -31,8 +32,11 @@ export type McpServerConfig = typeof McpServerConfig.Type;
 
 export const McpTool = Schema.Struct({
   name: NonEmptyString,
+  title: optional(Schema.String),
   description: optional(Schema.String),
   inputSchema: optional(JsonValue),
+  outputSchema: optional(JsonRecord),
+  annotations: optional(JsonRecord),
 });
 export type McpTool = typeof McpTool.Type;
 

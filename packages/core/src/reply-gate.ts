@@ -6,6 +6,7 @@ import { TreeError } from "./decision-tree/errors.js";
 import { replyGateV1 } from "./decision-tree/reply-gate.js";
 import { CoreError } from "./errors.js";
 import { runIsolatedTurn, temporarySessionInput } from "./isolated-turn.js";
+import { reportTextForTruncation } from "./report-sources.js";
 import { SessionReplyGate, type SessionReplyInput } from "./session-manager/ports.js";
 import { Store } from "./store.js";
 
@@ -20,7 +21,7 @@ const detailHint = "详情见任务面板";
 export const truncateReport = (report: string): string => {
   const characterLimit = replyGateV1.thresholds.characters ?? 200;
   const wordLimit = replyGateV1.thresholds.words ?? 120;
-  const limited = report
+  const limited = reportTextForTruncation(report)
     .trim()
     .split(/\s+/u)
     .slice(0, wordLimit - 1)

@@ -403,6 +403,19 @@ const cases: Record<string, Case> = {
     valid: message,
     invalid: { ...message, at: 0.1 },
   },
+  ReportSource: {
+    schema: Domain.ReportSource,
+    valid: { url: "https://example.com/path?q=1&v=2", label: "文档" },
+    invalid: { url: "https://name:password@example.com/", label: "Credentials" },
+  },
+  ReportSources: {
+    schema: Domain.ReportSources,
+    valid: [{ url: "https://example.com/", label: "文档" }],
+    invalid: [
+      { url: "https://example.com/", label: "文档" },
+      { url: "https://example.com/", label: "重复" },
+    ],
+  },
   Task: { schema: Domain.Task, valid: task, invalid: { ...task, pendingRequestIds: ["r1", "r1"] } },
   TriggerSchedule: {
     schema: Domain.TriggerSchedule,
@@ -518,6 +531,45 @@ const cases: Record<string, Case> = {
   ListTasksOutput: { schema: Mcp.ListTasksOutput, valid: [summary], invalid: [{}] },
   GetTaskInput: { schema: Mcp.GetTaskInput, valid: { taskId: "t1" }, invalid: { taskId: "" } },
   GetTaskOutput: { schema: Mcp.GetTaskOutput, valid: task, invalid: {} },
+  McpServerSummary: {
+    schema: Mcp.McpServerSummary,
+    valid: {
+      id: "mcp-1",
+      name: "Search",
+      transport: "http",
+      enabled: false,
+      health: { status: "unknown" },
+      auth: { status: "none" },
+      tools: [],
+    },
+    invalid: { id: "mcp-1", name: "Search", transport: "ftp" },
+  },
+  McpInfoInput: {
+    schema: Mcp.McpInfoInput,
+    valid: { serverId: "mcp-1" },
+    invalid: { serverId: "" },
+  },
+  McpInfoOutput: {
+    schema: Mcp.McpInfoOutput,
+    valid: { servers: [], grants: [], bots: [] },
+    invalid: { servers: [{}], grants: [], bots: [] },
+  },
+  McpServerToolInput: {
+    schema: Mcp.McpServerToolInput,
+    valid: {
+      action: "grant",
+      serverId: "mcp-1",
+      botId: "b1",
+      enabled: true,
+      allowedTools: ["search"],
+    },
+    invalid: { action: "grant", serverId: "mcp-1" },
+  },
+  McpServerToolOutput: {
+    schema: Mcp.McpServerToolOutput,
+    valid: { serverId: "mcp-1", action: "create" },
+    invalid: { serverId: "", action: "create" },
+  },
   ProposeRouteInput: {
     schema: Mcp.ProposeRouteInput,
     valid: { op: control, rationale: "User asked to cancel" },

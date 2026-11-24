@@ -13,6 +13,7 @@ import type { RegisteredExecution } from "../chief/ports.js";
 import { ConfigStore } from "../config-store.js";
 import { CoreError, validate } from "../errors.js";
 import { runIsolatedTurn, temporarySessionInput } from "../isolated-turn.js";
+import { reportSources } from "../report-sources.js";
 import { SessionManager } from "../session-manager/manager.js";
 import {
   HarnessResolver,
@@ -163,6 +164,7 @@ export const ProgressQueryLive = (options: ProgressOptions = {}) =>
                 text: result.delivered,
                 taskId: op.taskId,
                 fullReportRef: `event:${completedReport.eventId}`,
+                sources: reportSources(completedReport.report),
                 decisionLogId: id,
               },
               {

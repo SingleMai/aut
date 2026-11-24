@@ -116,6 +116,8 @@ const setup = Effect.gen(function* () {
   let allowed = true;
   const reads: unknown[] = [];
   const layer = Layer.succeed(BridgeBackend, {
+    mcpInfo: () => Effect.succeed({ servers: [], grants: [], bots: [] }),
+    mcpServer: () => Effect.dieMessage("Unexpected MCP management call"),
     authorize: () =>
       allowed
         ? Effect.void
@@ -466,6 +468,8 @@ it.scoped("serves role-specific tools through the official SDK and keeps ask_use
         "list_triggers",
         "list_trigger_runs",
         "update_trigger",
+        "mcp_info",
+        "mcp_server",
         ...(identity.role === "coordinator" ? ["propose_route"] : []),
       ]);
       const child = { id: "calendar", name: "日程助手", description: "整理日程", soul: "" };
@@ -587,6 +591,8 @@ it.scoped("runs the actual stdio child with a scoped session credential", () =>
       "list_triggers",
       "list_trigger_runs",
       "update_trigger",
+      "mcp_info",
+      "mcp_server",
     ]);
     const taskResult = yield* sdk(() =>
       client.callTool({ name: "get_task", arguments: { taskId: "task" } }),

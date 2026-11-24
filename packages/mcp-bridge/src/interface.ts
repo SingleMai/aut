@@ -14,6 +14,10 @@ import {
   type ListTriggerRunsOutput,
   type ListTriggersInput,
   type ListTriggersOutput,
+  type McpInfoInput,
+  type McpInfoOutput,
+  type McpServerToolInput,
+  type McpServerToolOutput,
   type ProposeRouteInput,
   type ProposeRouteOutput,
   type ReadMainThreadInput,
@@ -46,6 +50,14 @@ export class BridgeError extends Data.TaggedError("BridgeError")<{
 export class BridgeBackend extends Context.Tag("aut/McpBridge/Backend")<
   BridgeBackend,
   {
+    readonly mcpInfo: (
+      identity: SessionIdentity,
+      input: McpInfoInput,
+    ) => Effect.Effect<McpInfoOutput, BridgeError>;
+    readonly mcpServer: (
+      identity: SessionIdentity,
+      input: McpServerToolInput,
+    ) => Effect.Effect<McpServerToolOutput, BridgeError>;
     readonly authorize: (identity: SessionIdentity) => Effect.Effect<void, BridgeError>;
     readonly readMainThread: (
       identity: SessionIdentity,

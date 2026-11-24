@@ -31,6 +31,7 @@ interface MainThreadMessage {
   author: "user" | "chief" | { botId: BotId; taskId: TaskId }
   kind: "text" | "ack" | "reply" | "question-card" | "clarify-card" | "notice"
   text: string
+  sources?: Array<{ url: string; label: string }> // 原报告 HTTP(S) 来源，最多 32 个，见 ADR-0063
   taskId?: TaskId            // 回包/问题卡片/通知所属 task
   card?: Card                // question-card / clarify-card
   fullReportRef?: string     // reply 被截断/改写时，原文在 task 详情中的位置
@@ -334,10 +335,12 @@ interface DecisionLog {
 
 | 工具 | 可用于 | 输入 | 输出 |
 |---|---|---|---|
-| `read_main_thread` | 所有 bot | `{ ids?: MessageId[]; before?: MessageId; limit?: number (≤50) }` | 消息列表（作者、时间、文本、关联 taskId） |
+| `read_main_thread` | 所有 bot | `{ ids?: MessageId[]; before?: MessageId; limit?: number (≤50) }` | 消息列表（作者、时间、文本、关联 taskId、原报告来源 sources） |
 | `list_tasks` | 所有 bot | `{ status?: TaskStatus[]; botId?: BotId; limit?: number }` | task 摘要列表 |
 | `get_task` | 所有 bot | `{ taskId }` | task 详情 + 最近一次完整报告 |
 | `create_bot` | 工作会话与主助手协调会话 | `CreateBotInput` | `{ id: BotId; name: string }` |
+| `mcp_info` | 所有合法 bot | `{ serverId?: McpServerId }` | `{ servers: McpServerSummary[], grants: McpGrant[], bots: {id,name}[] }`；摘要无连接参数和凭据 |
+| `mcp_server` | 仅主助手 | 按 `action` 区分 create/update/test/enable/disable/restart/remove/grant；create/update 使用当前 `McpServerInput`，grant 显式指定 botId/enabled/allowedTools | `{ serverId, action }`，随后用 mcp_info 读取状态 |
 | `propose_route` | 仅主助手的协调会话 | `{ op: Op（除 clarify/escalate 外）; rationale: string }` | `{ accepted: boolean; result?: string; rejectReason?: string }` |
 
 

@@ -2,9 +2,11 @@ import type { AutConfig, BotConfig } from "@aut/protocol";
 import { Button, Select } from "@radix-ui/themes";
 import { Effect } from "effect";
 import { useState } from "react";
-import type { UiError } from "./api.js";
+import { desktopApi, UiError } from "./api.js";
+import { BotMcpGrants, useBotMcpGrants } from "./bot-mcp-grants.js";
 import { CharacterEditor } from "./characters/character-editor.js";
 import { readBotForm } from "./configuration-forms.js";
+import type { DesktopData } from "./desktop-data.js";
 import { t } from "./i18n.js";
 import { ConfigurationForm } from "./ui/configuration-form.js";
 import { Dialog } from "./ui/dialog.js";
@@ -19,7 +21,7 @@ export function BotEditor({
   flash,
   close,
   settings,
-  onSave,
+  data,
 }: {
   bot?: BotConfig | undefined;
   bots: readonly BotConfig[];
@@ -28,9 +30,11 @@ export function BotEditor({
   flash: Flash;
   close: () => void;
   settings: () => void;
-  onSave: (value: BotConfig) => Effect.Effect<unknown, UiError>;
+  data: DesktopData;
 }) {
   const [name, setName] = useState(bot?.name ?? "");
+  const [persisted, setPersisted] = useState(bot);
+  const grants = useBotMcpGrants(bot?.id, data);
   return (
     <Dialog
       title={bot ? `${t.edit} ${bot.name}` : t.newBot}
@@ -42,7 +46,22 @@ export function BotEditor({
       <ConfigurationForm
         className="editor-form"
         flash={flash}
-        submit={(form) => readBotForm(form, bot, { bots, config }).pipe(Effect.flatMap(onSave))}
+        submit={(form) =>
+          Effect.gen(function* () {
+            const value = yield* readBotForm(form, persisted, { bots, config });
+            const saved = yield* desktopApi.saveBot(value, persisted?.id);
+            yield* Effect.sync(() => setPersisted(saved.bot));
+            yield* grants
+              .save(saved.bot.id)
+              .pipe(
+                Effect.mapError(
+                  (error) => new UiError({ message: `${t.botMcpPartial} ${error.message}` }),
+                ),
+              );
+            yield* data.refresh(["bots"]);
+            yield* Effect.sync(close);
+          })
+        }
       >
         {(busy) => (
           <>
@@ -74,9 +93,9 @@ export function BotEditor({
                 <InputField
                   name="id"
                   label={t.id}
-                  defaultValue={bot?.id ?? ""}
+                  defaultValue={persisted?.id ?? ""}
                   required
-                  disabled={!!bot}
+                  disabled={!!persisted}
                 />
                 <SelectField
                   label={t.instance}
@@ -106,13 +125,14 @@ export function BotEditor({
                   defaultValue={bot?.modelSelection.effort ?? ""}
                 />
               </details>
+              <BotMcpGrants state={grants} busy={busy} />
               {bot?.system && <p className="muted">{t.primaryAssistant}</p>}
             </div>
             <div className="form-actions">
               <Button type="button" color="gray" variant="surface" onClick={close}>
                 {t.cancel}
               </Button>
-              <Button type="submit" disabled={busy}>
+              <Button type="submit" disabled={busy || grants.status === "loading"}>
                 {t.save}
               </Button>
             </div>

@@ -2,6 +2,13 @@ import { DaemonEvent, JsonValue, NonEmptyString } from "@aut/protocol";
 import { Schema } from "effect";
 
 const routes = [
+  ["GET", /^\/v1\/(?:mcp\/servers|bots\/[^/?#]+\/mcp-grants|triggers(?:\/[^/?#]+\/runs)?)$/],
+  [
+    "POST",
+    /^\/v1\/(?:mcp\/servers(?:\/[^/?#]+\/(?:test|enable|disable|auth\/(?:start|logout)))?|triggers(?:\/[^/?#]+\/(?:pause|resume))?)$/,
+  ],
+  ["PUT", /^\/v1\/(?:mcp\/servers\/[^/?#]+|bots\/[^/?#]+\/mcp-grants\/[^/?#]+|triggers\/[^/?#]+)$/],
+  ["DELETE", /^\/v1\/mcp\/servers\/[^/?#]+$/],
   [
     "GET",
     /^\/v1\/(?:health|messages(?:\?[^#]*)?|tasks(?:\?[^#]*)?|tasks\/[^/?#]+(?:\/session(?:\?[^#]*)?)?|requests\/[^/?#]+|reports\/[^/?#]+|bots|config|secrets\/status\?[^#]+)$/,

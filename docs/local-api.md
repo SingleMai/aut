@@ -49,8 +49,9 @@ HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 hea
 路径参数应 URL 编码；它指向不可变成功完成事件，不随 Task.lastReport 更新（ADR-0027）。
 MCP server 配置保存在 `mcp.json`，Bot 配置不再接受内嵌 `mcpServers[]`。静态环境变量和 header 只接受
 `secret:`、`env:` 引用或非敏感值。OAuth token 不出现在 API、配置文件和日志中。新 server、grant 和工具授权默认关闭，
-只有已启用且已授权的工具才会以 MCP proxy 方式注入任务会话。单个 server 测试或连接失败只影响对应 grant，
+只有测试成功、已启用且已授权的工具才会以 MCP proxy 方式注入任务会话。撤销授权即时约束已运行的 proxy，退出登录同时停用 server；配置变化关闭旧连接并清除失效的登录凭据。单个 server 测试或连接失败只影响对应 grant，
 不会阻止 `aut` bridge 或其他 server 注入。
+保留服务名 `aut`；创建或编辑时拒绝与内置桥同名。OAuth 失效规则及接入流程统一见 [ADR-0062](decisions/0062-mcp-onboarding-and-management.md)。
 分页以 Store 的插入顺序为准，before 是排他的消息游标。错误统一为
 `{ error: { code:string, message:string } }`，不回传异常堆栈、密钥或本地凭据。
 

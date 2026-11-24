@@ -29,6 +29,7 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-slow-brain-recheck.json node --experimenta
 rtk proxy env AUT_E2E_CONTROL_RESULT=/tmp/aut-control-recheck.json node --experimental-strip-types spikes/e2e/control-live.ts
 rtk proxy env AUT_E2E_DELIVERY_RESULT=/tmp/aut-delivery-recheck.json node --experimental-strip-types spikes/e2e/delivery-live.ts
 rtk proxy env AUT_E2E_RESULT=/tmp/aut-trigger-recheck.json node --experimental-strip-types spikes/e2e/trigger-live.ts
+rtk proxy env AUT_E2E_RESULT=/tmp/aut-mcp-recheck.json node --experimental-strip-types spikes/e2e/mcp-management-live.ts
 ```
 
 各脚本的进度输出包含临时目录和阶段。脚本退出失败不代表用户动作未送达；先只读核对该目录的
@@ -46,6 +47,7 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-trigger-recheck.json node --experimental-s
 | `control-live.ts` | 取消、失败后重试、停止daemon后显式恢复；原任务游标、决策日志和Scope清理 |
 | `delivery-live.ts` | 原生问题待答时追加queue，明确回答后顺序排出；运行中steer进入当前回合，检查真实Jev选择、无降级、父turn数和同一会话游标 |
 | `trigger-live.ts` | 一次性计划触发真实 Codex 任务，核对触发器运行台账、任务回包、决策日志与 fired 事件，并验证暂停、恢复和更新 |
+| `mcp-management-live.ts` | 主助手通过原生 MCP 管理工具接入 You.com 公开服务，测试/启用并精确授权 `you-search`；再从主会话创建一次性计划，核对原生 transcript 的实际搜索调用、返回结果、台账、回包和触发决策日志 |
 
 慢脑探针只在临时系统bot与回声bot配置中添加明确的合成指令，要求慢脑通过 `propose_route`
 派活，并要求普通worker仅执行回声验证；不会通过shell直接调用后台API来伪造MCP路径。
@@ -62,6 +64,7 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-trigger-recheck.json node --experimental-s
 | `results/slow-brain-0.169.0.json` | 真实Jev直接进入slow，856ms显示“我想想”；原生MCP提议一次，两个Task最终idle，无问题自动回答。两个回包均在两次改写后按预算截断，不能表述为可读性直接放行 |
 | `results/control-0.169.0.json` | 取消、受控CLI退出后的失败重试、daemon重启后的显式恢复通过；启动时转interrupted、自动重放数为0，Scope关闭后已记录子进程均退出 |
 | `results/delivery-0.169.0.json` | Jev实际输出queue与steer且执行无降级；原生题等待期间排队、答题后依次完成，steer在一个父turn内生效，始终同Task同会话游标，最终idle空队列且已记录子进程退出 |
+| `results/mcp-management-live.json` | Codex 0.171.0 的真实管理操作和一次性搜索调用通过；保存完整工具输入/结果，主会话摘要经过回包门槛后截断，来源全文保留在原报告。公开端点未使用 OAuth，不代表第三方账户登录验收 |
 | `results/main-thread-partial-0.167.0.json` | 早期新任务与同任务续聊完成，但最后fast查询未完成；15秒HTTP客户端超时后探针关闭。只证明已记录的部分场景 |
 | `results/questions-main-thread-partial-0.167.0.json` | 同步答案已原生送达，但未观察最终报告，异步场景未执行完；没有重发该答案 |
 | `results/progress-startup-0.167.0.json` | 首次发现未创建系统bot，API仍可用，模型回合尚未开始；不构成progress/gate验收结果 |

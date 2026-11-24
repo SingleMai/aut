@@ -1,0 +1,23 @@
+// Adapted from OpenMausBot (Apache-2.0), copyright 2026 Milind Soni and contributors.
+// Source: shared/mcp-name.ts, commit d6660e2d79782c99c9688324e47e1835c8aa1e26.
+// aut reserves only its built-in bridge name. See NOTICE.
+/** Names OpenMausBot gives its own MCP servers; a custom server may not take one. */
+export const RESERVED_MCP_NAMES: ReadonlySet<string> = new Set(["aut"]);
+
+/** A server name from any text: lowercase letters, numbers, `_` and `-`, starting with a letter, at most 32. */
+export function slugMcpName(raw: string): string {
+  const slug = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 32)
+    .replace(/-+$/, "");
+  return /^[a-z]/.test(slug) ? slug : slug ? `mcp-${slug}`.slice(0, 32).replace(/-+$/, "") : "";
+}
+
+/** What OpenMausBot names a server another tool calls `raw`; a name OpenMausBot keeps for itself gets an mcp- prefix. */
+export function importedMcpServerName(raw: string): string {
+  const slug = slugMcpName(raw);
+  return RESERVED_MCP_NAMES.has(slug) ? `mcp-${slug}`.slice(0, 32) : slug;
+}

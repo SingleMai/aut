@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { UiError, validate } from "./api.js";
 import type { DesktopData } from "./desktop-data.js";
 import { t } from "./i18n.js";
+import { McpGrantFields } from "./mcp-grant-fields.js";
+import { saveMcpServerSecrets } from "./mcp-import.js";
+import { McpImportForm } from "./mcp-import-form.js";
 import { InputField, TextAreaField } from "./ui/form-fields.js";
 import { type Flash, useAction } from "./ui/use-action.js";
 
@@ -15,7 +18,11 @@ const parseJson = (value: string, fallback: JsonValue) =>
     catch: () => new UiError({ message: "JSON 格式有误，请检查输入。" }),
   });
 
-const serverInput = (form: HTMLFormElement, transport: McpServerInputType["transport"]) => {
+const serverInput = (
+  form: HTMLFormElement,
+  transport: McpServerInputType["transport"],
+  server?: McpServer,
+) => {
   const data = new FormData(form);
   const text = (name: string) => String(data.get(name) ?? "").trim();
   if (transport === "stdio")
@@ -41,6 +48,7 @@ const serverInput = (form: HTMLFormElement, transport: McpServerInputType["trans
         transport,
         url: text("url"),
         headers,
+        ...(server?.transport !== "stdio" && server?.oauth ? { oauth: server.oauth } : {}),
       }),
     ),
   );
@@ -62,15 +70,21 @@ function ServerForm({
   const [transport, setTransport] = useState<McpServerInputType["transport"]>(
     server?.transport ?? "stdio",
   );
+  const [preparing, setPreparing] = useState(false);
+  const [secretKey] = useState(() => crypto.randomUUID());
   return (
     <form
       className="detail-card editor-form"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
-        serverInput(form, transport).pipe(
+        if (busy || preparing) return;
+        setPreparing(true);
+        serverInput(form, transport, server).pipe(
+          Effect.flatMap((input) => saveMcpServerSecrets(input, secretKey)),
           Effect.tap((value) => Effect.sync(() => onSave(value))),
           Effect.catchTag("UiError", (error) => Effect.sync(() => flash(error.message))),
+          Effect.ensuring(Effect.sync(() => setPreparing(false))),
           Effect.runFork,
         );
       }}
@@ -146,7 +160,7 @@ function ServerForm({
         <Button type="button" color="gray" variant="surface" onClick={onCancel}>
           {t.cancel}
         </Button>
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" disabled={busy || preparing}>
           {t.mcpServerSave}
         </Button>
       </div>
@@ -158,12 +172,14 @@ function GrantRows({
   server,
   bots,
   grants,
+  onGrant,
   data,
   flash,
 }: {
   server: McpServer;
   bots: readonly BotConfig[];
   grants: ReadonlyMap<string, McpGrant>;
+  onGrant: (grant: McpGrant) => void;
   data: DesktopData;
   flash: Flash;
 }) {
@@ -171,57 +187,28 @@ function GrantRows({
   if (!bots.length) return <p className="muted">{t.mcpServerNoBots}</p>;
   return (
     <div className="mcp-grants">
-      {bots.map((bot) => {
-        const grant = grants.get(bot.id);
-        const allowed = new Set(grant?.allowedTools ?? []);
-        return (
-          <section key={bot.id} className="mcp-grant-row">
-            <label>
-              <input
-                type="checkbox"
-                checked={grant?.enabled ?? false}
-                onChange={(event) =>
-                  update.run(
-                    data
-                      .setMcpGrant(bot.id, server.id, {
-                        enabled: event.target.checked,
-                        allowedTools: [...allowed],
-                      })
-                      .pipe(
-                        Effect.tap(() => Effect.sync(() => flash(t.saved))),
-                        Effect.zipRight(data.refresh(["mcp"])),
-                      ),
-                  )
-                }
-              />
-              {bot.name}
-            </label>
-            {server.tools.map((tool) => (
-              <label key={`${bot.id}:${tool.name}`} className="mcp-tool-check">
-                <input
-                  type="checkbox"
-                  disabled={!grant?.enabled}
-                  checked={allowed.has(tool.name)}
-                  onChange={(event) => {
-                    const next = new Set(allowed);
-                    if (event.target.checked) next.add(tool.name);
-                    else next.delete(tool.name);
-                    update.run(
-                      data
-                        .setMcpGrant(bot.id, server.id, {
-                          enabled: grant?.enabled ?? false,
-                          allowedTools: [...next],
-                        })
-                        .pipe(Effect.tap(() => Effect.sync(() => flash(t.saved)))),
-                    );
-                  }}
-                />
-                {tool.name}
-              </label>
-            ))}
-          </section>
-        );
-      })}
+      {bots.map((bot) => (
+        <McpGrantFields
+          key={bot.id}
+          label={bot.name}
+          tools={server.tools}
+          grant={grants.get(bot.id)}
+          disabled={update.busy}
+          onChange={(value) =>
+            update.run(
+              data.setMcpGrant(bot.id, server.id, value).pipe(
+                Effect.tap(({ grant }) =>
+                  Effect.sync(() => {
+                    onGrant(grant);
+                    flash(t.saved);
+                  }),
+                ),
+                Effect.zipRight(data.refresh(["mcp"])),
+              ),
+            )
+          }
+        />
+      ))}
     </div>
   );
 }
@@ -237,6 +224,7 @@ export function McpPage({
   data: DesktopData;
   flash: Flash;
 }) {
+  const [importing, setImporting] = useState(false);
   const [editing, setEditing] = useState<McpServer | "new">();
   const [grants, setGrants] = useState<ReadonlyMap<string, ReadonlyMap<string, McpGrant>>>(
     new Map(),
@@ -244,6 +232,7 @@ export function McpPage({
   const save = useAction(flash);
   const remove = useAction(flash);
   useEffect(() => {
+    let active = true;
     Effect.runPromise(
       Effect.all(
         bots.map((bot) =>
@@ -252,26 +241,55 @@ export function McpPage({
         { concurrency: "unbounded" },
       ),
     )
-      .then((rows) =>
-        setGrants(
-          new Map(
-            rows.map(([botId, values]) => [
-              botId,
-              new Map(values.map((grant) => [grant.serverId, grant] as const)),
-            ]),
+      .then(
+        (rows) =>
+          active &&
+          setGrants(
+            new Map(
+              rows.map(([botId, values]) => [
+                botId,
+                new Map(
+                  values
+                    .filter((grant) => servers.some((server) => server.id === grant.serverId))
+                    .map((grant) => [grant.serverId, grant] as const),
+                ),
+              ]),
+            ),
           ),
-        ),
       )
-      .catch(() => undefined);
-  }, [bots, data]);
+      .catch(() => {
+        if (active) flash(t.mcpGrantsLoadError);
+      });
+    return () => {
+      active = false;
+    };
+  }, [bots, data, servers, flash]);
   return (
     <>
       <div className="section-heading">
         <p className="muted">{t.mcpServerHint}</p>
-        <Button type="button" onClick={() => setEditing("new")}>
+        <Button
+          type="button"
+          onClick={() => {
+            setEditing(undefined);
+            setImporting(true);
+          }}
+        >
           {t.addMcpServer}
         </Button>
       </div>
+      {importing && (
+        <McpImportForm
+          servers={servers}
+          data={data}
+          flash={flash}
+          onClose={() => setImporting(false)}
+          onManual={() => {
+            setImporting(false);
+            setEditing("new");
+          }}
+        />
+      )}
       {editing && (
         <ServerForm
           key={editing === "new" ? "new" : editing.id}
@@ -318,7 +336,7 @@ export function McpPage({
                 </Badge>
               </div>
               <p className="muted">
-                {server.transport.toUpperCase()} · {server.tools.length} tools
+                {server.transport.toUpperCase()} · {server.tools.length} {t.mcpToolCount}
               </p>
               {server.health.message && <p className="field-error">{server.health.message}</p>}
               <details>
@@ -335,6 +353,15 @@ export function McpPage({
                   server={server}
                   bots={bots}
                   grants={serverGrants}
+                  onGrant={(grant) =>
+                    setGrants((current) => {
+                      const next = new Map(current);
+                      const botGrants = new Map(next.get(grant.botId));
+                      botGrants.set(grant.serverId, grant);
+                      next.set(grant.botId, botGrants);
+                      return next;
+                    })
+                  }
                   data={data}
                   flash={flash}
                 />

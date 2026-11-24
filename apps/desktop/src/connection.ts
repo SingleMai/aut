@@ -82,7 +82,11 @@ export const DesktopConnectionLive = (options: ConnectionOptions) =>
                 ...(token ? { authorization: `Bearer ${token}` } : {}),
               },
               signal: AbortSignal.timeout(
-                /^\/v1\/tasks\/[^/?#]+\/session(?:\?|$)/.test(path) ? 30_000 : 10_000,
+                /^\/v1\/(?:tasks\/[^/?#]+\/session(?:\?|$)|mcp\/servers\/[^/?#]+\/(?:test|auth\/start)$)/.test(
+                  path,
+                )
+                  ? 30_000
+                  : 10_000,
               ),
               redirect: "error",
             }),

@@ -983,6 +983,33 @@ it.scoped(
     ),
 );
 
+it.scoped("retains the original report's sources when the gate rewrites their URLs away", () =>
+  withHarness((h) =>
+    Effect.gen(function* () {
+      h.fake.state.gate = () => Effect.succeed({ delivered: "已完成，请查看来源。", rewrites: 1 });
+      const { id, session } = yield* h.start();
+      const url = `https://example.com/docs/${"long/".repeat(80)}intro?q=1&b=2`;
+      yield* session.emit({
+        kind: "turn.completed",
+        turnId: session.current ?? "",
+        ok: true,
+        finalReport: `[官方文档](${url})`,
+      });
+      yield* h.status(id, "idle");
+      const replies = (yield* h.main.page()).filter((message) => message.kind === "reply");
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toMatchObject({
+        text: "已完成，请查看来源。",
+        sources: [{ url, label: "官方文档" }],
+      });
+      const saved = yield* h.store.transaction((tx) =>
+        tx.get("main_thread_messages", replies[0]?.id ?? ""),
+      );
+      expect(Option.getOrThrow(saved).sources).toEqual([{ url, label: "官方文档" }]);
+    }),
+  ),
+);
+
 it.scoped("queues busy input and coalesces only while draining", () =>
   withHarness((h) =>
     Effect.gen(function* () {

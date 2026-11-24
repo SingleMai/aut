@@ -21,6 +21,10 @@ import {
   ListTriggerRunsOutput,
   ListTriggersInput,
   ListTriggersOutput,
+  McpInfoInput,
+  McpInfoOutput,
+  McpServerToolInput,
+  McpServerToolOutput,
   NonEmptyString,
   PositiveInteger,
   ProposeRouteInput,
@@ -52,6 +56,16 @@ const WireReply = Schema.Union(
   }),
 );
 export const BridgeCall = Schema.Union(
+  Schema.Struct({
+    tool: Schema.Literal("mcp_info"),
+    input: McpInfoInput,
+    requestId: NonEmptyString,
+  }),
+  Schema.Struct({
+    tool: Schema.Literal("mcp_server"),
+    input: McpServerToolInput,
+    requestId: NonEmptyString,
+  }),
   Schema.Struct({
     tool: Schema.Literal("create_bot"),
     input: CreateBotInput,
@@ -196,6 +210,14 @@ export const makeBridgeSocket = (options: {
     const fibers = new Set<Fiber.RuntimeFiber<void, never>>();
     const dispatch = (identity: SessionIdentity, call: BridgeCall) => {
       switch (call.tool) {
+        case "mcp_info":
+          return backend
+            .mcpInfo(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(McpInfoOutput, output)));
+        case "mcp_server":
+          return backend
+            .mcpServer(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(McpServerToolOutput, output)));
         case "read_main_thread":
           return backend
             .readMainThread(identity, call.input)

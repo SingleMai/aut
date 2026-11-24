@@ -2,6 +2,7 @@ import { Schema } from "effect";
 import { UpdateTriggerInput as ApiUpdateTriggerInput } from "./api.js";
 import {
   BotId,
+  McpServerId,
   MessageId,
   NonEmptyString,
   optional,
@@ -12,11 +13,20 @@ import {
   TriggerId,
   uniqueBy,
 } from "./common.js";
-import { BotConfig, ModelSelection } from "./config.js";
+import {
+  BotConfig,
+  McpAuthStatus,
+  McpGrant,
+  McpHealthStatus,
+  McpServerInput,
+  McpTool,
+  ModelSelection,
+} from "./config.js";
 import {
   MessageAuthor,
   ProposableOp,
   Questions,
+  ReportSources,
   Task,
   TaskStatus,
   Trigger,
@@ -29,6 +39,7 @@ export const MainThreadExcerpt = Schema.Struct({
   author: MessageAuthor,
   text: Schema.String,
   taskId: optional(TaskId),
+  sources: optional(ReportSources),
 });
 export type MainThreadExcerpt = typeof MainThreadExcerpt.Type;
 export const TaskSummary = Schema.Struct({
@@ -120,3 +131,71 @@ export const AskUserInput = Schema.Struct({ questions: Questions });
 export type AskUserInput = typeof AskUserInput.Type;
 export const AskUserOutput = Schema.String;
 export type AskUserOutput = typeof AskUserOutput.Type;
+
+export const McpServerSummary = Schema.Struct({
+  id: McpServerId,
+  name: NonEmptyString,
+  transport: Schema.Literal("stdio", "http", "sse"),
+  enabled: Schema.Boolean,
+  health: McpHealthStatus,
+  auth: McpAuthStatus,
+  tools: Schema.Array(McpTool),
+});
+export type McpServerSummary = typeof McpServerSummary.Type;
+export const McpInfoInput = Schema.Struct({ serverId: optional(McpServerId) });
+export type McpInfoInput = typeof McpInfoInput.Type;
+export const McpInfoOutput = Schema.Struct({
+  servers: Schema.Array(McpServerSummary),
+  grants: Schema.Array(McpGrant),
+  bots: Schema.Array(BotConfig.pick("id", "name")),
+});
+export type McpInfoOutput = typeof McpInfoOutput.Type;
+const McpManagementAction = Schema.Literal(
+  "create",
+  "update",
+  "test",
+  "enable",
+  "disable",
+  "restart",
+  "remove",
+  "grant",
+);
+export const McpServerToolInput = Schema.Struct({
+  action: McpManagementAction,
+  serverId: optional(McpServerId),
+  config: optional(McpServerInput),
+  botId: optional(BotId),
+  enabled: optional(Schema.Boolean),
+  allowedTools: optional(Schema.Array(NonEmptyString)),
+}).pipe(
+  Schema.filter((input) => {
+    if (input.action === "create" && input.serverId !== undefined) return false;
+    if (input.action !== "create" && input.serverId === undefined) return false;
+    if (["create", "update"].includes(input.action))
+      return (
+        input.config !== undefined &&
+        input.botId === undefined &&
+        input.enabled === undefined &&
+        input.allowedTools === undefined
+      );
+    if (input.action === "grant")
+      return (
+        input.botId !== undefined &&
+        input.enabled !== undefined &&
+        input.allowedTools !== undefined &&
+        input.config === undefined
+      );
+    return (
+      input.config === undefined &&
+      input.botId === undefined &&
+      input.enabled === undefined &&
+      input.allowedTools === undefined
+    );
+  }),
+);
+export type McpServerToolInput = typeof McpServerToolInput.Type;
+export const McpServerToolOutput = Schema.Struct({
+  serverId: McpServerId,
+  action: McpManagementAction,
+});
+export type McpServerToolOutput = typeof McpServerToolOutput.Type;

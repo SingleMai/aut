@@ -36,6 +36,7 @@ import { dispatchTaskId } from "../dispatch-correction.js";
 import { CoreError, validate } from "../errors.js";
 import { EventBus } from "../event-bus.js";
 import { messagesInOrder } from "../main-thread.js";
+import { reportSources } from "../report-sources.js";
 import { expireTaskRequests, markQuestionCards, validateQuestionAnswer } from "../request-cards.js";
 import type { StoredRequest } from "../storage-model.js";
 import { Store, type StoreTransaction } from "../store.js";
@@ -1210,6 +1211,7 @@ export const SessionManagerLive = (options: SessionManagerOptions = {}) =>
                 text: result.delivered,
                 taskId: task.id,
                 fullReportRef: `event:${active.reportEventId}`,
+                sources: reportSources(report.value.event.event.finalReport),
               });
               yield* saveTask(
                 tx,

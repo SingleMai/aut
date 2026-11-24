@@ -1,11 +1,11 @@
-import type { McpServerConfig, McpTool } from "@aut/protocol";
+import { type McpServerConfig, McpTool } from "@aut/protocol";
 import {
   Client,
   SSEClientTransport,
   StreamableHTTPClientTransport,
 } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
-import { Data, Effect, type Scope } from "effect";
+import { Data, Effect, Schema, type Scope } from "effect";
 
 export class ExternalMcpError extends Data.TaggedError("ExternalMcpError")<{
   readonly code: "Connect" | "Protocol" | "Call";
@@ -20,19 +20,6 @@ export interface ExternalMcpConnection {
     arguments_: Record<string, unknown>,
   ) => Effect.Effect<unknown, ExternalMcpError>;
 }
-
-const tool = (value: unknown): McpTool | undefined => {
-  if (typeof value !== "object" || value === null) return undefined;
-  const row = value as { name?: unknown; description?: unknown; inputSchema?: unknown };
-  if (typeof row.name !== "string" || row.name.length === 0) return undefined;
-  return {
-    name: row.name,
-    ...(typeof row.description === "string" ? { description: row.description } : {}),
-    ...(row.inputSchema === undefined
-      ? {}
-      : { inputSchema: row.inputSchema as Exclude<McpTool["inputSchema"], undefined> }),
-  };
-};
 
 const transport = (config: McpServerConfig) => {
   if (config.transport === "stdio")
@@ -56,45 +43,78 @@ const transport = (config: McpServerConfig) => {
 export const connectExternalMcp = (
   config: McpServerConfig,
 ): Effect.Effect<ExternalMcpConnection, ExternalMcpError, Scope.Scope> =>
-  Effect.acquireRelease(
-    Effect.tryPromise({
-      try: async () => {
-        const client = new Client({ name: "aut-mcp-supervisor", version: "0.0.0" });
-        await client.connect(transport(config));
-        return client;
-      },
-      catch: (error) =>
+  Effect.gen(function* () {
+    const client = yield* Effect.acquireRelease(
+      Effect.sync(() => new Client({ name: "aut-mcp-supervisor", version: "0.0.0" })),
+      (value) => Effect.promise(() => value.close().catch(() => undefined)),
+    );
+    yield* Effect.tryPromise({
+      try: () => client.connect(transport(config)),
+      catch: () =>
         new ExternalMcpError({
           code: "Connect",
           message: "The MCP server connection could not be established",
-          detail: String(error),
         }),
-    }),
-    (client) => Effect.promise(() => client.close().catch(() => undefined)),
-  ).pipe(
-    Effect.map((client) => ({
+    }).pipe(
+      Effect.timeoutFail({
+        duration: "8 seconds",
+        onTimeout: () =>
+          new ExternalMcpError({ code: "Connect", message: "The MCP connection timed out" }),
+      }),
+    );
+    return {
       listTools: () =>
+        Effect.gen(function* () {
+          const tools: McpTool[] = [];
+          const cursors = new Set<string>();
+          let cursor: string | undefined;
+          do {
+            const result = yield* Effect.tryPromise({
+              try: () => client.listTools(cursor === undefined ? {} : { cursor }),
+              catch: () =>
+                new ExternalMcpError({
+                  code: "Protocol",
+                  message: "The MCP tool list could not be read",
+                }),
+            });
+            const page = yield* Schema.decodeUnknown(Schema.Array(McpTool))(result.tools).pipe(
+              Effect.mapError(
+                () =>
+                  new ExternalMcpError({
+                    code: "Protocol",
+                    message: "The MCP tool list is invalid",
+                  }),
+              ),
+            );
+            tools.push(...page);
+            cursor = result.nextCursor;
+            if (cursor !== undefined) {
+              if (cursors.has(cursor))
+                return yield* Effect.fail(
+                  new ExternalMcpError({
+                    code: "Protocol",
+                    message: "The MCP tool list repeated its page cursor",
+                  }),
+                );
+              cursors.add(cursor);
+            }
+          } while (cursor !== undefined);
+          return tools;
+        }).pipe(
+          Effect.timeoutFail({
+            duration: "8 seconds",
+            onTimeout: () =>
+              new ExternalMcpError({ code: "Protocol", message: "The MCP tool list timed out" }),
+          }),
+        ),
+      callTool: (name: string, arguments_: Record<string, unknown>) =>
         Effect.tryPromise({
-          try: async () => {
-            const result = await client.listTools();
-            return result.tools.map(tool).filter((value): value is McpTool => value !== undefined);
-          },
-          catch: (error) =>
-            new ExternalMcpError({
-              code: "Protocol",
-              message: "The MCP server tool list could not be read",
-              detail: String(error),
-            }),
-        }),
-      callTool: (name, arguments_) =>
-        Effect.tryPromise({
-          try: () => client.callTool({ name, arguments: arguments_ }),
-          catch: (error) =>
+          try: (signal) => client.callTool({ name, arguments: arguments_ }, { signal }),
+          catch: () =>
             new ExternalMcpError({
               code: "Call",
               message: "The MCP tool call could not be delivered",
-              detail: String(error),
             }),
         }),
-    })),
-  );
+    };
+  });

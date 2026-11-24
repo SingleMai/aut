@@ -1,7 +1,7 @@
 import { request as httpRequest } from "node:http";
 import { fileURLToPath } from "node:url";
-import type { McpTool } from "@aut/protocol";
-import { McpServer } from "@modelcontextprotocol/server";
+import { McpTool } from "@aut/protocol";
+import { McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import { StdioServerTransport, serveStdio } from "@modelcontextprotocol/server/stdio";
 import { Effect, Redacted, Schema, type Scope } from "effect";
 import { BridgeError } from "./interface.js";
@@ -43,13 +43,14 @@ const callSupervisor = (
   body: unknown,
 ): Effect.Effect<unknown, BridgeError> =>
   Effect.tryPromise({
-    try: () =>
+    try: (signal) =>
       new Promise<unknown>((resolve, reject) => {
         const request = httpRequest(
           {
             socketPath,
             path: "/call",
             method: "POST",
+            signal,
             headers: {
               authorization: `Bearer ${token}`,
               "content-type": "application/json",
@@ -57,6 +58,7 @@ const callSupervisor = (
           },
           (response) => {
             const chunks: Buffer[] = [];
+            response.once("error", reject);
             response.on("data", (chunk: Buffer) => chunks.push(chunk));
             response.once("end", () => {
               try {
@@ -73,10 +75,29 @@ const callSupervisor = (
         request.end(JSON.stringify(body));
       }),
     catch: () => new BridgeError({ code: "Unavailable", message: "The MCP proxy call failed." }),
-  });
+  }).pipe(
+    Effect.timeoutFail({
+      duration: "70 seconds",
+      onTimeout: () =>
+        new BridgeError({
+          code: "Unavailable",
+          message: "The MCP proxy call timed out. Check the result before retrying.",
+        }),
+    }),
+  );
 
 const proxyInput = mcpSchema(Schema.Record({ key: Schema.String, value: Schema.Unknown }));
-const proxyOutput = mcpSchema(Schema.Struct({ result: Schema.Unknown }));
+// Upstream owns JSON Schema validation. Keep its complete discovery schema, including
+// nested definitions, while validating the transport envelope at this SDK boundary.
+const toolSchema = (json: unknown): StandardSchemaWithJSON<Record<string, unknown>> => ({
+  "~standard": {
+    ...proxyInput["~standard"],
+    jsonSchema: {
+      input: () => json as Record<string, unknown>,
+      output: () => json as Record<string, unknown>,
+    },
+  },
+});
 
 const makeProxyServer = (credentials: McpProxyCredentials) => {
   const server = new McpServer(
@@ -95,9 +116,10 @@ const makeProxyServer = (credentials: McpProxyCredentials) => {
       tool.name,
       {
         ...(tool.description === undefined ? {} : { description: tool.description }),
-        inputSchema: proxyInput,
-        outputSchema: proxyOutput,
-        annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
+        ...(tool.title === undefined ? {} : { title: tool.title }),
+        inputSchema: toolSchema(tool.inputSchema ?? { type: "object", properties: {} }),
+        ...(tool.outputSchema === undefined ? {} : { outputSchema: toolSchema(tool.outputSchema) }),
+        ...(tool.annotations === undefined ? {} : { annotations: tool.annotations }),
       },
       (arguments_) =>
         Effect.runPromise(
@@ -114,23 +136,15 @@ const makeProxyServer = (credentials: McpProxyCredentials) => {
                 "content" in value &&
                 Array.isArray((value as { content?: unknown }).content)
               )
-                return {
-                  ...(value as {
-                    content: readonly { type: "text"; text: string }[];
-                    isError?: boolean;
-                  }),
-                  structuredContent: { result: value },
-                };
+                return value;
               return {
                 content: [{ type: "text" as const, text: JSON.stringify(value) }],
-                structuredContent: { result: value },
               };
             }),
             Effect.catchAll((error) =>
               Effect.succeed({
                 content: [{ type: "text" as const, text: error.message }],
                 isError: true,
-                structuredContent: { result: { error: error.message } },
               }),
             ),
           ),
@@ -191,7 +205,7 @@ export const parseProxyCredentials = (env: NodeJS.ProcessEnv) => {
         token: Redacted.make(token),
         serverId,
         serverName,
-        tools: Schema.decodeUnknownSync(Schema.Array(Schema.Unknown))(tools) as readonly McpTool[],
+        tools: Schema.decodeUnknownSync(Schema.Array(McpTool))(tools),
       } satisfies McpProxyCredentials;
     },
     catch: () => new BridgeError({ code: "InvalidInput", message: "MCP proxy tools are invalid." }),

@@ -25,6 +25,8 @@
 | Bot 配置 | `packages/phone-protocol/src/wire.ts`（`WireBot`） | aut bot schema 的来源 |
 | 桌面对话 UI | `src/styles.css`、`src/components/{ChatView,Composer,QuestionCard,ReplyQuote,Sidebar}.tsx`、`chat-bubble.ts`、`src/lib/{send-key,chat-width,question-card}.ts` | 沿用 ADR-0034 的布局、气泡、输入与问答交互，视觉实现见 [ADR-0050](decisions/0050-unified-desktop-styles.md) |
 
+MCP 粘贴导入另参考并借用 `d6660e2d79782c99c9688324e47e1835c8aa1e26`（2026-11-23）的 `src/lib/mcp-paste.ts` 与 `shared/mcp-name.ts`。纯解析器保留上游错误返回协议，在 aut 边界用 Effect 包装；本机凭据保存、授权和测试流程遵循 ADR-0062。
+
 ## DeepSeek Super-agent
 - 设计文章英译：https://offloop.org/learn/exploring-deepseek-super-agent-design
 - 解读：https://agentspulse.github.io/tutorials/deepseek-super-agent-architecture/

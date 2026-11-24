@@ -3,16 +3,131 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ConfigStore, CoreLive, McpRegistry } from "@aut/core";
-import { Effect, Either, Layer, Redacted } from "effect";
+import { Effect, Either, Fiber, Layer, Redacted } from "effect";
 import { afterEach, expect, it } from "vitest";
 import { McpOAuth, McpOAuthLive, oauthSecretName } from "./mcp-oauth.js";
 import { SecretReaderLive } from "./secret-reader.js";
-import { SecretStoreLive } from "./secret-store.js";
+import { SecretStore, SecretStoreLive } from "./secret-store.js";
 
 const directories: string[] = [];
+const latch = () => {
+  let resolve = () => {};
+  const promise = new Promise<void>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+};
 afterEach(() => {
   for (const directory of directories.splice(0))
     rmSync(directory, { recursive: true, force: true });
+});
+
+it.each([
+  ["exchange", "logout"],
+  ["exchange", "update"],
+  ["exchange", "remove"],
+  ["exchange", "new-login"],
+  ["refresh", "logout"],
+  ["refresh", "update"],
+  ["refresh", "remove"],
+  ["refresh", "new-login"],
+] as const)("does not restore credentials from a late %s after %s", async (phase, action) => {
+  const requested = latch();
+  const release = latch();
+  const provider = createServer(async (request, response) => {
+    const address = provider.address();
+    if (!address || typeof address === "string") return json(response, 500, {});
+    const origin = `http://127.0.0.1:${address.port}`;
+    if (request.url === "/.well-known/oauth-protected-resource")
+      return json(response, 200, { authorization_servers: [origin] });
+    if (request.url === "/.well-known/oauth-authorization-server")
+      return json(response, 200, {
+        authorization_endpoint: `${origin}/authorize`,
+        token_endpoint: `${origin}/token`,
+      });
+    if (request.url === "/token") {
+      const form = await readForm(request);
+      if (phase === "exchange" || form.get("grant_type") === "refresh_token") {
+        requested.resolve();
+        await release.promise;
+      }
+      return json(response, 200, {
+        access_token: "late-access-fixture",
+        refresh_token: "refresh-fixture",
+        expires_in: phase === "refresh" ? 0 : 3600,
+      });
+    }
+    return json(response, 404, {});
+  });
+  await new Promise<void>((resolve) => provider.listen(0, "127.0.0.1", resolve));
+  const address = provider.address();
+  if (!address || typeof address === "string") throw new Error("OAuth fixture did not start");
+  const dataDirectory = mkdtempSync(join(tmpdir(), "aut-mcp-oauth-race-"));
+  directories.push(dataDirectory);
+  const base = Layer.merge(
+    CoreLive({ dataDirectory }),
+    SecretReaderLive.pipe(Layer.provideMerge(SecretStoreLive({ dataDirectory }))),
+  );
+  try {
+    await Effect.runPromise(
+      Effect.scoped(
+        Effect.gen(function* () {
+          const registry = yield* McpRegistry;
+          const secrets = yield* SecretStore;
+          const auth = yield* McpOAuth;
+          const input = {
+            name: "race-fixture",
+            transport: "http" as const,
+            url: `http://127.0.0.1:${address.port}/mcp`,
+            oauth: { clientId: "fixture" },
+          };
+          const server = yield* registry.create(input);
+          const authorization = new URL((yield* auth.start(server.id)).authorizationUrl);
+          const callback = Effect.tryPromise(() =>
+            fetch(
+              `${authorization.searchParams.get("redirect_uri")}?code=fixture&state=${authorization.searchParams.get("state")}`,
+            ),
+          );
+          if (phase === "refresh") expect((yield* callback).status).toBe(200);
+          const inFlight = yield* (
+            phase === "exchange"
+              ? callback.pipe(Effect.map((response) => response.status === 200))
+              : auth.accessToken(server.id).pipe(Effect.either, Effect.map(Either.isRight))
+          ).pipe(Effect.fork);
+          yield* Effect.tryPromise(() => requested.promise);
+          if (action === "logout") yield* auth.logout(server.id);
+          if (action === "update") {
+            yield* registry.update(server.id, { ...input, url: `${input.url}/changed` });
+            yield* auth.logout(server.id);
+          }
+          if (action === "remove") {
+            yield* auth.logout(server.id);
+            yield* registry.remove(server.id);
+          }
+          if (action === "new-login") yield* auth.start(server.id);
+          release.resolve();
+          expect(yield* Fiber.join(inFlight)).toBe(false);
+          const current = yield* registry.get(server.id);
+          if (current._tag === "Some")
+            expect(current.value.auth.status).toBe(action === "new-login" ? "required" : "none");
+          if (action !== "new-login")
+            expect(
+              Either.isLeft(
+                yield* Effect.either(secrets.resolve(`secret:${oauthSecretName(server.id)}`)),
+              ),
+            ).toBe(true);
+        }).pipe(
+          Effect.ensuring(Effect.sync(release.resolve)),
+          Effect.provide(McpOAuthLive.pipe(Layer.provideMerge(base))),
+          Effect.timeout("5 seconds"),
+        ),
+      ),
+    );
+  } finally {
+    release.resolve();
+    provider.closeAllConnections();
+    await new Promise<void>((resolve) => provider.close(() => resolve()));
+  }
 });
 
 const json = (response: ServerResponse, status: number, value: unknown) => {

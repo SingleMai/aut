@@ -16,6 +16,10 @@ import {
   ListTriggerRunsOutput,
   ListTriggersInput,
   ListTriggersOutput,
+  McpInfoInput,
+  McpInfoOutput,
+  McpServerToolInput,
+  McpServerToolOutput,
   ProposeRouteInput,
   ProposeRouteOutput,
   ReadMainThreadInput,
@@ -65,10 +69,14 @@ export const makeMcpServer = (client: SocketBridgeClient): Effect.Effect<McpServ
               name !== "propose_route" &&
               name !== "create_bot" &&
               name !== "create_trigger" &&
-              name !== "update_trigger",
-            destructiveHint: name === "propose_route",
+              name !== "update_trigger" &&
+              name !== "mcp_server",
+            destructiveHint: name === "propose_route" || name === "mcp_server",
             idempotentHint:
-              name !== "propose_route" && name !== "create_bot" && name !== "create_trigger",
+              name !== "propose_route" &&
+              name !== "create_bot" &&
+              name !== "create_trigger" &&
+              name !== "mcp_server",
             openWorldHint: false,
           },
         },
@@ -152,6 +160,18 @@ export const makeMcpServer = (client: SocketBridgeClient): Effect.Effect<McpServ
       "Update one trigger's name, prompt, schedule, enabled state, payload, or target Bot. Worker sessions may update only their own Bot's triggers. Use get_trigger to verify an uncertain result and do not retry automatically.",
       UpdateTriggerToolInput,
       UpdateTriggerOutput,
+    );
+    register(
+      "mcp_info",
+      "Inspect configured MCP servers, exact tool schemas, grants and Bot IDs. The primary assistant sees the registry; other Bots see only their own assignments. No credentials or connection parameters are returned. Use this to verify uncertain management results.",
+      McpInfoInput,
+      McpInfoOutput,
+    );
+    register(
+      "mcp_server",
+      "Manage MCP connections on the user's explicit request. Only the primary assistant may call this tool, in an ordinary or coordination task. Create/update require config; other actions require serverId; grant requires botId, enabled and exact allowedTools. Never widen access on your own. Use secret:/env: references only; ask the user to enter credentials and complete OAuth on the MCP page. Test before enable. New tools appear in a new task. Do not retry uncertain writes: inspect mcp_info first.",
+      McpServerToolInput,
+      McpServerToolOutput,
     );
     if (identity.role === "coordinator")
       register(
