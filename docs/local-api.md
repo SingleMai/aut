@@ -6,7 +6,11 @@
 |---|---|---|---|
 | GET | `/v1/health` | — | `{ status:"ok" }` |
 | GET | `/v1/messages` | `before?`, `limit?`（1–50） | `{ messages: MainThreadMessage[] }` |
-| POST | `/v1/messages` | `{ text:string, id?:MessageId }` | `{ message: MainThreadMessage }`，201 |
+| POST | `/v1/messages` | `{ text:string, id?:MessageId, fileIds?:FileId[] }` | `{ message: MainThreadMessage }`，201 |
+| POST | `/v1/files` | `{ name, base64 }` | `{ file:MessageFile }`，201；单文件最多 20 MiB |
+| GET | `/v1/files/:id` | — | `{ file, base64 }`；只读已保存的快照 |
+| POST | `/v1/files/keepalive` | `{ ids:FileId[] }` | `{ accepted:true }`；续期仍在编辑的上传草稿 |
+| DELETE | `/v1/files/:id` | — | `{ released:boolean }`；仅释放无消息引用的上传草稿，成果始终保留 |
 | POST | `/v1/actions` | `UiAction` | `{ accepted:true }`，202 |
 | GET | `/v1/tasks` | `status?`（逗号分隔）, `botId?`, `limit?` | `{ tasks:Task[] }` |
 | GET | `/v1/tasks/:id` | — | `{ task:Task }` 或 404 |
@@ -43,7 +47,7 @@
 HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 header，或子协议
 `aut`、`aut-token.<token>`；服务只协商 `aut`。不提供跨域匿名访问。
 
-消息文本非空；同一个指定 ID 与相同文本重复提交返回已有消息（200），不重复投递；相同 ID 不同内容返回 409。
+消息文本非空；同一个指定 ID 与相同文本、附件 ID 顺序重复提交返回已有消息（200），不重复投递；相同 ID 不同内容返回 409。文件上传路由使用独立有界 body 限额，其余路由保持 1 MiB。引用回复可携带新附件 ID，并继承原消息的文件引用；合并去重后最多 16 项。见 ADR-0064。
 触发器创建可提供稳定 `id`，重复 ID 返回 409 并保留原记录，便于在客户端无法确认响应时核对结果。
 路由试验仅写决策日志，不执行 Op 或追加主会话消息。历史报告引用 `event:<事件ID>`，
 路径参数应 URL 编码；它指向不可变成功完成事件，不随 Task.lastReport 更新（ADR-0027）。

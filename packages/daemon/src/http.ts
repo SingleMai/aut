@@ -4,6 +4,7 @@ import {
   Changes,
   EventBus,
   MainThread,
+  MessageFiles,
   SessionReader,
   SessionRecords,
   TaskRegistry,
@@ -21,6 +22,13 @@ import {
   CreateTriggerInput,
   DaemonEvent,
   DeletedResponse,
+  FILE_BODY_LIMIT,
+  FileContentResponse,
+  FileId,
+  FileLeaseInput,
+  FileReleaseResponse,
+  FileResponse,
+  FileUploadInput,
   HealthResponse,
   ListTasksInput,
   McpAuthStartResponse,
@@ -82,7 +90,7 @@ import { SecretReader } from "./secret-reader.js";
 import { SecretStore } from "./secret-store.js";
 
 const bodyLimit = 1024 * 1024;
-const readBody = (request: IncomingMessage) =>
+const readBody = (request: IncomingMessage, limit = bodyLimit) =>
   Effect.async<string, DaemonError>((resume) => {
     const chunks: Buffer[] = [];
     let size = 0;
@@ -99,8 +107,10 @@ const readBody = (request: IncomingMessage) =>
     };
     const onData = (chunk: Buffer) => {
       size += chunk.length;
-      if (size > bodyLimit) {
-        fail(new DaemonError({ code: "BodyTooLarge", message: "Request body exceeds 1 MiB" }));
+      if (size > limit) {
+        fail(
+          new DaemonError({ code: "BodyTooLarge", message: `Request body exceeds ${limit} bytes` }),
+        );
         return;
       }
       chunks.push(chunk);
@@ -113,8 +123,10 @@ const readBody = (request: IncomingMessage) =>
       fail(new DaemonError({ code: "Transport", message: "Request body could not be read" }));
     const onAborted = () =>
       fail(new DaemonError({ code: "Transport", message: "Request body was interrupted" }));
-    if (Number(request.headers["content-length"]) > bodyLimit) {
-      fail(new DaemonError({ code: "BodyTooLarge", message: "Request body exceeds 1 MiB" }));
+    if (Number(request.headers["content-length"]) > limit) {
+      fail(
+        new DaemonError({ code: "BodyTooLarge", message: `Request body exceeds ${limit} bytes` }),
+      );
       return;
     }
     request.on("data", onData);
@@ -191,6 +203,7 @@ export const HttpServerLive = (port = 4317) =>
       const secrets = yield* SecretStore;
       const secretReader = yield* SecretReader;
       const thread = yield* MainThread;
+      const files = yield* MessageFiles;
       const tasks = yield* TaskRegistry;
       const triggers = yield* TriggerRegistry;
       const sessions = yield* SessionReader;
@@ -233,6 +246,30 @@ export const HttpServerLive = (port = 4317) =>
             yield* decode(Schema.Record({ key: Schema.String, value: Schema.Never }), rawQuery);
           if (method === "GET" && path === "/v1/health")
             return yield* respond(response, 200, HealthResponse, { status: "ok" });
+          if (method === "POST" && path === "/v1/files") {
+            const input = yield* readBody(request, FILE_BODY_LIMIT).pipe(
+              Effect.flatMap((value) => decode(Schema.parseJson(FileUploadInput), value)),
+            );
+            return yield* respond(response, 201, FileResponse, {
+              file: yield* files.upload(input),
+            });
+          }
+          if (method === "POST" && path === "/v1/files/keepalive") {
+            const input = yield* body(request, FileLeaseInput);
+            yield* files.renew(input.ids);
+            return yield* respond(response, 200, AcceptedResponse, { accepted: true });
+          }
+          const fileMatch = /^\/v1\/files\/([^/]+)$/.exec(path);
+          if (method === "DELETE" && fileMatch?.[1]) {
+            const id = yield* decode(FileId, yield* pathId(fileMatch[1]));
+            return yield* respond(response, 200, FileReleaseResponse, {
+              released: yield* files.discard(id),
+            });
+          }
+          if (method === "GET" && fileMatch?.[1]) {
+            const id = yield* decode(FileId, yield* pathId(fileMatch[1]));
+            return yield* respond(response, 200, FileContentResponse, yield* files.read(id));
+          }
           if (method === "POST" && path === "/v1/route-test")
             return yield* respond(
               response,

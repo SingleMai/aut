@@ -6,6 +6,7 @@ import { TreeError } from "./decision-tree/errors.js";
 import { replyGateV1 } from "./decision-tree/reply-gate.js";
 import { CoreError } from "./errors.js";
 import { runIsolatedTurn, temporarySessionInput } from "./isolated-turn.js";
+import { MessageFiles } from "./message-files.js";
 import { reportTextForTruncation } from "./report-sources.js";
 import { SessionReplyGate, type SessionReplyInput } from "./session-manager/ports.js";
 import { Store } from "./store.js";
@@ -47,6 +48,7 @@ export const SessionReplyGateLive = (options: ReplyGateOptions = {}) =>
       const tree = yield* DecisionTree;
       const logs = yield* DecisionLog;
       const store = yield* Store;
+      const files = yield* MessageFiles;
       const timeoutMs = options.rewriteTimeoutMs ?? 120_000;
       if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0)
         return yield* Effect.fail(
@@ -89,6 +91,11 @@ export const SessionReplyGateLive = (options: ReplyGateOptions = {}) =>
         check: (input: SessionReplyInput) =>
           Effect.gen(function* () {
             let current = input.report.trim();
+            const attachments = yield* files.captureReport(
+              input.report,
+              input.sessionInput.cwd,
+              input.reportEventId,
+            );
             let attempts = 0;
             const degraded: string[] = [];
             const decision = yield* tree
@@ -133,7 +140,7 @@ export const SessionReplyGateLive = (options: ReplyGateOptions = {}) =>
               ok: true,
               ...(degraded.length ? { degraded } : {}),
             });
-            return { delivered, rewrites: attempts };
+            return { delivered, rewrites: attempts, ...attachments };
           }),
       };
     }),

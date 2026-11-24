@@ -10,6 +10,7 @@ import type {
 } from "@aut/protocol";
 import { Context, type Effect, type Scope } from "effect";
 import type { CoreError } from "../errors.js";
+import type { ReportFiles } from "../message-files.js";
 
 export class HarnessResolver extends Context.Tag("aut/SessionManager/HarnessResolver")<
   HarnessResolver,
@@ -50,7 +51,7 @@ export interface SessionReplyInput {
   readonly adapter: HarnessAdapter;
   readonly sessionInput: StartSessionInput;
 }
-export interface SessionReplyResult {
+export interface SessionReplyResult extends ReportFiles {
   readonly delivered: string;
   readonly rewrites: number;
 }

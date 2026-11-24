@@ -66,6 +66,7 @@ const setup = (
     botHasTasks: unusedRead,
     forgetBotCreation: unusedRead,
     messagesByIds: unusedRead,
+    referencedFileIds: unusedRead,
     messagesByCardId: (id) => Effect.succeed(messages.filter((message) => message.card?.id === id)),
     cardsForRequest: unusedRead,
     openTaskCards: unusedRead,

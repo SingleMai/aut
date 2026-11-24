@@ -115,6 +115,7 @@ export const buildHandoff = (input: HandoffInput, options: HandoffOptions = {}) 
       messageId: message.id,
       at: message.at,
       text: message.text,
+      ...(message.files?.length ? { files: message.files } : {}),
     }));
     const result = yield* tree
       .run(handoffPruneV1, {

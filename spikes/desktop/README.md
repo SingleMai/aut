@@ -125,3 +125,37 @@ node --experimental-strip-types spikes/desktop/task-session-qa.ts
 `finder-live.mjs` 从空数据目录启动指定构建，通过原生窗口创建 Bot、提交主会话请求、点选合成题的明确答案、改派和撤销。关闭并再次打开应用后核对持久化结果。测时从提交到桌面确认行出现，daemon 耗时从原始事件和决策日志读取。
 
 先 `pnpm build`，将 `AUT_PACKAGE_OUT` 指向本次打包目录，执行 `pnpm --filter @aut/desktop package:mac`，再执行 `node spikes/desktop/finder-live.mjs`。脚本读取现有 Codex 认证和环境中的 `TYPESAFE_API_KEY`，按需以临时私密配置提供给隔离 daemon，并在退出时移除该密钥文件。`AUT_E2E_RESULT` 可指定新的结果路径。
+
+## 文件生命周期与原生操作
+
+`message-files-native.ts` 使用独立数据目录和 Electron profile，向真实文件服务保存一份已引用附件及一份过期草稿，然后运行真实 macOS 开发包；不调用模型，不改用户数据或 Provider 配置。
+
+```sh
+pnpm build
+AUT_PACKAGE_OUT="$PWD/.artifacts/file-lifecycle-package" pnpm --filter @aut/desktop package:mac
+AUT_E2E_RESULT=spikes/e2e/results/message-files-native-new.json node --experimental-strip-types spikes/desktop/message-files-native.ts
+```
+
+`AUT_PACKAGE_OUT` 默认 `.artifacts/file-lifecycle-package`，可指定其他已构建目录。结果文件以独占方式写入，复验时使用新的 `AUT_E2E_RESULT`，不要覆盖已有记录。脚本需本机图形会话、Xcode 命令行工具（Swift/CoreGraphics）及可访问 Finder 的 AppleScript 环境。
+
+验证 daemon 启动回收过期孤立上传、拒绝释放历史附件；经真实 renderer/preload/IPC 执行保存与取消，核对副本字节；检查 Finder 的实际目标和 Quick Look 所属窗口的打开/关闭。保存对话框的返回选择通过测试专用 Node inspector 控制，生产的文件读取、写入和 IPC 不变。原子替换失败、快照目录及符号链接别名拒绝另有 `native-files.test.ts` 回归。
+
+最后检查应用内文本预览的内容，待动画结束后用 `webContents.capturePage()` 记录截图。Quick Look 的系统窗口身份使用 CoreGraphics 校验，不以该截图证明系统预览内容。脚本退出时只关闭自己的 Finder 目录窗口、app 与 daemon，保留隔离目录便于核对。
+
+当前记录：[原生实包验收](../e2e/results/message-files-native-final.json) · [应用内预览](../../docs/assets/desktop/message-files-native.png)。草稿续期、七天租期、每小时回收、损坏数据保护及发送/释放竞争的规范见 [ADR-0065](../../docs/decisions/0065-file-lifecycle.md)，确定性验证见 `packages/core/src/message-files.test.ts` 与 `apps/desktop/src/message-files.dom.test.tsx`。
+
+## MCP 界面源码对齐
+
+`mcp-ui-qa.ts` 启动空的隔离 daemon 与桌面预览，输出预览 URL 和可粘贴的本地 MCP 配置；真实 stdio 子进程返回三个笔记工具。不调用 Harness 或模型，也不访问用户配置。
+
+```sh
+pnpm build
+pnpm --filter @aut/desktop bundle
+node spikes/desktop/mcp-ui-qa.ts
+```
+
+先从空态添加服务，展开细节设置名称和合成环境值；保存测试后显式启用，再给研究助手授权 `search_notes` 与 `read_note`。检查按说明搜索、刷新后的勾选/展开、已存凭据留空保存。Bot 编辑器中勾选第三个工具后取消，应仍只有两个持久化授权。
+
+标准输入接受 `{"command":"seed"}`，追加已验证但停用、需要登录和连接失败三种**合成远程状态**；`{"command":"audit"}` 输出配置并保存 `audit.json`，用于核对只存引用和取消无写入。`{"command":"empty"}` 仅重置这个临时注册表。Ctrl+C 关闭本次预览和 daemon，保留临时目录便于核对。
+
+已验证 1280px 常规与 1040px 窄窗口、深浅主题。实录和边界见 [MCP 界面记录](../e2e/results/mcp-ui-parity.json)，源码映射见 [MCP 界面对照](../../docs/mcp-ui-parity.md)。第三方 OAuth 实际登录和 Electron 安装包不属于本次浏览器 UI 验证。

@@ -201,6 +201,7 @@ export const SessionSetupLive = Layer.effect(
                   ]
                 : []),
               "Use the aut MCP tools to read relevant main-thread messages and task details by ID when needed. The full main thread is not automatically included.",
+              "Attachments are immutable snapshots. Read their paths using your file or image tools; copy to your working directory before editing. When producing deliverables, link each completed file in your final report using [filename](absolute-path) or ![description](absolute-image-path). Keep deliverables in visible folders under this session's working directory; aut saves each reported file as a separate historical snapshot (up to 16 files, 20 MiB each).",
               "When the user asks you to create an aut bot, use the create_bot MCP tool. Its successful result confirms the saved bot ID.",
               "Use the harness native question tool when user input is required. Do not replace questions with textual markers. Return a clear final report after completing the requested work.",
             ].join("\n\n"),

@@ -3,6 +3,7 @@ import { Effect, Schema, Stream } from "effect";
 import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { ApiRequest } from "./bridge.js";
 import { DesktopConnection, DesktopConnectionLive, DesktopError } from "./connection.js";
+import { nativeFileAction } from "./native-files.js";
 
 if (process.env.AUT_DESKTOP_PROFILE) app.setPath("userData", process.env.AUT_DESKTOP_PROFILE);
 const windows = new Set<BrowserWindow>();
@@ -63,6 +64,17 @@ else {
         catch: () => new DesktopError({ code: "Startup", message: "无法初始化桌面窗口。" }),
       });
       const service = yield* DesktopConnection;
+      ipcMain.handle("aut:file", (event, input: unknown) => {
+        const window = [...windows].find(
+          (window) =>
+            event.sender === window.webContents &&
+            event.senderFrame === window.webContents.mainFrame,
+        );
+        return window
+          ? Effect.runPromise(nativeFileAction(input, window, service))
+          : Promise.resolve({ ok: false, error: "请求来源无效。" });
+      });
+      yield* Effect.addFinalizer(() => Effect.sync(() => ipcMain.removeHandler("aut:file")));
       ipcMain.handle("aut:request", (event, input: unknown) =>
         Effect.runPromise(
           Effect.gen(function* () {

@@ -1,7 +1,16 @@
 import { ReportSources } from "@aut/protocol";
 import { Schema } from "effect";
 import { expect, it } from "vitest";
+import { truncateReport } from "./reply-gate.js";
 import { reportSources, reportTextForTruncation } from "./report-sources.js";
+
+it("keeps file labels readable when long local links reach the last-resort truncation", () => {
+  const path = `/tmp/${"workspace/".repeat(80)}report.md`;
+  const report = `已完成 [报告](${path})、![图表](file:///tmp/chart.png)、[数据][csv]。\n\n[csv]: ./summary.csv`;
+  expect(reportTextForTruncation(report).trim()).toBe("已完成 报告、图表、数据。");
+  expect(truncateReport(report)).toBe("已完成 报告、图表、数据。…\n详情见任务面板");
+  expect(reportSources(report)).toEqual([]);
+});
 
 it("preserves complete Markdown, reference, autolink and bare URLs in original order", () => {
   const long = `https://example.com/a_(b)?q=${"very-long-value".repeat(30)}&lang=zh#sources`;

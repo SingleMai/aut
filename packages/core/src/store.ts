@@ -27,6 +27,9 @@ export interface StoreTransaction {
     options?: PageOptions,
   ) => Effect.Effect<readonly StoreRecords[K][], CoreError>;
   readonly messagesByIds: (ids: readonly MessageId[]) => Rows<"main_thread_messages">;
+  readonly referencedFileIds: (
+    ids: readonly string[],
+  ) => Effect.Effect<readonly string[], CoreError>;
   readonly messagesByCardId: (cardId: string) => Rows<"main_thread_messages">;
   readonly cardsForRequest: (id: RequestId) => Rows<"main_thread_messages">;
   readonly openTaskCards: (id: TaskId) => Rows<"main_thread_messages">;

@@ -112,13 +112,14 @@ export const BridgeBackendLive = Layer.effect(
           ).pipe(Effect.mapError(boundaryError));
           return yield* checked(
             ReadMainThreadOutput,
-            rows.map(({ id, at, author, text, taskId, sources }) => ({
+            rows.map(({ id, at, author, text, taskId, sources, files }) => ({
               id,
               at,
               author,
               text,
               ...(taskId === undefined ? {} : { taskId }),
               ...(sources === undefined ? {} : { sources }),
+              ...(files === undefined ? {} : { files }),
             })),
           );
         }),

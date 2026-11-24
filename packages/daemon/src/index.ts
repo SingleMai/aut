@@ -21,6 +21,7 @@ import { AdmissionInboxLive, ChiefIngressLive } from "./admission.js";
 import { BridgeBackendLive } from "./bridge-backend.js";
 import { BridgeRuntimeLive } from "./bridge-runtime.js";
 import { ConfiguredTreeLive } from "./configured-tree.js";
+import { FileMaintenanceLive } from "./file-maintenance.js";
 import { HttpServerLive } from "./http.js";
 import { InboundGatewayLive } from "./inbound.js";
 import { McpOAuthLive } from "./mcp-oauth.js";
@@ -75,6 +76,7 @@ export const DaemonApiLive = (options: DaemonOptions = {}) => {
     InboundGatewayLive,
     AdministrationLive,
     RouteTestLive,
+    FileMaintenanceLive,
   ).pipe(Layer.provideMerge(mcp));
   const readers = SessionReaderLive.pipe(
     Layer.provideMerge(
@@ -107,6 +109,7 @@ export const DaemonLive = (options: DaemonOptions = {}) => {
     InboundGatewayLive,
     AdministrationLive,
     RouteTestLive,
+    FileMaintenanceLive,
     HarnessResolverLive,
     SessionSetupLive,
     StateSourceLive,

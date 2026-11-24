@@ -1,12 +1,14 @@
+import { McpServerId } from "@aut/protocol";
 import { Effect, Either } from "effect";
 import { afterEach, expect, it, vi } from "vitest";
 import { desktopApi } from "./api.js";
+import { parseMcpPaste, prepareMcpDraft, saveMcpImportSecrets } from "./mcp-import.js";
 import {
-  parseMcpPaste,
-  prepareMcpImport,
-  saveMcpImportSecrets,
-  saveMcpServerSecrets,
-} from "./mcp-import.js";
+  draftFor,
+  draftFromPaste,
+  emptyDraft,
+  secretRow,
+} from "./openmausbot/components/mcp-draft.js";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -52,18 +54,16 @@ it("requires placeholder values and persists credentials separately from the ser
     ),
   );
   if (!draft) throw new Error("Missing draft");
-  const form = new FormData();
-  form.set("name", "notes");
-  form.set("url", "https://notes.example/mcp");
-  form.set("secret-0", "YOUR_API_KEY");
-  expect(Either.isLeft(await Effect.runPromise(Effect.either(prepareMcpImport(draft, form))))).toBe(
-    true,
-  );
-  form.set("secret-0", "fixture-private-value");
+  const fields = draftFromPaste(draft);
+  const credential = fields.headers[0];
+  if (!credential) throw new Error("Missing credential");
+  credential.value = "YOUR_API_KEY";
+  expect(Either.isLeft(await Effect.runPromise(Effect.either(prepareMcpDraft(fields))))).toBe(true);
+  credential.value = "fixture-private-value";
   const save = vi
     .spyOn(desktopApi, "saveSecret")
     .mockReturnValue(Effect.succeed({ apiKeyRef: "secret:fixture", configured: true }));
-  const prepared = await Effect.runPromise(prepareMcpImport(draft, form));
+  const prepared = await Effect.runPromise(prepareMcpDraft(fields));
   const input = await Effect.runPromise(saveMcpImportSecrets(prepared, "stable-id"));
   expect(save).toHaveBeenCalledExactlyOnceWith({
     name: "mcp-stable-id-0",
@@ -93,19 +93,96 @@ it("protects credentials from manual editing while preserving existing reference
     .spyOn(desktopApi, "saveSecret")
     .mockReturnValue(Effect.succeed({ apiKeyRef: "secret:manual", configured: true }));
   const input = await Effect.runPromise(
-    saveMcpServerSecrets(
-      {
-        name: "manual",
-        transport: "http",
-        url: "https://example.com/mcp",
-        headers: { Authorization: "Bearer fixture-private", Existing: "secret:existing" },
-      },
-      "manual",
-    ),
+    prepareMcpDraft({
+      ...emptyDraft(),
+      name: "manual",
+      url: "https://example.com/mcp",
+      headers: [
+        secretRow({ name: "Authorization", value: "Bearer fixture-private" }),
+        secretRow({ name: "Existing", value: "", savedValue: "secret:existing" }),
+      ],
+    }).pipe(Effect.flatMap((prepared) => saveMcpImportSecrets(prepared, "manual"))),
   );
   expect(input).toMatchObject({
     headers: { Authorization: "secret:manual", Existing: "secret:existing" },
   });
   expect(save).toHaveBeenCalledTimes(1);
   expect(JSON.stringify(input)).not.toContain("fixture-private");
+});
+
+it("preserves, replaces and explicitly removes the OAuth client secret", async () => {
+  const draft = {
+    ...emptyDraft(),
+    name: "calendar",
+    url: "https://calendar.example/mcp",
+    oauthClientId: "client",
+    oauthSecretRef: "secret:existing",
+  };
+  const save = vi
+    .spyOn(desktopApi, "saveSecret")
+    .mockReturnValue(Effect.succeed({ apiKeyRef: "secret:replacement", configured: true }));
+  const persist = (value: typeof draft) =>
+    Effect.runPromise(
+      prepareMcpDraft(value).pipe(
+        Effect.flatMap((prepared) => saveMcpImportSecrets(prepared, "oauth")),
+      ),
+    );
+  expect(await persist(draft)).toMatchObject({
+    oauth: { clientId: "client", clientSecretRef: "secret:existing" },
+  });
+  expect(save).not.toHaveBeenCalled();
+  expect(await persist({ ...draft, oauthClientSecret: "replacement-value" })).toMatchObject({
+    oauth: { clientSecretRef: "secret:replacement" },
+  });
+  expect(save).toHaveBeenCalledExactlyOnceWith({
+    name: "mcp-oauth-oauth",
+    key: "replacement-value",
+  });
+  const removed = await persist({ ...draft, oauthForgetSecret: true });
+  expect(removed).toMatchObject({ oauth: { clientId: "client" } });
+  expect(JSON.stringify(removed)).not.toContain("clientSecretRef");
+});
+
+it("keeps write-only saved credentials and parses one argument per line", async () => {
+  const draft = draftFor({
+    id: McpServerId.make("local"),
+    name: "local",
+    transport: "stdio",
+    command: "node",
+    args: ["/path with spaces/server.js"],
+    env: { API_KEY: "secret:existing" },
+    enabled: false,
+    auth: { status: "none" },
+    health: { status: "unknown" },
+    tools: [],
+  });
+  expect(draft.env[0]?.value).toBe("");
+  draft.args += "\n--verbose";
+  const prepared = await Effect.runPromise(prepareMcpDraft(draft));
+  expect(prepared.input).toMatchObject({
+    args: ["/path with spaces/server.js", "--verbose"],
+    env: { API_KEY: "secret:existing" },
+  });
+  const save = vi.spyOn(desktopApi, "saveSecret");
+  expect((await Effect.runPromise(saveMcpImportSecrets(prepared, "edit"))).transport).toBe("stdio");
+  expect(save).not.toHaveBeenCalled();
+});
+
+it("keeps the bearer prefix once and refuses duplicate headers before saving", async () => {
+  const [pasted] = await Effect.runPromise(
+    parseMcpPaste(
+      `claude mcp add notes https://notes.example/mcp -H 'Authorization: Bearer $TOKEN'`,
+      [],
+    ),
+  );
+  if (!pasted) throw new Error("Missing draft");
+  const draft = draftFromPaste(pasted);
+  const first = draft.headers[0];
+  if (!first) throw new Error("Missing header");
+  first.value = "Bearer fixture-secret";
+  expect((await Effect.runPromise(prepareMcpDraft(draft))).values[0]?.value).toBe(
+    "Bearer fixture-secret",
+  );
+  draft.headers.push({ id: 999, name: "authorization", value: "second" });
+  expect(Either.isLeft(await Effect.runPromise(Effect.either(prepareMcpDraft(draft))))).toBe(true);
 });

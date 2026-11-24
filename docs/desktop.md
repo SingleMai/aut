@@ -43,6 +43,10 @@ macOS 开发包通过 LaunchServices 启动 daemon 时，保留进程已有的 P
 
 来源展示的隔离界面实录：[回包来源](assets/desktop/report-sources.png)。
 
+文件输入与成果交付遵循 [ADR-0064](decisions/0064-message-files.md)：输入框支持选文件、拖放和粘贴截图，发送前可预览、移除；上传失败保留草稿供重试。消息下方显示不可变文件卡片，支持预览、另存为和 Finder 定位。引用成果继续修改时沿用原任务及原文件版本。
+
+未发送附件的续期、移除释放和过期回收，以及历史文件保护，统一见 [ADR-0065](decisions/0065-file-lifecycle.md)。原生另存为采用原子替换，拒绝覆盖快照目录；Quick Look 由 Electron 窗口管理。macOS arm64 实包已验证保存/取消、Finder 目标和 Quick Look 打开/关闭，应用内文本预览实录见[文件预览](assets/desktop/message-files-native.png)，验证范围见[桌面探针](../spikes/desktop/README.md#文件生命周期与原生操作)。
+
 以下界面截图来自隔离的示例数据。[首次进入](assets/desktop/aut-welcome.png) · [含待答问题的主会话](assets/desktop/aut-conversation.png) · [消息操作菜单](assets/desktop/aut-message-menu.png)
 
 ## 问题卡
@@ -71,8 +75,8 @@ macOS 开发包通过 LaunchServices 启动 daemon 时，保留进程已有的 P
 - 点击 Bot 头像或用键盘激活「更换形象」，编辑器会聚焦当前选项。名称、形象和擅长的工作放在一起，思考强度放在「高级设置」。保存后，Bot 列表和会话使用同一形象。角色预览从「等你回答」开始，也可连续试看思考、等待、送达和报告。[编辑器实录](assets/desktop/bot-characters.gif) · [形象接入指南](../packages/characters/README.md)
 - Bot 编辑器也可配置 soul、工作目录、Harness 实例和模型。系统身份受保护，长表单的标题和操作始终可达。Bot 和设置表单都会保留保存失败时的输入，在字段旁显示校验提示，展开相应区域并聚焦首个错误。
 - Bot 编辑器提供 MCP 服务与逐工具授权，创建和编辑均可选择。勾选先保存为表单草稿，点击「保存」后使用现有 Bot 与 grant API 顺序提交；取消不改授权。Bot 已保存而部分 grant 失败时保留编辑器、已创建的 Bot 身份与未完成草稿，重试不重复创建 Bot。服务的全局启停和登录仍在 MCP 服务页管理。
-- MCP 服务页管理全局 server 注册、stdio/Streamable HTTP/SSE 连接参数、连接测试、启用状态、OAuth 登录和工具目录。每个 server 下按 Bot 开关 grant 并逐工具授权。连接凭据只在 daemon 内解析，页面只显示引用、状态和工具名称。
-- MCP 新增入口优先提供粘贴配置及可编辑预览，支持服务地址、启动命令和 JSON。密码字段补齐占位符并写入本机凭据，保存后逐项测试；授权与连接结果即时回读。范围见 [ADR-0062](decisions/0062-mcp-onboarding-and-management.md)。
+- MCP 服务页沿用 OpenMausBot 单列服务行，显示传输图标、地址、启停与登录状态，连接测试结果在当前行反馈。工具目录和 Bot 授权按需展开；支持搜索工具名与说明、全选当前目录的精确工具名及清空。共用的授权组件也用于 Bot 编辑器。
+- MCP 新增和编辑共用迁入的编辑器：粘贴服务地址、启动命令或 JSON 自动识别，优先只显示缺失凭据；「连接细节」再展开传输、逐行启动参数、工作目录、请求头/环境变量和 OAuth。凭据采用可增删的密码行，已保存值留空保留，列表只显示凭据名称。保存后逐项测试，部分失败重试不重复创建服务；未确认的写入禁止重复提交。新服务仍默认停用，授权即时回读。来源映射见 [MCP 界面对照](mcp-ui-parity.md)，协议范围见 [ADR-0062](decisions/0062-mcp-onboarding-and-management.md)。
 - 设置页管理 Harness 实例及主、备用分类服务，并说明用户消息会发送到所选服务。「保存密钥」写入本机凭据并填入引用，「保存全部设置」才应用实例与分类器配置。后端、模型和服务地址均留空时，该分类服务停用。[本地 API](local-api.md) · [ADR-0026](decisions/0026-classifier-secret-storage.md)
 - 路由试验只展示分类概率，不派发任务；既有 Provider 配置保持不变。
 

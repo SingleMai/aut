@@ -17,6 +17,7 @@ import { DispatchCorrection } from "./dispatch-correction.js";
 import { formatClockTime, formatTime, t } from "./i18n.js";
 import { Icon } from "./icons.js";
 import { MessageActions, type MessageMenuItem } from "./message-actions.js";
+import { MessageFilesView } from "./message-files.js";
 import { WebAddress } from "./openmausbot/components/ConversationMarkdown.js";
 import { copyText } from "./openmausbot/lib/copy-feedback.js";
 import { type Flash, runUi, useAction } from "./ui/use-action.js";
@@ -236,6 +237,17 @@ function MessageRow(props: MessageProps & { native?: QuestionRead }) {
               ))}
             </ol>
           </details>
+        )}
+        {!!message.files?.length && <MessageFilesView files={message.files} flash={flash} />}
+        {!!message.fileIssues?.length && (
+          <div className="file-issues" role="status">
+            {message.fileIssues.map((issue, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: these are immutable entries on one persisted message, including repeated display names.
+              <p key={`${index}:${issue.name}`} title={issue.message}>
+                {t.fileUnavailable}：{issue.name} · {t.fileDeliveryRetry}
+              </p>
+            ))}
+          </div>
         )}
         {ref && (
           <div className="message-links">

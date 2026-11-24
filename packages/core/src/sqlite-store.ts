@@ -171,6 +171,9 @@ const makeTransaction = (
     "SELECT 1 FROM tasks WHERE json_extract(data, '$.botId') = ? LIMIT 1",
   );
   const forgetCreation = db.prepare("DELETE FROM bot_creations WHERE id = ?");
+  const fileReferences = db.prepare(
+    "SELECT DISTINCT json_extract(file.value, '$.id') AS id FROM main_thread_messages AS message, json_each(message.data, '$.files') AS file WHERE json_extract(file.value, '$.id') IN (SELECT value FROM json_each(?))",
+  );
   const decisionsForEvent = select(
     "decision_logs",
     "json_extract(data, '$.input.eventRef') = ? ORDER BY seq DESC LIMIT 1",
@@ -194,6 +197,10 @@ const makeTransaction = (
       if (Number(result.changes) > 0) written(table);
     });
   return {
+    referencedFileIds: (ids) =>
+      boundary("Failed to check file references", () =>
+        fileReferences.all(JSON.stringify(ids)).map((row) => String(row.id)),
+      ),
     botHasTasks: (id) => boundary("Failed to check bot usage", () => !!taskForBot.get(id)),
     forgetBotCreation: (id) =>
       boundary("Failed to retire bot creation", () => {

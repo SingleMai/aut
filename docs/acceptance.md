@@ -35,6 +35,11 @@
 | 工作会话与工具展示 | 分页、实时更新、折叠、定位及原生 IPC 通过；查看不恢复任务 | [会话](../spikes/desktop/task-session-qa-results.md)、[工具对照](omb-tool-parity.md) |
 | 构建、类型、格式、依赖检查及打包 | 78 个测试文件、1,226 个用例全部通过，另有 1 个在线 Jev 用例按条件跳过。macOS arm64 开发包通过主助手展示、创建回执撤销和设置页检查 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
 | MCP 增量回归（2026-11-23） | `pnpm check` 通过：构建、生产/测试类型、格式、依赖边界及 89 个测试文件的 1,328 个用例；1 个在线 Jev 用例按条件跳过。桌面 bundle 构建及 `git diff --check` 通过 | [MCP 测试](../packages/daemon/src/mcp-supervisor.test.ts)、[协议边界](../packages/protocol/src/protocol.test.ts) |
+| 文件输入、成果交付与版本（2026-11-23） | 两次真实 Codex 0.171.0 / Jev 验收通过：上传 CSV，Bot 读取并交付 Markdown 与 CSV；引用成果在同一任务续聊，旧版保持 TOTAL=42，新版为 TOTAL=43。成果在回包改写前保存，原始报告保留；最终截断正文只留文件标签 | [最终原生实测](../spikes/e2e/results/message-files-live-final.json)、[初次实测](../spikes/e2e/results/message-files-live.json)、[快照边界](../packages/core/src/message-files.test.ts)、[回包回归](../packages/core/src/reply-gate.test.ts) |
+| 文件桌面交互 | 隔离 daemon 的浏览器预览验证选文件、拖入 CSV、剪贴板 items 图片、图片/文本预览、移除、发送、刷新保留、引用文件数量提示和保存副本；旧/新版内容分别核对，保存副本与新版字节一致。上传失败重试、迟到上传不恢复已删草稿、保存取消和原生 ID 边界另有回归 | [界面记录](../spikes/e2e/results/message-files-ui.json)、[截图](assets/desktop/message-files.png)、[界面回归](../apps/desktop/src/message-files.dom.test.tsx)、[原生动作边界](../apps/desktop/src/native-files.test.ts) |
+| 文件生命周期与原生操作（2026-11-24） | 未发送附件的过期回收、续期、移除及迟到上传释放已完成；历史引用、成果、损坏清单和并发发送均有保护回归。arm64 实包验证启动回收、原生 IPC 保存/取消、保存副本字节一致、Finder 目标与 Quick Look 窗口打开/关闭 | [实包记录](../spikes/e2e/results/message-files-native-final.json)、[应用内预览截图](assets/desktop/message-files-native.png)、[生命周期](../packages/core/src/message-files.test.ts)、[草稿回归](../apps/desktop/src/message-files.dom.test.tsx) |
+| 文件能力增量回归（2026-11-24） | `pnpm check` 通过：构建、生产/测试类型、格式、依赖边界及 92 个测试文件的 1,347 个用例；1 个在线 Jev 用例按条件跳过。桌面 bundle 与 macOS arm64 开发包构建通过；补充损坏清单断言后文件测试、测试类型及格式检查通过 | [快照/API 测试](../packages/daemon/src/daemon.test.ts)、[文件回归](../packages/core/src/message-files.test.ts)、[原生保存边界](../apps/desktop/src/native-files.test.ts) |
+| MCP 界面源码对齐（2026-11-24） | 按固定 OpenMausBot 源码迁入统一编辑器、密码行、服务行和可检索授权。隔离 daemon 实测 stdio 导入、发现 3 个工具、启用、精确授权、刷新保留、凭据留空编辑、删除取消及 Bot 草稿取消；修复并回归授权刷新收起工具区的问题。1040px 无横向溢出，深浅主题通过。远程状态为合成展示，未实登第三方 OAuth 或复验安装包。`pnpm check`：93 个文件、1,357 通过、1 跳过；桌面 bundle 通过 | [来源映射](mcp-ui-parity.md)、[界面记录](../spikes/e2e/results/mcp-ui-parity.json)、[服务列表](assets/desktop/mcp-management-parity.png)、[编辑器](assets/desktop/mcp-editor-parity.png)、[授权](assets/desktop/mcp-grants-parity.png)、[深色](assets/desktop/mcp-grants-dark.png) |
 
 验收 JSON 保存决策日志样例，包含输入、分类问题、概率、路径及执行结果。
 
@@ -46,6 +51,7 @@
 - 超长原生历史分页尚未实测；Codex 的读取兼容边界见 [Harness 适配层](harness-adapters.md)。工具输出与宿主适配边界见 [工具展示对照](omb-tool-parity.md)。
 - 开发包未完成发行签名、公证和自动更新；包名、哈希及构建对应关系以包记录为准。
 - MCP 真实服务验收使用公开搜索端点；第三方账户 OAuth 登录尚未实测。本轮 Bot 授权及来源补充验收使用隔离 daemon 和桌面浏览器预览，尚未复验 Electron 安装包。
+- 文件能力当前为每个 20 MiB、每条消息合计 16 个（含引用沿用），需要任务正文。应用内预览文本与 PNG/JPG/GIF/WebP；其他格式交给 macOS Quick Look。实包探针控制保存对话框的选择结果，实际 IPC 与文件写入未替换；Quick Look 以系统窗口身份验证打开/关闭，截图为应用内文本预览。目录上传、解压和 Office 在线编辑不在本次范围。
 
 ## 复验
 

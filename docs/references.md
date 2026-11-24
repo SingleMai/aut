@@ -27,6 +27,10 @@
 
 MCP 粘贴导入另参考并借用 `d6660e2d79782c99c9688324e47e1835c8aa1e26`（2026-11-23）的 `src/lib/mcp-paste.ts` 与 `shared/mcp-name.ts`。纯解析器保留上游错误返回协议，在 aut 边界用 Effect 包装；本机凭据保存、授权和测试流程遵循 ADR-0062。
 
+MCP 管理界面采用 `619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc`（2026-11-24）的 `McpServersPanel`、`McpServerEditor`、`McpSecretRows`、`mcp-draft` 及 `bot-settings/AccessSection` 为源码基线。迁入粘贴优先编辑、凭据行和渐进展开，替换原先独立拼装的表单与授权布局；逐文件对应、保留行为及 aut 接入边界见 [MCP 界面对照](mcp-ui-parity.md)，署名见 `NOTICE`。
+
+文件输入与交付使用 `4250c53a3acb0218870a4041101cb08b116160ce` 的 `server/message-file.ts`、`src/lib/composer-attachments.ts` 与 `src/components/AttachmentPreview.tsx` 为蓝图。复制文件名清理、MIME、路径边界及剪贴板辅助函数，适配附件卡片和预览；I/O 改为 Effect，并按 [ADR-0064](decisions/0064-message-files.md) 增加原报告快照和现有 IPC/API 接入。未借用 `enterprise/`；文件头和 `NOTICE` 保留归属。
+
 ## DeepSeek Super-agent
 - 设计文章英译：https://offloop.org/learn/exploring-deepseek-super-agent-design
 - 解读：https://agentspulse.github.io/tutorials/deepseek-super-agent-architecture/

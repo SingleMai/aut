@@ -6,6 +6,7 @@ import { DecisionLogLive } from "./decision-log.js";
 import { EventBusLive } from "./event-bus.js";
 import { MainThreadLive } from "./main-thread.js";
 import { McpRegistryLive } from "./mcp-registry.js";
+import { MessageFilesLive } from "./message-files.js";
 import { SessionRecordsLive } from "./session-records.js";
 import { StoreLive } from "./sqlite-store.js";
 import { TaskRegistryLive } from "./task-registry.js";
@@ -33,6 +34,7 @@ export * from "./handoff/builder.js";
 export * from "./handoff/render.js";
 export * from "./main-thread.js";
 export * from "./mcp-registry.js";
+export * from "./message-files.js";
 export * from "./operations.js";
 export * from "./primary-assistant.js";
 export * from "./progress/progress.js";
@@ -61,6 +63,7 @@ export const CoreLive = (options: CoreOptions = {}) =>
       McpRegistryLive,
       SessionRecordsLive,
       TriggerRegistryLive,
+      MessageFilesLive(options),
     ).pipe(Layer.provideMerge(StoreLive(options)), Layer.provideMerge(ConfigStoreLive(options))),
     EventBusLive,
   ).pipe(Layer.provideMerge(ChangesLive));

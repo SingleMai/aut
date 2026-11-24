@@ -149,6 +149,28 @@ it("selects only the preceding twenty and batches them once, excluding requests 
   expect(JSON.stringify(captured)).not.toContain("Never part");
 });
 
+it("hands the exact attachment snapshot to a follow-up without injecting file contents", async () => {
+  await run(
+    Effect.gen(function* () {
+      const file = {
+        id: "a".repeat(64),
+        sha256: "b".repeat(64),
+        name: "data.csv",
+        mime: "text/csv",
+        size: 1234,
+        path: "/tmp/snapshots/data.csv",
+      };
+      const request = { ...message("files", 1, "继续修改"), files: [file] };
+      yield* seed([request]);
+      const result = yield* buildHandoff({ task, bot, messages: [request], mode: "send" });
+      expect(result.packet.request[0]?.files).toEqual([file]);
+      expect(result.turn.text).toContain(file.path);
+      expect(result.turn.text).toContain("read only");
+      expect(result.turn.text).toContain("继续修改");
+    }),
+  );
+});
+
 it("keeps UTF-8 excerpt metadata within budget without truncating the user request", async () => {
   await run(
     Effect.gen(function* () {

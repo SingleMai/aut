@@ -22,11 +22,13 @@ import {
   TriggerRun,
   TriggerSchedule,
 } from "./domain.js";
+import { FileIds } from "./files.js";
 import { SessionHistory } from "./session-history.js";
 
 export const SendMessageInput = Schema.Struct({
   text: NonEmptyString,
   id: Schema.optional(MessageId),
+  fileIds: Schema.optional(FileIds),
 });
 export type SendMessageInput = typeof SendMessageInput.Type;
 export const MessagePageInput = Schema.Struct({

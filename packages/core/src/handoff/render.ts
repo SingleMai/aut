@@ -12,7 +12,7 @@ export const estimateTokens = (text: string): number => Buffer.byteLength(text, 
 export const renderHandoff = (packet: HandoffPacket): string =>
   [
     `[Task]\n${packet.header}`,
-    `[Current request]\n${packet.request.map((request) => `[message ${JSON.stringify(request.messageId)} | at ${request.at}]\n${request.text}`).join("\n\n")}`,
+    `[Current request]\n${packet.request.map((request) => `[message ${JSON.stringify(request.messageId)} | at ${request.at}]\n${request.text}${request.files?.length ? `\n[Attached file snapshots; read only. Copy to your working directory before editing.]\n${request.files.map((file) => JSON.stringify(file)).join("\n")}` : ""}`).join("\n\n")}`,
     ...(packet.excerpts.length
       ? [`${EXCERPT_HEADING}${packet.excerpts.map(renderExcerpt).join("\n")}`]
       : []),

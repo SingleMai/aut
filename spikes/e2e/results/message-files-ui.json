@@ -1,0 +1,22 @@
+{
+  "at": "2026-11-24T06:57:28.107861+00:00",
+  "surface": "ego-browser with isolated daemon API and desktop preview bridge",
+  "realBotEvidence": "spikes/e2e/results/message-files-live-final.json",
+  "cases": {
+    "filePickerImagePreviewAndRemove": true,
+    "csvDragDropSendAndReload": true,
+    "clipboardImageItemsWithEmptyFiles": true,
+    "originalPreviewTotal42": true,
+    "revisedPreviewTotal43": true,
+    "quoteShowsInheritedFileCount": true,
+    "savedRevisedBytesEqualSnapshot": true,
+    "savedCsvBytesEqualInput": true
+  },
+  "savedRevisionSha256": "af35212c2bad03d92e8c35a4c36fc9b1186ec8a768847d850ced8312ba79170e",
+  "screenshot": "docs/assets/desktop/message-files.png",
+  "scope": "Existing production local API, immutable real Codex reports; paste/drop use synthetic browser File events. The final quote is an unsent preview draft. No real user data or provider configuration was changed.",
+  "limitations": [
+    "Electron installer not rebuilt; native Save/Finder boundary covered by unit tests.",
+    "Actual macOS Quick Look interaction not exercised."
+  ]
+}

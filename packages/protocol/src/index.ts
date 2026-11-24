@@ -2,6 +2,7 @@ export * from "./api.js";
 export * from "./common.js";
 export * from "./config.js";
 export * from "./domain.js";
+export * from "./files.js";
 export * from "./interfaces.js";
 export * from "./mcp.js";
 export * from "./session-history.js";

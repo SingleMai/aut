@@ -222,3 +222,30 @@ OpenMausBot MCP paste onboarding (Apache License 2.0):
   compact Docker environment flags, project formatting; Effect validation,
   credential storage and UI are aut adapters.
   No enterprise/ source was used.
+
+OpenMausBot MCP management and authorization UI (Apache License 2.0):
+- Copyright 2026 Milind Soni and OpenMausBot contributors.
+- Commit 619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc,
+  https://github.com/milind-soni/OpenMausBot
+- src/components/{McpServerEditor,McpSecretRows}.tsx and mcp-draft.ts
+  adapted into apps/desktop/src/openmausbot/components/ at the same names.
+- Local-server rows and page layout from src/components/McpServersPanel.tsx
+  adapted into openmausbot/components/McpServerCard.tsx and mcp-page.tsx.
+- McpServersCard and ConnectorToolsGrants from
+  src/components/bot-settings/AccessSection.tsx adapted into mcp-grant-fields.tsx.
+- Component layout classes adapted into apps/desktop/src/styles/mcp.css.
+  Changes: Radix Themes controls, aut theme tokens and Chinese text, Effect API
+  persistence, credential-reference drafts, acknowledged save/test receipts,
+  and explicit per-Bot exact-name grants (no implicit or wildcard access).
+  Team, hosted-service, app-catalog and enterprise/ code is not included.
+
+File inputs and deliverables reuse OpenMausBot (Apache-2.0), commit
+4250c53a3acb0218870a4041101cb08b116160ce:
+- server/message-file.ts: filename sanitizing, MIME mapping, containment and handle-validation
+  patterns, adapted in packages/core/src/openmausbot/message-file.ts and message-files.ts.
+- src/lib/composer-attachments.ts: clipboard file/image helpers copied into
+  apps/desktop/src/openmausbot/lib/file-clipboard.ts.
+- src/components/AttachmentPreview.tsx: file-chip layout and preview interactions adapted
+  in apps/desktop/src/message-files.tsx and styles/conversation.css.
+Source: https://github.com/milind-soni/OpenMausBot
+No enterprise/ source is included.

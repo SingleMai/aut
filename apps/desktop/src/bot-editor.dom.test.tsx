@@ -46,7 +46,7 @@ const query = <T extends HTMLElement>(selector: string) => {
   return element;
 };
 const checks = () => [
-  ...document.querySelectorAll<HTMLInputElement>('.bot-mcp-grants input[type="checkbox"]'),
+  ...document.querySelectorAll<HTMLInputElement>(".bot-mcp-grants .mcp-tool-check [role=checkbox]"),
 ];
 const submit = () =>
   act(async () => {
@@ -101,10 +101,12 @@ const mount = (
 it("keeps authorization changes as drafts and discards them on cancel", async () => {
   const test = mount();
   await flush();
-  expect(checks()[1]?.disabled).toBe(true);
+  expect(checks()).toHaveLength(0);
+  await act(async () =>
+    query<HTMLButtonElement>('[role="switch"][aria-label="授权给 搜索"]').click(),
+  );
   await act(async () => checks()[0]?.click());
-  await act(async () => checks()[1]?.click());
-  expect(checks()[1]?.checked).toBe(true);
+  expect(checks()[0]?.getAttribute("aria-checked") === "true").toBe(true);
   expect(test.setGrant).not.toHaveBeenCalled();
   await act(async () => query<HTMLButtonElement>('.form-actions button[type="button"]').click());
   expect(test.close).toHaveBeenCalledOnce();
@@ -117,10 +119,17 @@ it("loads existing grants and saves an exact tool change without enabling the se
   const grant = { botId: bot.id, serverId: server.id, enabled: true, allowedTools: ["search"] };
   const test = mount({ grants: [grant] });
   await flush();
-  expect(checks().map((item) => item.checked)).toEqual([true, true, false]);
+  expect(query('[role="switch"][aria-label="授权给 搜索"]').getAttribute("aria-checked")).toBe(
+    "true",
+  );
+  await act(async () => query<HTMLButtonElement>(".mcp-grant-expand").click());
+  expect(checks().map((item) => item.getAttribute("aria-checked") === "true")).toEqual([
+    true,
+    false,
+  ]);
   expect(document.body.textContent).toContain("服务尚未启用");
+  await act(async () => checks()[0]?.click());
   await act(async () => checks()[1]?.click());
-  await act(async () => checks()[2]?.click());
   await submit();
   expect(test.save).toHaveBeenCalledOnce();
   expect(test.setGrant).toHaveBeenCalledExactlyOnceWith(bot.id, server.id, {
@@ -162,7 +171,16 @@ it("retries only failed grants and updates the already created Bot instead of re
       input.dispatchEvent(new Event("input", { bubbles: true }));
     }
   });
-  for (const index of [0, 1, 3, 4]) await act(async () => checks()[index]?.click());
+  for (const name of ["搜索", "其他"]) {
+    await act(async () =>
+      query<HTMLButtonElement>(`[role="switch"][aria-label="授权给 ${name}"]`).click(),
+    );
+    await act(async () =>
+      query<HTMLInputElement>(
+        `section[aria-label="${name}"] [role="checkbox"][aria-label="search"]`,
+      ).click(),
+    );
+  }
   let failed = false;
   test.setGrant.mockImplementation((botId, serverId, input) =>
     Effect.suspend(() => {
@@ -181,7 +199,12 @@ it("retries only failed grants and updates the already created Bot instead of re
   expect(test.setGrant).toHaveBeenCalledTimes(2);
   expect(test.flash).toHaveBeenCalledWith(expect.stringContaining("Bot 已保存"));
   expect(test.close).not.toHaveBeenCalled();
-  expect(checks().map((item) => item.checked)).toEqual([true, true, false, true, true, false]);
+  expect(checks().map((item) => item.getAttribute("aria-checked") === "true")).toEqual([
+    true,
+    false,
+    true,
+    false,
+  ]);
   expect(query<HTMLInputElement>('[name="id"]').disabled).toBe(true);
   await submit();
   expect(test.save).toHaveBeenCalledTimes(2);
@@ -218,5 +241,9 @@ it("does not revoke unread grants on load failure and allows an explicit read re
     }),
   );
   await act(async () => query<HTMLButtonElement>('.bot-mcp-grants [role="alert"] button').click());
-  expect(checks().map((item) => item.checked)).toEqual([true, false, true]);
+  await act(async () => query<HTMLButtonElement>(".mcp-grant-expand").click());
+  expect(checks().map((item) => item.getAttribute("aria-checked") === "true")).toEqual([
+    false,
+    true,
+  ]);
 });

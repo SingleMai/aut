@@ -32,6 +32,8 @@ events/decision_logs 不直接触发资源失效。只读、无变化的 set、�
 
 ## JSON 配置
 
+输入附件和成功报告中的本地成果由 `MessageFiles` 保存至 `files/<id>/`；清单与内容独立于 Bot 工作目录。消息仅记录不可变引用，不追踪源文件后续变化。范围、限额、引用续聊和失败行为统一见 [ADR-0064](decisions/0064-message-files.md)，草稿租期、引用保护和回收见 [ADR-0065](decisions/0065-file-lifecycle.md)。该服务不修改 SQLite 版本或用户的 Provider 配置。
+
 `bots.json` 保存 `BotsConfig`，`config.json` 保存 `AutConfig`，`mcp.json` 保存版本为 1 的
 `McpConfig`。MCP 配置包含全局 `servers` 注册表和 Bot 到 server 的 `grants`。server 保存连接参数、
 启用状态、认证状态、健康状态和最近一次工具目录。敏感环境变量、请求头和 OAuth token 不写入 `mcp.json`，

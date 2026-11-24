@@ -1,0 +1,33 @@
+{
+  "at": "2026-11-24T09:27:31.039Z",
+  "app": "/Users/liying/mine/aut/.artifacts/file-lifecycle-package/aut-darwin-arm64/aut.app/Contents/MacOS/aut",
+  "directory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-native-files-0uqXbG",
+  "isolatedProfile": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-native-files-profile-H1KZ3A",
+  "savedId": "8d9a79ea1cfb754067771fac3c01896bbaa7475d055bd600fbe780664662e1a2",
+  "startupOrphanCollected": true,
+  "historicalAttachmentProtected": true,
+  "nativeIpcSaveAndCancel": true,
+  "saveDialog": "Controlled fixture response through test-only main inspector; production copy and IPC unchanged",
+  "savedCopyMatchesSnapshot": true,
+  "finderRequest": {
+    "ok": true
+  },
+  "finderFolderVerified": true,
+  "quickLookRequest": {
+    "ok": true
+  },
+  "quickLookWindow": {
+    "id": 437,
+    "ownerPid": 73676,
+    "openedAndClosed": true,
+    "bounds": {
+      "X": 0,
+      "Height": 500,
+      "Y": 482,
+      "Width": 800
+    }
+  },
+  "previewTextVerified": true,
+  "screenshot": "/Users/liying/mine/aut/docs/assets/desktop/message-files-native.png",
+  "captureScope": "Renderer text preview captured from the packaged webContents. Native Quick Look opening/closing verified by owned macOS window identity; no system screen capture permission required."
+}

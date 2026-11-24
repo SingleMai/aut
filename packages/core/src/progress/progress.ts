@@ -165,6 +165,8 @@ export const ProgressQueryLive = (options: ProgressOptions = {}) =>
                 taskId: op.taskId,
                 fullReportRef: `event:${completedReport.eventId}`,
                 sources: reportSources(completedReport.report),
+                ...(result.files ? { files: result.files } : {}),
+                ...(result.fileIssues ? { fileIssues: result.fileIssues } : {}),
                 decisionLogId: id,
               },
               {

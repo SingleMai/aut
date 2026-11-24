@@ -18,6 +18,8 @@ import {
   BotId,
   BotsResponse,
   DaemonEvent,
+  FileContentResponse,
+  FileResponse,
   MessageId,
   MessagePageResponse,
   ReportResponse,
@@ -110,6 +112,70 @@ const task = (id: string, status: Task["status"]) =>
   });
 
 describe("local HTTP API", () => {
+  it("persists uploaded snapshots, validates file IDs, quotes the original version and deduplicates message delivery", async () => {
+    const api = await start();
+    const upload = async (text: string) =>
+      Schema.decodeUnknownSync(FileResponse)(
+        await (
+          await api.request("/v1/files", "POST", {
+            name: "report.csv",
+            base64: Buffer.from(text).toString("base64"),
+          })
+        ).json(),
+      ).file;
+    const first = await upload("a,b\n1,2");
+    const second = await upload("a,b\n3,4");
+    const input = { id: "file-message", text: "Process this CSV", fileIds: [first.id] };
+    expect((await api.request("/v1/messages", "POST", input)).status).toBe(201);
+    expect((await api.request("/v1/messages", "POST", input)).status).toBe(200);
+    expect(
+      (await api.request("/v1/messages", "POST", { ...input, fileIds: [second.id] })).status,
+    ).toBe(409);
+    expect(
+      (
+        await api.request("/v1/messages", "POST", {
+          ...input,
+          id: "bad",
+          fileIds: ["../secrets.json"],
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await api.request("/v1/actions", "POST", {
+          type: "quote-reply",
+          quotedMessageId: "file-message",
+          text: "Compare with this version",
+          fileIds: [second.id],
+        })
+      ).status,
+    ).toBe(202);
+    const rows = Schema.decodeUnknownSync(MessagePageResponse)(
+      await (await api.request("/v1/messages")).json(),
+    ).messages;
+    expect(rows.at(-1)?.files?.map((file) => file.id)).toEqual([first.id, second.id]);
+    expect(rows.find((row) => row.id === "file-message")?.files).toEqual([first]);
+    const read = Schema.decodeUnknownSync(FileContentResponse)(
+      await (await api.request(`/v1/files/${first.id}`)).json(),
+    );
+    expect(Buffer.from(read.base64, "base64").toString()).toBe("a,b\n1,2");
+    expect((await fetch(`${api.base}/v1/files/${first.id}`)).status).toBe(401);
+    const large = await upload("a".repeat(2 * 1024 * 1024));
+    expect(large.size).toBe(2 * 1024 * 1024);
+    expect((await api.request("/v1/files/keepalive", "POST", { ids: [large.id] })).status).toBe(
+      200,
+    );
+    expect(await (await api.request(`/v1/files/${first.id}`, "DELETE")).json()).toEqual({
+      released: false,
+    });
+    expect(await (await api.request(`/v1/files/${large.id}`, "DELETE")).json()).toEqual({
+      released: true,
+    });
+    expect(await (await api.request(`/v1/files/${large.id}`, "DELETE")).json()).toEqual({
+      released: false,
+    });
+    expect((await api.request(`/v1/files/${first.id}`)).status).toBe(200);
+  });
   it("binds creation undo to the original receipt across restart, concurrent clicks and ID reuse", async () => {
     const first = await start();
     await first.request("/v1/config", "PUT", config);

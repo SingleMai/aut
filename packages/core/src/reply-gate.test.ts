@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Classifier } from "@aut/classifier/interface";
@@ -58,6 +58,7 @@ const execute = async (
     classifierFails?: boolean;
     timeoutMs?: number;
     permission?: boolean;
+    cwd?: string;
   } = {},
 ) => {
   const dataDirectory = mkdtempSync(join(tmpdir(), "aut-gate-"));
@@ -239,7 +240,7 @@ const execute = async (
             taskId: task.id,
             bot,
             model: "test",
-            cwd: "/tmp",
+            cwd: options.cwd ?? "/tmp",
             instructions: bot.soul,
             mcpServers: [],
           },
@@ -269,6 +270,22 @@ const execute = async (
     childCount,
   };
 };
+
+it("retains original file deliverables when a rewrite drops the link", async () => {
+  const cwd = mkdtempSync(join(tmpdir(), "aut-file-report-"));
+  directories.push(cwd);
+  const path = join(cwd, "report.csv");
+  writeFileSync(path, "name,value\nalpha,42");
+  const result = await execute(
+    `${"这是一段很长的分析说明。".repeat(30)}\n[report.csv](${path})`,
+    [{ text: "已完成分析。" }],
+    { cwd },
+  );
+  expect(result.output.delivered).toBe("已完成分析。");
+  expect(result.output.files).toHaveLength(1);
+  expect(readFileSync(result.output.files?.[0]?.path ?? "", "utf8")).toBe("name,value\nalpha,42");
+  expect(result.output.rewrites).toBe(1);
+});
 
 it.each([
   ["中".repeat(200), 0],

@@ -43,6 +43,8 @@ MCP 管理工具和粘贴接入遵循 [ADR-0062](decisions/0062-mcp-onboarding-a
 ask_user不注册，Codex原生question仍走adapter。服务端按会话角色校验 propose_route。
 MCP返回text content中的原输出JSON，并提供 `structuredContent: { result }`。
 
+`read_main_thread` 的消息摘录包含 `files` 元数据（名称、类型、大小和不可变快照路径），Bot 按需用现有文件工具读取。成果仍通过原报告 Markdown 本地链接交付，由 daemon 保存快照；不增加发布文件工具。边界见 [ADR-0064](decisions/0064-message-files.md)。
+
 propose_route只等待登记结果，不等待worker。日志path为slow-brain/propose_route，包含来源、理由、Op与执行结果。
 网络中断或默认10秒总超时产生Indeterminate；提议、创建 Bot 或创建 trigger 出现此结果时，先核对任务、Bot 或 trigger 列表。已存在的 Bot ID 或 trigger 稳定 ID 返回冲突，原记录保留。
 socket输入最多1MiB、输出最多16MiB；超限返回错误，不截断为表面成功的数据。

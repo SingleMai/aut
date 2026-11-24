@@ -418,35 +418,6 @@
   background: var(--raised);
 }
 
-.mcp-import {
-  display: grid;
-  gap: 16px;
-  margin-block: 16px;
-}
-.mcp-import-fields {
-  border: 0;
-  margin: 0;
-  padding: 0;
-  min-inline-size: 0;
-}
-.mcp-grants {
-  display: grid;
-  gap: 12px;
-  margin-block: 12px;
-}
-.mcp-grant-row {
-  display: grid;
-  gap: 8px;
-}
-.mcp-grant-row label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.mcp-tool-check {
-  padding-inline-start: 24px;
-  overflow-wrap: anywhere;
-}
 .bot-mcp-grants {
   display: grid;
   gap: 12px;

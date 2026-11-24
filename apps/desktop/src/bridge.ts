@@ -1,7 +1,11 @@
-import { DaemonEvent, JsonValue, NonEmptyString } from "@aut/protocol";
+import { DaemonEvent, FileId, JsonValue, NonEmptyString } from "@aut/protocol";
 import { Schema } from "effect";
 
 const routes = [
+  ["GET", /^\/v1\/files\/[a-f0-9]{64}$/],
+  ["POST", /^\/v1\/files$/],
+  ["POST", /^\/v1\/files\/keepalive$/],
+  ["DELETE", /^\/v1\/files\/[a-f0-9]{64}$/],
   ["GET", /^\/v1\/(?:mcp\/servers|bots\/[^/?#]+\/mcp-grants|triggers(?:\/[^/?#]+\/runs)?)$/],
   [
     "POST",
@@ -40,7 +44,18 @@ export const DesktopNotice = Schema.Union(
   Schema.Struct({ type: Schema.Literal("connection"), connected: Schema.Boolean }),
 );
 export type DesktopNotice = typeof DesktopNotice.Type;
+export const FileAction = Schema.Struct({
+  id: FileId,
+  action: Schema.Literal("save", "reveal", "preview"),
+});
+export type FileAction = typeof FileAction.Type;
+export type FileActionResult = {
+  readonly ok: boolean;
+  readonly cancelled?: boolean;
+  readonly error?: string;
+};
 export interface DesktopBridge {
+  readonly fileAction?: (input: FileAction) => Promise<FileActionResult>;
   readonly request: (request: ApiRequest) => Promise<ApiResult>;
   readonly onNotice: (listener: (notice: DesktopNotice) => void) => () => void;
 }

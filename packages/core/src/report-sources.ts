@@ -7,6 +7,7 @@ import { gfmAutolinkLiteral } from "micromark-extension-gfm-autolink-literal";
 interface MarkdownNode {
   readonly type: string;
   readonly value?: string;
+  readonly alt?: string | null | undefined;
   readonly url?: string;
   readonly identifier?: string;
   readonly children?: readonly MarkdownNode[];
@@ -53,14 +54,23 @@ const inspectReport = (report: string) => {
   };
   collectDefinitions(root);
   const visit = (node: MarkdownNode) => {
-    if (["code", "inlineCode", "html", "image", "imageReference"].includes(node.type)) return;
+    if (["code", "inlineCode", "html"].includes(node.type)) return;
     if (node.type === "definition") {
       replace(node, "");
       return;
     }
-    if (node.type === "link" || node.type === "linkReference") {
+    if (["link", "linkReference", "image", "imageReference"].includes(node.type)) {
       const candidate = node.url ?? definitions.get(node.identifier ?? "");
       if (!candidate) return;
+      if (
+        !candidate.startsWith("#") &&
+        !candidate.startsWith("//") &&
+        (!/^[a-z][a-z\d+.-]*:/i.test(candidate) || /^file:/i.test(candidate))
+      ) {
+        replace(node, escapeLabel(node.alt ?? plainText(node)));
+        return;
+      }
+      if (node.type === "image" || node.type === "imageReference") return;
       const start = node.position?.start.offset ?? 0;
       const bare = /^https?:\/\//i.test(report.slice(start));
       const url = bare ? candidate.replace(/[。，、！？；：”’）】》〉」』]+$/u, "") : candidate;

@@ -1212,6 +1212,8 @@ export const SessionManagerLive = (options: SessionManagerOptions = {}) =>
                 taskId: task.id,
                 fullReportRef: `event:${active.reportEventId}`,
                 sources: reportSources(report.value.event.event.finalReport),
+                ...(result.files ? { files: result.files } : {}),
+                ...(result.fileIssues ? { fileIssues: result.fileIssues } : {}),
               });
               yield* saveTask(
                 tx,

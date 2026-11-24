@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { FILE_BODY_LIMIT } from "@aut/protocol";
 import { Effect, Stream } from "effect";
 import { DesktopConnection, DesktopConnectionLive } from "../dist/connection.js";
 
@@ -36,7 +37,7 @@ const program = Effect.scoped(
           let length = 0;
           for await (const chunk of req) {
             length += chunk.length;
-            if (length > 1024 * 1024) {
+            if (length > FILE_BODY_LIMIT + 1024) {
               res.writeHead(413);
               res.end();
               return;

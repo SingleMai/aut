@@ -2,7 +2,7 @@
 // Composer.tsx and ReplyQuote.tsx at 738ec88472a3b888ff7b7793755d89da613ed301, Apache-2.0. See NOTICE.
 
 import { CharacterPlayer, wink } from "@aut/characters";
-import type { MainThreadMessage, Task } from "@aut/protocol";
+import { FILE_MAX_COUNT, type MainThreadMessage, type Task } from "@aut/protocol";
 import { Button, IconButton } from "@radix-ui/themes";
 import { Effect } from "effect";
 import { ArrowUpRight, Bot, ListChecks, Waypoints } from "lucide-react";
@@ -15,10 +15,13 @@ import { ConversationBody } from "./conversation-body.js";
 import { ConversationMessage } from "./conversation-message.js";
 import { useConversationViewport } from "./conversation-viewport.js";
 import type { DesktopData } from "./desktop-data.js";
+import { useFileDrafts } from "./file-drafts.js";
 import { t } from "./i18n.js";
 import { Icon } from "./icons.js";
+import { FileCard, fileSize } from "./message-files.js";
 import { useTallPill } from "./openmausbot/components/composer-wrap.js";
 import { ReplyQuote } from "./openmausbot/components/ReplyQuote.js";
+import { clipboardFilesToAttach, clipboardImageFiles } from "./openmausbot/lib/file-clipboard.js";
 import { escapeCancelsReply } from "./openmausbot/lib/replies.js";
 import { imeComposing, sendsMessage } from "./openmausbot/lib/send-key.js";
 import { activeQuestionControl } from "./question-card.js";
@@ -65,8 +68,17 @@ export function ConversationPage({
   const input = useRef<HTMLTextAreaElement>(null),
     form = useRef<HTMLFormElement>(null);
   const composing = useRef(false);
+  const inheritedCount = quote?.files?.length ?? 0;
+  const attachments = useFileDrafts(flash, inheritedCount);
+  const picker = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const tooManyFiles = inheritedCount + attachments.entries.length > FILE_MAX_COUNT;
+  const attachmentsReady =
+    !tooManyFiles && attachments.entries.every((entry) => entry.status === "ready");
   const tall = useTallPill(form, active);
-  const pendingMessage = useRef<{ id: string; text: string } | undefined>(undefined);
+  const pendingMessage = useRef<{ id: string; text: string; fileIds: string[] } | undefined>(
+    undefined,
+  );
   const send = useAction(flash),
     older = useAction(flash);
   const layouts = useMemo(() => deriveMessageLayout(messages), [messages]);
@@ -159,7 +171,33 @@ export function ConversationPage({
     field.focus();
   };
   return (
-    <div className="conversation-view" ref={viewport.page} hidden={!active}>
+    // biome-ignore lint/a11y/noStaticElementInteractions: dropping files supplements the keyboard-accessible file picker below.
+    <div
+      className="conversation-view"
+      ref={viewport.page}
+      hidden={!active}
+      onDragOver={(event) => {
+        if (event.dataTransfer.types.includes("Files")) {
+          event.preventDefault();
+          setDragging(true);
+        }
+      }}
+      onDragLeave={(event) => {
+        if (
+          !(event.relatedTarget instanceof Node) ||
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          setDragging(false);
+      }}
+      onDrop={(event) => {
+        if (!event.dataTransfer.types.includes("Files")) return;
+        event.preventDefault();
+        setDragging(false);
+        attachments.add(event.dataTransfer.files);
+        input.current?.focus();
+      }}
+    >
+      {dragging && <div className="file-drop-overlay">{t.fileDrop}</div>}
       {/* biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard readers scroll the log with Page Up, Home and the arrow keys. */}
       <div className="message-feed" ref={feed} role="log" aria-label={t.conversation} tabIndex={0}>
         <div ref={viewport.stream} className={!messages.length ? "empty-stream" : undefined}>
@@ -272,13 +310,24 @@ export function ConversationPage({
           onSubmit={(e) => {
             e.preventDefault();
             const text = input.current?.value;
-            if (!text?.trim() || send.busy) return;
+            if (!text?.trim() || send.busy || !attachmentsReady) return;
             viewport.toEnd();
             const outgoing = quote;
-            if (!pendingMessage.current || pendingMessage.current.text !== text)
-              pendingMessage.current = { id: crypto.randomUUID(), text };
+            const entries = attachments.entries;
+            const fileIds = entries.flatMap((entry) => (entry.file ? [entry.file.id] : []));
+            if (
+              !pendingMessage.current ||
+              pendingMessage.current.text !== text ||
+              JSON.stringify(pendingMessage.current.fileIds) !== JSON.stringify(fileIds)
+            )
+              pendingMessage.current = { id: crypto.randomUUID(), text, fileIds };
             const operation: Effect.Effect<unknown, UiError> = outgoing
-              ? desktopApi.sendAction({ type: "quote-reply", quotedMessageId: outgoing.id, text })
+              ? desktopApi.sendAction({
+                  type: "quote-reply",
+                  quotedMessageId: outgoing.id,
+                  text,
+                  fileIds,
+                })
               : desktopApi.sendMessage(pendingMessage.current);
             send.run(
               operation.pipe(
@@ -286,6 +335,7 @@ export function ConversationPage({
                   Effect.sync(() => {
                     const cleared = input.current && clearSubmittedDraft(input.current, text);
                     pendingMessage.current = undefined;
+                    attachments.clear(entries.map((entry) => entry.key));
                     if (cleared && currentQuote.current === outgoing) setQuote(undefined);
                   }),
                 ),
@@ -294,6 +344,53 @@ export function ConversationPage({
             );
           }}
         >
+          <input
+            ref={picker}
+            type="file"
+            multiple
+            hidden
+            aria-label={t.fileAdd}
+            onChange={(event) => {
+              attachments.add(event.currentTarget.files ?? []);
+              event.currentTarget.value = "";
+              input.current?.focus();
+            }}
+          />
+          {!!attachments.entries.length && (
+            <div className="composer-files">
+              {attachments.entries.map((entry) => (
+                <div className="draft-file" key={entry.key}>
+                  {entry.file ? (
+                    <FileCard file={entry.file} flash={flash} />
+                  ) : (
+                    <div className="file-draft-status">
+                      <strong>{entry.source.name}</strong>
+                      <small>
+                        {fileSize(entry.source.size)} ·{" "}
+                        {entry.status === "uploading" ? t.fileUploading : t.fileUploadFailed}
+                      </small>
+                      {entry.error && <span role="alert">{entry.error}</span>}
+                      {entry.status === "failed" && (
+                        <button type="button" onClick={() => attachments.retry(entry)}>
+                          {t.retry}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    className="remove-file"
+                    disabled={send.busy}
+                    aria-label={`${t.fileRemove} ${entry.source.name}`}
+                    title={t.fileRemove}
+                    onClick={() => attachments.remove(entry.key)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="quote-preview" hidden={!quote}>
             {quote && (
               <ReplyQuote
@@ -309,8 +406,27 @@ export function ConversationPage({
                 }}
               />
             )}
+            {inheritedCount > 0 && (
+              <p className="file-quote-hint">{t.fileQuoteCount(inheritedCount)}</p>
+            )}
+            {tooManyFiles && (
+              <p className="file-issues" role="alert">
+                {t.fileCountLimit}
+              </p>
+            )}
           </div>
           <div className="composer-line">
+            <IconButton
+              type="button"
+              variant="ghost"
+              color="gray"
+              radius="full"
+              aria-label={t.fileAdd}
+              title={t.fileAdd}
+              onClick={() => picker.current?.click()}
+            >
+              ＋
+            </IconButton>
             <textarea
               ref={input}
               placeholder={t.compose}
@@ -318,6 +434,14 @@ export function ConversationPage({
               title={t.sendHint}
               rows={1}
               dir="auto"
+              onPaste={(event) => {
+                const files = clipboardFilesToAttach(event.clipboardData);
+                const images = files.length ? files : clipboardImageFiles(event.clipboardData);
+                if (images.length) {
+                  event.preventDefault();
+                  attachments.add(images);
+                }
+              }}
               onCompositionStart={() => {
                 composing.current = true;
               }}
@@ -344,7 +468,7 @@ export function ConversationPage({
               aria-label={t.send}
               title={t.send}
               hidden={!draft.trim()}
-              disabled={send.busy || !draft.trim()}
+              disabled={send.busy || !draft.trim() || !attachmentsReady}
             >
               <Icon name="send" />
             </IconButton>

@@ -20,6 +20,7 @@ import {
   uniqueBy,
 } from "./common.js";
 import { BotConfig, McpServerConfig } from "./config.js";
+import { FileIds, FileIssues, MessageFileList } from "./files.js";
 
 export const ControlAction = Schema.Literal("cancel", "retry", "resume", "archive");
 export type ControlAction = typeof ControlAction.Type;
@@ -222,6 +223,7 @@ export const UiAction = Schema.Union(
     type: Schema.Literal("quote-reply"),
     quotedMessageId: MessageId,
     text: Schema.String,
+    fileIds: optional(FileIds),
   }),
   Schema.Struct({ type: Schema.Literal("task-control"), taskId: TaskId, action: ControlAction }),
 );
@@ -260,6 +262,8 @@ export const MainThreadMessage = Schema.Struct({
   card: optional(Card),
   fullReportRef: optional(NonEmptyString),
   sources: optional(ReportSources),
+  files: optional(MessageFileList),
+  fileIssues: optional(FileIssues),
   botCreation: optional(BotCreationReceipt),
   dispatch: optional(
     Schema.Struct({
@@ -505,7 +509,12 @@ export type DecisionResponse = typeof DecisionResponse.Type;
 export const HandoffPacket = Schema.Struct({
   header: Schema.String,
   request: Schema.Array(
-    Schema.Struct({ messageId: MessageId, at: Timestamp, text: Schema.String }),
+    Schema.Struct({
+      messageId: MessageId,
+      at: Timestamp,
+      text: Schema.String,
+      files: optional(MessageFileList),
+    }),
   ),
   excerpts: Schema.Array(
     Schema.Struct({

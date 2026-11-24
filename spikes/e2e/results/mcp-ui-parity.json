@@ -1,0 +1,72 @@
+{
+  "at": "2026-11-24T10:11:38.629575+00:00",
+  "upstream": {
+    "repository": "https://github.com/milind-soni/OpenMausBot",
+    "commit": "619a6b7b22a8bf970416c7d9cbf4e8b3c5ba4ddc",
+    "mapping": "docs/mcp-ui-parity.md"
+  },
+  "surface": "Real desktop renderer in ego-browser, isolated DaemonApiLive and preview IPC bridge; no model or user configuration used.",
+  "liveStdio": {
+    "name": "我的笔记",
+    "enabled": true,
+    "health": "ready",
+    "tools": [
+      "search_notes",
+      "read_note",
+      "create_note"
+    ],
+    "allowedTools": [
+      "search_notes",
+      "read_note"
+    ],
+    "credentialsStoredAsReferences": true
+  },
+  "browserChecks": [
+    "Empty registry shows first-service entry.",
+    "Pasted JSON auto-detects command and arguments; details permit naming and password environment rows.",
+    "Save and test performs actual stdio discovery, leaving the service disabled until explicitly switched on.",
+    "Grant switch and exact tool selection persist through refresh; searching tool descriptions preserves hidden selections.",
+    "Daemon refresh preserves expanded tool controls and search; regression added after a browser-discovered failure.",
+    "Saved credential input is empty with keep-value hint; reference is absent from rendered HTML and saving preserves it.",
+    "Delete opens confirmation; cancel preserves the server.",
+    "Pasted URL command with a placeholder shows only its missing credential; submitting it empty is blocked.",
+    "Bot editor reads the same two selected tools; selecting create_note then cancelling leaves the stored grant unchanged."
+  ],
+  "visualChecks": {
+    "light": true,
+    "dark": true,
+    "narrow": {
+      "viewportWidth": 1040,
+      "documentWidth": 1040,
+      "cardOverflow": false
+    },
+    "listViewport": [
+      1280,
+      1120
+    ],
+    "editorViewport": [
+      1280,
+      900
+    ]
+  },
+  "regression": {
+    "command": "pnpm check",
+    "testFilesPassed": 93,
+    "testsPassed": 1357,
+    "testsSkipped": 1,
+    "build": true,
+    "typecheck": true,
+    "lintAndBoundaries": true,
+    "desktopBundle": true
+  },
+  "screenshots": [
+    "docs/assets/desktop/mcp-management-parity.png",
+    "docs/assets/desktop/mcp-editor-parity.png",
+    "docs/assets/desktop/mcp-grants-parity.png",
+    "docs/assets/desktop/mcp-grants-dark.png"
+  ],
+  "limits": [
+    "Ready remote, login-required and remote-error cards use synthetic status fixtures. No third-party OAuth account login was performed.",
+    "This UI iteration was verified in the browser preview; the Electron installer was not rebuilt or reverified."
+  ]
+}

@@ -1,7 +1,8 @@
 import { McpServerInput } from "@aut/protocol";
 import { Effect } from "effect";
 import { desktopApi, UiError, validate } from "./api.js";
-import { gapIn, type PastedMcpServer, readMcpPaste } from "./openmausbot/lib/mcp-paste.js";
+import { type McpDraft, parseMcpArguments, rowsBody } from "./openmausbot/components/mcp-draft.js";
+import { gapIn, readMcpPaste } from "./openmausbot/lib/mcp-paste.js";
 
 export const parseMcpPaste = (text: string, taken: readonly string[]) =>
   Effect.try({
@@ -22,71 +23,70 @@ export const parseMcpPaste = (text: string, taken: readonly string[]) =>
     ),
   );
 
-/** The copied parser is an input adapter; persisted data still uses the current Effect Schema. */
-export const prepareMcpImport = (draft: PastedMcpServer, form: FormData) =>
+/** Adapt the upstream editor draft at the existing Effect/Schema boundary before saving any secrets. */
+export const prepareMcpDraft = (draft: McpDraft) =>
   Effect.gen(function* () {
-    const text = (key: string) => String(form.get(key) ?? "").trim();
-    const secrets = draft.transport === "stdio" ? draft.env : draft.headers;
-    const values = secrets.map((secret, i) => {
-      const entered = String(form.get(`secret-${i}`) ?? "");
-      return {
-        name: secret.name,
-        value: secret.gap ? `${secret.gap.before}${entered}${secret.gap.after}` : entered,
-      };
-    });
-    if (
-      secrets.some((secret, i) => secret.gap && !String(form.get(`secret-${i}`) ?? "").trim()) ||
-      values.some(({ value }) => !value || gapIn(value))
-    )
-      return yield* Effect.fail(
-        new UiError({ message: "请填写真实的凭据值，不能保留变量或占位符。" }),
-      );
-    const references = Object.fromEntries(
-      values.map(({ name }, i) => [name, `secret:pending-${i}`]),
+    const rows = rowsBody(
+      draft.transport === "stdio" ? draft.env : draft.headers,
+      draft.transport === "stdio" ? "env" : "header",
     );
-    const args =
-      draft.transport === "stdio"
-        ? yield* Effect.try({
-            try: () => JSON.parse(text("args")) as unknown,
-            catch: () => new UiError({ message: "启动参数必须是 JSON 数组。" }),
-          })
+    if (!rows.ok) return yield* Effect.fail(new UiError({ message: rows.error }));
+    const args = parseMcpArguments(draft.args);
+    if (draft.transport === "stdio" && [draft.command, ...args].some((value) => gapIn(value)))
+      return yield* Effect.fail(new UiError({ message: "请补齐启动命令和参数中的变量或占位符。" }));
+    if (draft.transport === "remote") {
+      const url = yield* Effect.try({
+        try: () => new URL(draft.url.trim()),
+        catch: () => new UiError({ message: "请填写完整的 HTTP 或 HTTPS 服务地址。" }),
+      });
+      if (gapIn(draft.url) || url.username || url.password)
+        return yield* Effect.fail(
+          new UiError({ message: "请填写完整服务地址，登录凭据请放在请求头中。" }),
+        );
+    }
+    const oauthSecret = draft.oauthClientSecret.trim();
+    if (oauthSecret && gapIn(oauthSecret))
+      return yield* Effect.fail(new UiError({ message: "请填写真实的 OAuth 客户端密钥。" }));
+    const secretRef = oauthSecret
+      ? "secret:pending-oauth"
+      : !draft.oauthForgetSecret
+        ? draft.oauthSecretRef
         : undefined;
     const input = yield* validate(
       McpServerInput,
       draft.transport === "stdio"
         ? {
-            name: text("name"),
+            name: draft.name.trim(),
             transport: "stdio",
-            command: text("command"),
+            command: draft.command.trim(),
             args,
-            env: references,
-            ...("cwd" in draft && typeof draft.cwd === "string" ? { cwd: draft.cwd } : {}),
+            ...(draft.cwd.trim() ? { cwd: draft.cwd.trim() } : {}),
+            env: rows.values,
           }
         : {
-            name: text("name"),
+            name: draft.name.trim(),
             transport: draft.type,
-            url: text("url"),
-            headers: references,
-            ...(draft.oauthClientId ? { oauth: { clientId: draft.oauthClientId } } : {}),
+            url: draft.url.trim(),
+            headers: rows.values,
+            ...(draft.oauthClientId.trim() || secretRef
+              ? {
+                  oauth: {
+                    ...(draft.oauthClientId.trim() ? { clientId: draft.oauthClientId.trim() } : {}),
+                    ...(secretRef ? { clientSecretRef: secretRef } : {}),
+                  },
+                }
+              : {}),
           },
     );
-    if (input.transport === "stdio") {
-      if ([input.command, ...input.args].some((value) => gapIn(value)))
-        return yield* Effect.fail(
-          new UiError({ message: "请补齐启动命令和参数中的变量或占位符。" }),
-        );
-    } else {
-      const url = new URL(input.url);
-      if (gapIn(input.url) || url.username || url.password)
-        return yield* Effect.fail(
-          new UiError({ message: "请填写完整服务地址，登录凭据请放在请求头中。" }),
-        );
-    }
-    return { input, values };
+    return {
+      input,
+      values: Object.entries(rows.values).map(([name, value]) => ({ name, value })),
+      ...(draft.transport === "remote" && oauthSecret ? { oauthSecret } : {}),
+    };
   });
 
 export const saveMcpImportSecrets = (
-  prepared: Effect.Effect.Success<ReturnType<typeof prepareMcpImport>>,
+  prepared: Effect.Effect.Success<ReturnType<typeof prepareMcpDraft>>,
   key: string,
 ) =>
   Effect.gen(function* () {
@@ -98,18 +98,24 @@ export const saveMcpImportSecrets = (
             .pipe(Effect.map((saved) => [name, saved.apiKeyRef] as const)),
     );
     const references = Object.fromEntries(entries);
+    const oauthSecret = prepared.oauthSecret
+      ? yield* desktopApi.saveSecret({
+          name: `mcp-${key}-oauth`,
+          key: prepared.oauthSecret,
+        })
+      : undefined;
     return prepared.input.transport === "stdio"
       ? { ...prepared.input, env: references }
-      : { ...prepared.input, headers: references };
+      : {
+          ...prepared.input,
+          headers: references,
+          ...(oauthSecret
+            ? {
+                oauth: {
+                  ...prepared.input.oauth,
+                  clientSecretRef: oauthSecret.apiKeyRef,
+                },
+              }
+            : {}),
+        };
   });
-
-export const saveMcpServerSecrets = (input: McpServerInput, key: string) =>
-  saveMcpImportSecrets(
-    {
-      input,
-      values: Object.entries(
-        input.transport === "stdio" ? (input.env ?? {}) : (input.headers ?? {}),
-      ).map(([name, value]) => ({ name, value })),
-    },
-    key,
-  );

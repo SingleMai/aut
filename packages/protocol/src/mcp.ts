@@ -32,6 +32,7 @@ import {
   Trigger,
   TriggerRun,
 } from "./domain.js";
+import { MessageFileList } from "./files.js";
 
 export const MainThreadExcerpt = Schema.Struct({
   id: MessageId,
@@ -40,6 +41,7 @@ export const MainThreadExcerpt = Schema.Struct({
   text: Schema.String,
   taskId: optional(TaskId),
   sources: optional(ReportSources),
+  files: optional(MessageFileList),
 });
 export type MainThreadExcerpt = typeof MainThreadExcerpt.Type;
 export const TaskSummary = Schema.Struct({

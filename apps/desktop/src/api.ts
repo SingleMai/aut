@@ -7,6 +7,10 @@ import {
   ConfigResponse,
   type CreateTriggerInput,
   DeletedResponse,
+  FileContentResponse,
+  FileReleaseResponse,
+  FileResponse,
+  type FileUploadInput,
   JsonValue,
   McpAuthStartResponse,
   type McpGrantInput,
@@ -71,6 +75,13 @@ const beforeQuery = (before?: string) =>
   before === undefined ? "" : `&before=${encodeURIComponent(before)}`;
 
 export const desktopApi = {
+  uploadFile: (input: FileUploadInput) => request("POST", "/v1/files", FileResponse, input),
+  keepFiles: (ids: readonly string[]) =>
+    request("POST", "/v1/files/keepalive", AcceptedResponse, { ids: [...ids] }),
+  discardFile: (id: string) =>
+    request("DELETE", `/v1/files/${encodeURIComponent(id)}`, FileReleaseResponse),
+  getFile: (id: string) =>
+    request("GET", `/v1/files/${encodeURIComponent(id)}`, FileContentResponse),
   listMessages: (before?: string) =>
     request(
       "GET",
