@@ -158,7 +158,10 @@ export function DesktopApp() {
               <p className="muted">{t.loading}</p>
             )}
             {view === "bots" && config && (
-              <BotsPage {...{ bots, config, data, flash }} settings={() => navigate("settings")} />
+              <BotsPage
+                {...{ bots, config, data, flash, openTask }}
+                settings={() => navigate("settings")}
+              />
             )}
             {view === "automations" && (
               <AutomationsPage {...{ bots, data, flash }} triggers={snapshot.triggers} />

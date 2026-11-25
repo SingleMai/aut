@@ -5,5 +5,6 @@ export * from "./domain.js";
 export * from "./files.js";
 export * from "./interfaces.js";
 export * from "./mcp.js";
+export * from "./memory.js";
 export * from "./session-history.js";
 export * from "./tree.js";

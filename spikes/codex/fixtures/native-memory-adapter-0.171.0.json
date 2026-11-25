@@ -1,0 +1,38 @@
+{
+  "cli": "codex-cli 0.171.0",
+  "recordedAt": "2026-11-24T13:53:52.938Z",
+  "passed": true,
+  "model": "agy-cli/gemini-4-neon",
+  "provider": null,
+  "modelTurnsStarted": 1,
+  "opened": 3,
+  "closed": 3,
+  "evidence": [
+    {
+      "check": "start_with_conflicting_instance_flags",
+      "mode": "disabled"
+    },
+    {
+      "check": "cold_resume_clears_previous_learning_eligibility",
+      "mode": "disabled"
+    },
+    {
+      "check": "fork",
+      "mode": "disabled"
+    }
+  ],
+  "methods": [
+    "initialize",
+    "config/read",
+    "thread/start",
+    "turn/start",
+    "initialize",
+    "config/read",
+    "thread/resume",
+    "thread/memoryMode/set",
+    "initialize",
+    "config/read",
+    "thread/fork"
+  ],
+  "scope": "Production adapter; synthetic session and isolated SQLite; cold resume and fork; original Provider and global config retained"
+}

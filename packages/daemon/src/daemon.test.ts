@@ -16,10 +16,13 @@ import {
 import {
   BotConfig,
   BotId,
+  BotMemoryResponse,
   BotsResponse,
   DaemonEvent,
   FileContentResponse,
   FileResponse,
+  MemoryFileResponse,
+  MemoryGraphResponse,
   MessageId,
   MessagePageResponse,
   ReportResponse,
@@ -112,6 +115,116 @@ const task = (id: string, status: Task["status"]) =>
   });
 
 describe("local HTTP API", () => {
+  it("serves a bot-scoped knowledge graph for current files and read-only snapshots", async () => {
+    const server = await start();
+    await server.request("/v1/config", "PUT", config);
+    await server.request("/v1/bots", "POST", bot);
+    await server.request("/v1/bots/b1/memory/file", "PUT", {
+      path: "knowledge/release.md",
+      content: "# Release\n\n[Environment](environment.md)",
+    });
+    await server.request("/v1/bots/b1/memory/file", "PUT", {
+      path: "knowledge/environment.md",
+      content: "# Environment",
+    });
+    const readGraph = async (query = "") =>
+      Schema.decodeUnknownSync(MemoryGraphResponse)(
+        await (await server.request(`/v1/bots/b1/memory/graph${query}`)).json(),
+      );
+    const current = await readGraph();
+    expect(current.nodes).toHaveLength(2);
+    expect(current.edges).toEqual([
+      { source: "knowledge/release.md", target: "knowledge/environment.md" },
+    ]);
+    await server.request("/v1/bots/b1/memory/file?path=knowledge%2Fenvironment.md", "DELETE");
+    const listing = Schema.decodeUnknownSync(BotMemoryResponse)(
+      await (await server.request("/v1/bots/b1/memory")).json(),
+    );
+    const archived = await readGraph(`?snapshot=${listing.snapshots[0]?.id}`);
+    expect(archived.edges).toEqual(current.edges);
+    const after = await readGraph();
+    expect(after.edges).toEqual([]);
+    expect(after.brokenLinks).toEqual(current.edges);
+    expect((await server.request("/v1/bots/missing/memory/graph")).status).toBe(404);
+    expect((await server.request("/v1/bots/b1/memory/graph?snapshot=../escape")).status).toBe(400);
+    expect((await server.request("/v1/bots/b1/memory/graph", "PUT", {})).status).toBe(404);
+  });
+  it("edits bot memory, reads audit snapshots and exposes a default paused-or-enabled dream plan", async () => {
+    const server = await start();
+    await server.request("/v1/config", "PUT", config);
+    await server.request("/v1/bots", "POST", bot);
+    const initialResponse = await server.request("/v1/bots/b1/memory");
+    expect(initialResponse.status).toBe(200);
+    const initial = Schema.decodeUnknownSync(BotMemoryResponse)(await initialResponse.json());
+    expect(initial.files.map((file) => file.path)).toContain("MEMORY.md");
+    expect(initial.dream).toMatchObject({
+      botId: "b1",
+      enabled: true,
+      schedule: { kind: "daily", at: "03:00" },
+    });
+    const save = await server.request("/v1/bots/b1/memory/file", "PUT", {
+      path: "MEMORY.md",
+      content: "Remember blue",
+    });
+    expect(Schema.decodeUnknownSync(MemoryFileResponse)(await save.json()).file.content).toBe(
+      "Remember blue",
+    );
+    await server.request("/v1/bots/b1/memory/file", "PUT", {
+      path: "MEMORY.md",
+      content: "Remember green",
+    });
+    await server.request("/v1/bots/b1/memory/file", "PUT", {
+      path: "knowledge/project/details.md",
+      content: "Nested knowledge",
+    });
+    const listing = Schema.decodeUnknownSync(BotMemoryResponse)(
+      await (await server.request("/v1/bots/b1/memory")).json(),
+    );
+    expect(listing.directory).not.toContain(bot.cwd);
+    expect(listing.files.map((file) => file.path)).toContain("knowledge/project/details.md");
+    const beforeGreen = listing.snapshots[1];
+    expect(beforeGreen).toBeDefined();
+    const historical = await server.request(
+      `/v1/bots/b1/memory/file?path=MEMORY.md&snapshot=${encodeURIComponent(beforeGreen?.id ?? "missing")}`,
+    );
+    expect(Schema.decodeUnknownSync(MemoryFileResponse)(await historical.json()).file.content).toBe(
+      "Remember blue",
+    );
+    expect((await server.request("/v1/bots/b1/memory/file?path=../config.json")).status).toBe(400);
+    expect((await server.request("/v1/bots/missing/memory")).status).toBe(404);
+    expect(
+      (
+        await server.request(
+          `/v1/bots/b1/memory/file?path=MEMORY.md&snapshot=${encodeURIComponent(beforeGreen?.id ?? "missing")}`,
+          "DELETE",
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await server.request(
+          "/v1/bots/b1/memory/file?path=knowledge%2Fproject%2Fdetails.md",
+          "DELETE",
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (await server.request("/v1/bots/b1/memory/file?path=knowledge%2Fproject%2Fdetails.md"))
+        .status,
+    ).toBe(404);
+    await server.request("/v1/bots/b1/memory/clear", "POST");
+    const cleared = Schema.decodeUnknownSync(MemoryFileResponse)(
+      await (await server.request("/v1/bots/b1/memory/file?path=MEMORY.md")).json(),
+    );
+    expect(cleared.file.content).not.toContain("Remember green");
+    const dreamId = initial.dream?.id;
+    expect(dreamId).toBeDefined();
+    await server.request(`/v1/triggers/${encodeURIComponent(dreamId ?? "missing")}/pause`, "POST");
+    const paused = Schema.decodeUnknownSync(BotMemoryResponse)(
+      await (await server.request("/v1/bots/b1/memory")).json(),
+    );
+    expect(paused.dream?.enabled).toBe(false);
+  });
   it("persists uploaded snapshots, validates file IDs, quotes the original version and deduplicates message delivery", async () => {
     const api = await start();
     const upload = async (text: string) =>

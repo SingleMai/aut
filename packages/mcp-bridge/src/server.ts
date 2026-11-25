@@ -24,6 +24,8 @@ import {
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  ReadTaskSessionInput,
+  ReadTaskSessionOutput,
   UpdateTriggerOutput,
   UpdateTriggerToolInput,
 } from "@aut/protocol";
@@ -118,6 +120,12 @@ export const makeMcpServer = (client: SocketBridgeClient): Effect.Effect<McpServ
       "List at most 50 tasks, optionally filtered by status or bot. This tool never changes tasks.",
       ListTasksInput,
       ListTasksOutput,
+    );
+    register(
+      "read_task_session",
+      "Read a bounded page of a task's original harness session. Only tasks owned by your current Bot are accessible. Use nextBefore to read earlier turns; if history is unsupported, use the saved task report and your notes. This tool does not start or resume work.",
+      ReadTaskSessionInput,
+      ReadTaskSessionOutput,
     );
     register(
       "get_task",

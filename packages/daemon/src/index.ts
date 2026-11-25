@@ -26,6 +26,7 @@ import { HttpServerLive } from "./http.js";
 import { InboundGatewayLive } from "./inbound.js";
 import { McpOAuthLive } from "./mcp-oauth.js";
 import { McpSupervisorLive } from "./mcp-supervisor.js";
+import { MemoryDreamsLive } from "./memory-dreams.js";
 import { AuthenticationLive, OwnershipLive } from "./ownership.js";
 import {
   PrimaryAssistantBootstrapLive,
@@ -49,6 +50,7 @@ export * from "./http.js";
 export * from "./inbound.js";
 export * from "./mcp-oauth.js";
 export * from "./mcp-supervisor.js";
+export * from "./memory-dreams.js";
 export * from "./ownership.js";
 export * from "./primary-assistant.js";
 export * from "./recovery.js";
@@ -78,10 +80,11 @@ export const DaemonApiLive = (options: DaemonOptions = {}) => {
     RouteTestLive,
     FileMaintenanceLive,
   ).pipe(Layer.provideMerge(mcp));
+  const memory = MemoryDreamsLive.pipe(Layer.provideMerge(services));
   const readers = SessionReaderLive.pipe(
     Layer.provideMerge(
       Layer.merge(HarnessResolverLive, StoredSessionSnapshotSourceLive).pipe(
-        Layer.provideMerge(services),
+        Layer.provideMerge(memory),
       ),
     ),
   );
@@ -104,6 +107,7 @@ export const DaemonLive = (options: DaemonOptions = {}) => {
     Layer.provideMerge(infrastructure),
   );
   const tree = ConfiguredTreeLive.pipe(Layer.provideMerge(recovered));
+  const memory = MemoryDreamsLive.pipe(Layer.provideMerge(tree));
   const ports = Layer.mergeAll(
     AuthenticationLive,
     InboundGatewayLive,
@@ -117,7 +121,7 @@ export const DaemonLive = (options: DaemonOptions = {}) => {
     HandoffBuilderLive(),
     SessionReplyGateLive(),
     SessionRequestRouterLive,
-  ).pipe(Layer.provideMerge(tree));
+  ).pipe(Layer.provideMerge(memory));
   const sessions = SessionManagerLive().pipe(Layer.provideMerge(ports));
   const readers = SessionReaderLive.pipe(
     Layer.provideMerge(SessionSnapshotSourceLive.pipe(Layer.provideMerge(sessions))),

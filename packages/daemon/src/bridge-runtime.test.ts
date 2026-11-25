@@ -18,6 +18,7 @@ it("binds a private ready listener and revokes session credentials before cleani
     readMainThread: () => Effect.succeed([]),
     listTasks: () => Effect.succeed([]),
     getTask: () => Effect.dieMessage("Unused task lookup"),
+    readTaskSession: () => Effect.dieMessage("Unused session lookup"),
     createBot: (_identity, { id, name }) => Effect.succeed({ id, name }),
     createTrigger: () => Effect.dieMessage("Unused trigger creation"),
     getTrigger: () => Effect.dieMessage("Unused trigger lookup"),

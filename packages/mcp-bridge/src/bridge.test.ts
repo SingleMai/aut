@@ -116,6 +116,14 @@ const setup = Effect.gen(function* () {
   let allowed = true;
   const reads: unknown[] = [];
   const layer = Layer.succeed(BridgeBackend, {
+    readTaskSession: (_identity, input) =>
+      Effect.succeed({
+        task,
+        history: { turns: [] },
+        availability: "available" as const,
+        hasEarlier: false,
+        ...(input.before ? { message: input.before } : {}),
+      }),
     mcpInfo: () => Effect.succeed({ servers: [], grants: [], bots: [] }),
     mcpServer: () => Effect.dieMessage("Unexpected MCP management call"),
     authorize: () =>
@@ -221,6 +229,9 @@ it.scoped(
       ]);
       expect(yield* client.call("get_task", { taskId: "task" })).toEqual(task);
       expect(
+        yield* client.call("read_task_session", { taskId: "task", before: "earlier", limit: 2 }),
+      ).toMatchObject({ availability: "available", message: "earlier" });
+      expect(
         yield* client.call("create_trigger", {
           id: "fixture-trigger",
           name: "Fixture schedule",
@@ -249,6 +260,7 @@ it.scoped(
         ["read_main_thread", { ids: ["m1"], limit: 1 }],
         ["read_main_thread", { ids: Array.from({ length: 51 }, (_, index) => `m${index}`) }],
         ["list_tasks", { limit: 51 }],
+        ["read_task_session", { taskId: "task", limit: 21 }],
       ] as const)
         expect((yield* client.call(tool, input).pipe(Effect.flip)).code).toBe("InvalidInput");
       expect(test.reads).toHaveLength(1);
@@ -461,6 +473,7 @@ it.scoped("serves role-specific tools through the official SDK and keeps ask_use
       expect(tools.tools.map((tool) => tool.name)).toEqual([
         "read_main_thread",
         "list_tasks",
+        "read_task_session",
         "get_task",
         "create_bot",
         "create_trigger",
@@ -584,6 +597,7 @@ it.scoped("runs the actual stdio child with a scoped session credential", () =>
     expect(tools.tools.map((tool) => tool.name)).toEqual([
       "read_main_thread",
       "list_tasks",
+      "read_task_session",
       "get_task",
       "create_bot",
       "create_trigger",

@@ -7,6 +7,7 @@ import {
   ConfigStore,
   CoreLive,
   insertTaskWithSession,
+  SessionReader,
   Store,
 } from "@aut/core";
 import { BridgeBackend, type SessionIdentity } from "@aut/mcp-bridge";
@@ -75,6 +76,16 @@ const run = <A, E>(
   });
   const base = Layer.mergeAll(
     CoreLive({ dataDirectory }),
+    Layer.succeed(SessionReader, {
+      read: (id, query) =>
+        Effect.succeed({
+          task: { ...task, id },
+          history: { turns: [] },
+          availability: "available",
+          hasEarlier: false,
+          ...(query?.before ? { message: query.before } : {}),
+        }),
+    }),
     chief,
     SecretReaderLive.pipe(Layer.provideMerge(SecretStoreLive({ dataDirectory }))),
   );
@@ -116,6 +127,32 @@ const run = <A, E>(
     ),
   );
 };
+
+it("allows paged original-session reads only for the caller's bot", async () => {
+  await run(
+    Effect.gen(function* () {
+      const backend = yield* BridgeBackend;
+      const own = yield* backend.readTaskSession(worker, {
+        taskId: worker.taskId,
+        before: "older-turn",
+        limit: 2,
+      });
+      expect(own.availability).toBe("available");
+      expect(own.message).toBe("older-turn");
+      expect(
+        (yield* backend.readTaskSession(worker, { taskId: slow.taskId }).pipe(Effect.flip)).code,
+      ).toBe("Forbidden");
+      expect(
+        (yield* backend.readTaskSession(slow, { taskId: worker.taskId }).pipe(Effect.flip)).code,
+      ).toBe("Forbidden");
+      expect(
+        (yield* backend
+          .readTaskSession(worker, { taskId: TaskId.make("missing") })
+          .pipe(Effect.flip)).code,
+      ).toBe("NotFound");
+    }),
+  );
+});
 
 it("provides bounded chronological reads, ID selection and structured task reports", async () => {
   const result = await run(

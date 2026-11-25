@@ -52,12 +52,39 @@
 [界面增量记录](../spikes/desktop/task-session-qa-results.md#原生上下文状态增量验收2026-11-24)、
 [用量界面](assets/desktop/session-context.png) 和 [整理状态](assets/desktop/session-context-compacting.png)。
 
+2026-11-24 Bot 记忆增量验收：按 bot 隔离的文件记忆、默认每日整理、桌面编辑与只读快照已完成。
+Claude Code 2.1.330 / Codex 0.171.0 原生记忆关闭策略有真实探针与 adapter 回归；
+真实 Codex 0.171.0 使用现有 `agy-cli/gemini-4-neon` Provider/model，两个共享 cwd 的 bot 分别读取各自注入的随机标记，
+原生工具写会话笔记，整理触发器启动独立会话，通过 `read_task_session` 读取原工作记录、提升事实并删除已合并笔记；
+另一 bot 的目录保持不变，整理前快照、任务、原生 session 与运行台账保留。
+真实 Jev 完成 9 次可读性判断；合成标记报告经过两次改写后触发既有截断回退，不代表直接通过可读性门槛。
+证据见 [原生实测](../spikes/e2e/results/memory-live-0.171.0.json)、[Claude 探针](../spikes/claude/native-memory.md)、
+[Codex 探针](../spikes/codex/native-memory.md)。
+
+隔离 daemon 的完整桌面预览通过新建/编辑、草稿保护、删除/清空确认、清空前快照读取、暂停后刷新保留及恢复；
+深浅主题与 1040px 窗口无横向溢出。[界面记录](../spikes/e2e/results/memory-ui.json)、
+[浅色界面](assets/desktop/bot-memory-light.png)、[深色界面](assets/desktop/bot-memory.png)、
+[窄窗口](assets/desktop/bot-memory-narrow.png)。构建、生产/测试类型、Biome、依赖边界、桌面 bundle 与 diff 检查通过；
+全套 `vitest run --maxWorkers=4`：100 个文件、1,443 用例通过，1 个在线用例按条件跳过。
+默认高并行运行曾有两个 stdio 测试超时；单独复跑及上述全量复跑通过。未重验 Electron 安装包。
+
+2026-11-24 Memory 阅读与知识图谱增量验收：默认阅读核心记忆，知识图谱/列表/搜索、跨分区文档链接、
+显式编辑、只读快照、断链提示及次级管理完成。图按文件内容重建，未引入剪枝或使用热度。
+真实 Codex 0.171.0 沿用现有 `agy-cli/gemini-4-neon/high`：笔记经定时整理生成两个知识文件、一条有效关联，
+核心 Memory 留短入口；新会话实际读取入口及关联目标，正确回答未在新提示中提供的验收事实，另一 Bot 未受影响。
+12 次真实 Jev 调用成功，但四个回包均经过两次改写后进入既有截断回退，不能表述为可读性放行。
+隔离桌面预览验证编辑/新增/删除后的图谱更新、草稿保护、历史图谱、原生修改刷新、断链、整理开关，以及深浅主题和 820px 窗口布局。
+构建、生产/测试类型、Biome、依赖边界和桌面 bundle 通过；全套 102 个文件、1,504 用例通过，1 个在线用例按条件跳过。
+证据：[真实整理与回读](../spikes/e2e/results/memory-graph-live-0.171.0.json)、[桌面实测](../spikes/e2e/results/memory-graph-ui.json)、
+[核心记忆](assets/desktop/memory-core-reading.png)、[知识图谱](assets/desktop/memory-knowledge-graph.png)。未重验 Electron 安装包。
+
 ## 当前限制
 
 - 主会话问答验收使用默认模式；Plan 阻塞行为仅由 [独立协议探针](../spikes/codex/fixtures/plan-free-0.169.0.jsonl) 验证，产品未提供 Plan 切换。
 - 从桌面提交到确认行出现在 DOM，最终构建的首次派发为 600 ms，其中分类调用 506 ms。随后三次状态查询为 278、289、283 ms，daemon 除分类调用外各用 8–9 ms。另一轮开发包热态也曾超过 300 ms。测量取桌面 DOM 变更和持久化事件时间戳。[最终构建](../spikes/e2e/results/finder-inbound-1.1.2.json)、[对照样本](../spikes/e2e/results/finder-inbound-1.1.1.json)
 - 当前数据格式的原生复验中，主助手首次直接派发到 daemon 写入确认用了 718 ms，其中 Jev 分类为 636 ms。另一次派发到专长助手为 1,519 ms。这些样本仍高于 300 ms 目标。[发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json)
 - 超长原生历史分页尚未实测；Codex 的读取兼容边界见 [Harness 适配层](harness-adapters.md)。工具输出与宿主适配边界见 [工具展示对照](omb-tool-parity.md)。
+- Bot 记忆隔离是目录归属和加载规则，不是操作系统沙箱。Claude 当前不支持冷历史读取，整理使用保存的报告及笔记降级；记忆文件、预算和审查范围见 [Bot 记忆](memory.md)。
 - 开发包未完成发行签名、公证和自动更新；包名、哈希及构建对应关系以包记录为准。
 - MCP 真实服务验收使用公开搜索端点；第三方账户 OAuth 登录尚未实测。本轮 Bot 授权及来源补充验收使用隔离 daemon 和桌面浏览器预览，尚未复验 Electron 安装包。
 - 文件能力当前为每个 20 MiB、每条消息合计 16 个（含引用沿用），需要任务正文。应用内预览文本与 PNG/JPG/GIF/WebP；其他格式交给 macOS Quick Look。实包探针控制保存对话框的选择结果，实际 IPC 与文件写入未替换；Quick Look 以系统窗口身份验证打开/关闭，截图为应用内文本预览。目录上传、解压和 Office 在线编辑不在本次范围。

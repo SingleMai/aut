@@ -47,6 +47,23 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
   压缩过程和完成后先隐藏旧读数，等待新的有效输入 token 通知；冷读没有用量字段时保持未知。
   Claude / ACP 暂未声明此能力。接入与 UI 边界见 [ADR-0067](decisions/0067-native-context-status-ui.md)，不提供手动压缩操作。
 
+### 2.2 原生自动记忆
+
+aut 统一管理 bot 记忆，不提供原生记忆来源选择（[ADR-0068](decisions/0068-aut-managed-bot-memory.md)）。
+Claude / Codex adapter 在新建、恢复、fork 会话时强制关闭原生自动记忆，覆盖继承环境和实例参数中的启用设置：
+
+- Claude Code 2.1.330：进程环境与最终 settings 的 env 均强制 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`，
+  最终 settings 同时设 `autoMemoryEnabled:false`，保留其余实例设置。只设置进程环境会被 settings.env 中的 `0` 覆盖，
+  已用临时 MEMORY 标记复现；关闭自动注入后 CLAUDE 指令仍可读取。
+- Codex 0.171.0：进程参数 `--disable memories`、`-c memories.use_memories=false`、`-c memories.generate_memories=false`；
+  初始化后 `config/read` 核对关闭状态，工作线程配置同时显式保持三项关闭。恢复已有 aut 线程后、发送工作回合前，
+  调用 `thread/memoryMode/set` 将该线程资格设为 disabled；新建/fork 由 generate 开关持久化 disabled。
+  配置不符、协议不支持或关闭失败时返回现有 adapter 错误并释放子进程，不静默回退。
+- Codex 只读历史进程也带关闭参数，但不恢复会话、不改线程资格。用户在 aut 外的原生配置和记忆不受影响。
+
+这不改变项目指令、原生历史或原生压缩。已经载入旧会话的内容不会被清除。ACP 未经原生记忆开关验证，
+不将上述结论泛化到其 provider。探针与边界见 `spikes/claude/native-memory.md`、`spikes/codex/native-memory.md`。
+
 ## 3. Codex（MVP）
 
 参考：`server/drivers/codex.ts`、`server/drivers/codex-questions.ts`、`server/drivers/codex-approval-config.ts`。

@@ -142,6 +142,15 @@ export const McpConfig = Schema.Struct({
     mcp_servers: optional(Schema.NullOr(Schema.Record({ key: Schema.String, value: JsonValue }))),
   }),
 });
+export const NativeMemoryDisabledConfig = Schema.Struct({
+  config: Schema.Struct({
+    features: Schema.Struct({ memories: Schema.Literal(false) }),
+    memories: Schema.Struct({
+      use_memories: Schema.Literal(false),
+      generate_memories: Schema.Literal(false),
+    }),
+  }),
+});
 export const PermissionRequest = Schema.Struct({
   permissions: Schema.Struct({
     network: Schema.NullOr(Schema.Struct({ enabled: Schema.NullOr(Schema.Boolean) })),

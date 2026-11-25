@@ -1,5 +1,9 @@
 import { Schema } from "effect";
-import { UpdateTriggerInput as ApiUpdateTriggerInput } from "./api.js";
+import {
+  UpdateTriggerInput as ApiUpdateTriggerInput,
+  TaskSessionInput,
+  TaskSessionResponse,
+} from "./api.js";
 import {
   BotId,
   McpServerId,
@@ -85,6 +89,10 @@ export const GetTaskInput = Schema.Struct({ taskId: TaskId });
 export type GetTaskInput = typeof GetTaskInput.Type;
 export const GetTaskOutput = Task;
 export type GetTaskOutput = typeof GetTaskOutput.Type;
+export const ReadTaskSessionInput = Schema.Struct({ taskId: TaskId, ...TaskSessionInput.fields });
+export type ReadTaskSessionInput = typeof ReadTaskSessionInput.Type;
+export const ReadTaskSessionOutput = TaskSessionResponse;
+export type ReadTaskSessionOutput = typeof ReadTaskSessionOutput.Type;
 export const CreateBotInput = Schema.Struct({
   ...BotConfig.pick("id", "name", "description", "soul", "characterId").fields,
   modelSelection: optional(ModelSelection),

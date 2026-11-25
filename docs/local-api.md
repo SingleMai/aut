@@ -2,6 +2,14 @@
 
 > ADR-0021；所有路由需要本地 token。`packages/protocol/src/api.ts` 是请求与响应的 Schema 来源。
 
+Bot 文件记忆（ADR-0069，Schema 位于 `protocol/src/memory.ts`）：`GET /v1/bots/:id/memory?snapshot=...` 返回目录、文件、快照及整理计划；
+`GET /v1/bots/:id/memory/file?path=...&snapshot=...` 读取当前或快照文件，`PUT /v1/bots/:id/memory/file` 接受 `{path,content}`，
+`DELETE /v1/bots/:id/memory/file?path=...` 删除当前文件，`POST /v1/bots/:id/memory/clear` 清空当前记忆。
+写操作返回更新后的文件或 `{accepted:true}`；快照只读。目录归属与限额见 [Bot 记忆](memory.md)。
+`GET /v1/bots/:id/memory/graph?snapshot=...` 按需解析当前文件或选定快照，返回 `MemoryGraphResponse`：
+`botId`、知识文件节点 `nodes`（`path,title,updatedAt`）、有效有向链接 `edges` 和缺失知识目标 `brokenLinks`（均为 `source,target`）。
+不读取其他 Bot，不把缺失目标伪装为节点，不保存独立图数据；链接约定见 ADR-0070。
+
 | 方法 | 路径 | 请求 | 成功结果 |
 |---|---|---|---|
 | GET | `/v1/health` | — | `{ status:"ok" }` |

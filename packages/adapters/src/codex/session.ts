@@ -40,6 +40,7 @@ import {
   ItemNotification,
   McpConfig,
   NativeIdentity,
+  NativeMemoryDisabledConfig,
   NativeRequest,
   PermissionRequest,
   ResolvedRequest,
@@ -81,6 +82,20 @@ const turnAccess = {
 const problem = (code: AdapterError["code"], message: string) =>
   new AdapterError({ code, message });
 const nativeInput = (text: string) => [{ type: "text", text, text_elements: [] }];
+// Keep native memory out of aut sessions without changing the user's CLI configuration.
+const nativeMemoryArgs = [
+  "--disable",
+  "memories",
+  "-c",
+  "memories.use_memories=false",
+  "-c",
+  "memories.generate_memories=false",
+];
+const nativeMemoryConfig = {
+  "features.memories": false,
+  "memories.use_memories": false,
+  "memories.generate_memories": false,
+};
 // config/read serializes absent optional fields as null. TOML overrides have no null value.
 const omitConfigNulls = (value: JsonValue): JsonValue =>
   Array.isArray(value)
@@ -123,6 +138,7 @@ export const makeCodexAdapter = (
           "--enable",
           "default_mode_request_user_input",
           ...(options.args ?? []),
+          ...nativeMemoryArgs,
         ],
         cwd: input.cwd,
         ...(options.env ? { env: options.env } : {}),
@@ -457,21 +473,25 @@ export const makeCodexAdapter = (
         capabilities: { experimentalApi: true, requestAttestation: false },
       });
       yield* transport.send({ method: "initialized", params: {} });
-      const config: Record<string, JsonValue> = {};
+      const inheritedValue = yield* transport.request("config/read", {
+        cwd: input.cwd,
+        includeLayers: false,
+      });
+      yield* Schema.decodeUnknown(NativeMemoryDisabledConfig)(inheritedValue).pipe(
+        // Native config can contain credentials; only expose the failed policy check.
+        Effect.mapError(() =>
+          problem("InvalidResponse", "Codex native memory could not be disabled"),
+        ),
+      );
+      const config: Record<string, JsonValue> = { ...nativeMemoryConfig };
       const mcpServers = new Map<string, JsonValue>();
       if (input.mcpServers.length > 0) {
-        const inherited = yield* transport
-          .request("config/read", { cwd: input.cwd, includeLayers: false })
-          .pipe(
-            Effect.flatMap((value) =>
-              Schema.decodeUnknown(McpConfig)(value).pipe(
-                // Config may contain credentials. Never render its values in a decoding error.
-                Effect.mapError(() =>
-                  problem("InvalidResponse", "Codex returned an invalid MCP configuration"),
-                ),
-              ),
-            ),
-          );
+        const inherited = yield* Schema.decodeUnknown(McpConfig)(inheritedValue).pipe(
+          // Config may contain credentials. Never render its values in a decoding error.
+          Effect.mapError(() =>
+            problem("InvalidResponse", "Codex returned an invalid MCP configuration"),
+          ),
+        );
         for (const [name, value] of Object.entries(inherited.config.mcp_servers ?? {}))
           if (value !== null) mcpServers.set(name, omitConfigNulls(value));
       }
@@ -497,6 +517,14 @@ export const makeCodexAdapter = (
         ...(nativeId ? { threadId: nativeId } : {}),
       });
       threadId = (yield* decode(ThreadResult, result)).thread.id;
+      if (method === "thread/resume") {
+        if (threadId !== nativeId)
+          return yield* Effect.fail(
+            problem("InvalidResponse", "Resumed session belongs to another thread"),
+          );
+        // Resuming with generate_memories=false does not clear an older thread's eligibility.
+        yield* transport.request("thread/memoryMode/set", { threadId, mode: "disabled" });
+      }
       const cursor: ResumeCursor = { kind: "codex", data: { threadId } };
       const ensureAlive = () =>
         exited ? Effect.fail(problem("ProcessExited", "Codex process exited")) : Effect.void;
@@ -796,7 +824,7 @@ export const makeCodexAdapter = (
           );
           const transport = yield* factory.open({
             command: options.command ?? "codex",
-            args: ["app-server", "--stdio", ...(options.args ?? [])],
+            args: ["app-server", "--stdio", ...(options.args ?? []), ...nativeMemoryArgs],
             cwd: process.cwd(),
             rpcTimeoutMs: options.rpcTimeoutMs ?? 30_000,
             ...(options.env ? { env: options.env } : {}),

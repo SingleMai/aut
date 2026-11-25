@@ -2,15 +2,15 @@
 // server/drivers/claude.ts and server/permission-proxy.ts, commit
 // 738ec88472a3b888ff7b7793755d89da613ed301. The runtime contract is aut's HarnessAdapter.
 import { randomUUID } from "node:crypto";
-import { chmodSync, mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { createServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   AdapterError,
   type HarnessAdapter as AdapterShape,
-  type JsonValue,
+  JsonValue,
   type Question,
   QuestionAnswer,
   RequestId,
@@ -158,40 +158,93 @@ const nativeUser = (text: string, uuid?: string): JsonValue => ({
 const questionProxyPath = (options: ClaudeOptions): string =>
   options.questionProxyPath ?? fileURLToPath(new URL("./question-proxy.js", import.meta.url));
 
+const memorySettings = (args: readonly string[], cwd: string) =>
+  Effect.gen(function* () {
+    const remaining: string[] = [];
+    let source: string | undefined;
+    for (let index = 0; index < args.length; index++) {
+      const arg = args[index];
+      if (arg === "--settings") {
+        source = args[++index];
+        if (source === undefined || source.startsWith("--"))
+          return yield* Effect.fail(problem("InvalidResponse", "Claude settings require a value"));
+      } else if (arg?.startsWith("--settings=")) source = arg.slice("--settings=".length);
+      else if (arg !== undefined) remaining.push(arg);
+    }
+    let settings: Readonly<Record<string, JsonValue>> = {};
+    if (source !== undefined) {
+      const text = source.trimStart().startsWith("{")
+        ? source
+        : yield* Effect.try({
+            try: () => readFileSync(resolve(cwd, source), "utf8"),
+            catch: () => problem("InvalidResponse", "Unable to read Claude settings"),
+          });
+      settings = yield* Schema.decodeUnknown(
+        Schema.parseJson(Schema.Record({ key: Schema.String, value: JsonValue })),
+      )(text).pipe(
+        Effect.mapError(() => problem("InvalidResponse", "Invalid Claude settings JSON object")),
+      );
+    }
+    const env = yield* Schema.decodeUnknown(
+      Schema.Record({ key: Schema.String, value: Schema.String }),
+    )(settings.env ?? {}).pipe(
+      Effect.mapError(() => problem("InvalidResponse", "Invalid Claude settings environment")),
+    );
+    return {
+      args: remaining,
+      settings: {
+        ...settings,
+        autoMemoryEnabled: false,
+        env: { ...env, CLAUDE_CODE_DISABLE_AUTO_MEMORY: "1" },
+      },
+    };
+  });
+
 const writeMcpConfig = (
   input: StartSessionInput,
   socketPath: string,
   proxyPath: string,
-): string => {
-  const directory = mkdtempSync(join(tmpdir(), "aut-claude-config-"));
-  const path = join(directory, "mcp.json");
-  const mcpServers: Record<string, JsonValue> = {};
-  for (const server of input.mcpServers) {
-    mcpServers[server.name] =
-      server.transport === "stdio"
-        ? {
-            command: server.command,
-            args: server.args,
-            ...(server.env === undefined ? {} : { env: server.env }),
-          }
-        : {
-            type: "http",
-            url: server.url,
-            ...(server.headers === undefined ? {} : { headers: server.headers }),
-          };
-  }
-  mcpServers["aut-questions"] = {
-    command: process.execPath,
-    args: [proxyPath, socketPath],
-    ...(process.versions.electron ? { env: { ELECTRON_RUN_AS_NODE: "1" } } : {}),
-  };
-  writeFileSync(path, JSON.stringify({ mcpServers }), {
-    encoding: "utf8",
-    mode: 0o600,
-    flag: "wx",
+): Effect.Effect<string, AdapterError, Scope.Scope> =>
+  Effect.gen(function* () {
+    const directory = yield* Effect.acquireRelease(
+      Effect.try({
+        try: () => mkdtempSync(join(tmpdir(), "aut-claude-config-")),
+        catch: () => problem("TransportError", "Unable to prepare Claude configuration directory"),
+      }),
+      (directory) => Effect.sync(() => removeFileTree(directory)),
+    );
+    const path = join(directory, "mcp.json");
+    const mcpServers: Record<string, JsonValue> = {};
+    for (const server of input.mcpServers) {
+      mcpServers[server.name] =
+        server.transport === "stdio"
+          ? {
+              command: server.command,
+              args: server.args,
+              ...(server.env === undefined ? {} : { env: server.env }),
+            }
+          : {
+              type: "http",
+              url: server.url,
+              ...(server.headers === undefined ? {} : { headers: server.headers }),
+            };
+    }
+    mcpServers["aut-questions"] = {
+      command: process.execPath,
+      args: [proxyPath, socketPath],
+      ...(process.versions.electron ? { env: { ELECTRON_RUN_AS_NODE: "1" } } : {}),
+    };
+    yield* Effect.try({
+      try: () =>
+        writeFileSync(path, JSON.stringify({ mcpServers }), {
+          encoding: "utf8",
+          mode: 0o600,
+          flag: "wx",
+        }),
+      catch: () => problem("TransportError", "Unable to prepare Claude configuration"),
+    });
+    return path;
   });
-  return path;
-};
 
 const removeFileTree = (path: string): void => {
   try {
@@ -402,7 +455,10 @@ export const makeClaudeAdapter = (
       yield* Schema.decodeUnknown(StartSessionInput)(input).pipe(
         Effect.mapError((error) => problem("InvalidResponse", String(error))),
       );
+      // Claude applies settings.env after spawn; enforce the policy in both layers.
+      const nativeSettings = yield* memorySettings(options.args ?? [], input.cwd);
       const bus = yield* PubSub.unbounded<SessionEvent>();
+      yield* Effect.addFinalizer(() => PubSub.shutdown(bus));
       const mutex = yield* Effect.makeSemaphore(1);
       const runtime = yield* Effect.runtime<never>();
       const run = Runtime.runFork(runtime);
@@ -419,7 +475,22 @@ export const makeClaudeAdapter = (
         (ask) => brokerHandler(ask),
         (id) => brokerDropHandler(id),
       );
-      const configPath = writeMcpConfig(input, broker.socketPath, questionProxyPath(options));
+      yield* Effect.addFinalizer(() => broker.close.pipe(Effect.catchAll(() => Effect.void)));
+      const configPath = yield* writeMcpConfig(
+        input,
+        broker.socketPath,
+        questionProxyPath(options),
+      );
+      const settingsPath = join(dirname(configPath), "settings.json");
+      yield* Effect.try({
+        try: () =>
+          writeFileSync(settingsPath, JSON.stringify(nativeSettings.settings), {
+            encoding: "utf8",
+            mode: 0o600,
+            flag: "wx",
+          }),
+        catch: () => problem("TransportError", "Unable to prepare Claude settings"),
+      });
       const args = [
         "-p",
         "--output-format",
@@ -445,7 +516,9 @@ export const makeClaudeAdapter = (
         ...(mode === "fork"
           ? ["--resume", sessionId, "--fork-session", "--no-session-persistence"]
           : []),
-        ...(options.args ?? []),
+        ...nativeSettings.args,
+        "--settings",
+        settingsPath,
       ];
       const transport = yield* factory.open({
         command: options.command ?? "claude",
@@ -457,9 +530,12 @@ export const makeClaudeAdapter = (
           CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: "1",
           CLAUDE_CODE_DISABLE_CRON: "1",
           ...(options.env ?? {}),
+          // aut owns bot memory; this must override inherited and instance environment values.
+          CLAUDE_CODE_DISABLE_AUTO_MEMORY: "1",
         },
         ...(options.stopTimeoutMs === undefined ? {} : { stopTimeoutMs: options.stopTimeoutMs }),
       });
+      yield* Effect.addFinalizer(() => transport.stop.pipe(Effect.catchAll(() => Effect.void)));
 
       const publish = (event: SessionEvent) =>
         Schema.decodeUnknown(SessionEvent)(event).pipe(
@@ -729,15 +805,6 @@ export const makeClaudeAdapter = (
           }
         }),
       ).pipe(Effect.forkScoped);
-
-      yield* Effect.addFinalizer(() =>
-        broker.close.pipe(
-          Effect.catchAll(() => Effect.void),
-          Effect.zipRight(transport.stop.pipe(Effect.catchAll(() => Effect.void))),
-          Effect.ensuring(PubSub.shutdown(bus)),
-          Effect.ensuring(Effect.sync(() => removeFileTree(configPath))),
-        ),
-      );
 
       const ensureAlive = () =>
         exited ? Effect.fail(problem("ProcessExited", "Claude process exited")) : Effect.void;

@@ -4,6 +4,7 @@ import {
   type CoreError,
   isCoordinationTask,
   MainThread,
+  SessionReader,
   TaskRegistry,
   TriggerRegistry,
 } from "@aut/core";
@@ -34,6 +35,8 @@ import {
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  ReadTaskSessionInput,
+  ReadTaskSessionOutput,
   UpdateTriggerOutput,
   UpdateTriggerToolInput,
 } from "@aut/protocol";
@@ -72,6 +75,7 @@ export const BridgeBackendLive = Layer.effect(
     const mcp = yield* McpSupervisor;
     const config = yield* ConfigStore;
     const tasks = yield* TaskRegistry;
+    const sessions = yield* SessionReader;
     const triggers = yield* TriggerRegistry;
     const messages = yield* MainThread;
     const chief = yield* Chief;
@@ -152,6 +156,26 @@ export const BridgeBackendLive = Layer.effect(
               }),
             ),
           );
+        }),
+      readTaskSession: (identity, input) =>
+        Effect.gen(function* () {
+          const args = yield* checked(ReadTaskSessionInput, input);
+          yield* authorize(identity);
+          const task = yield* tasks.get(args.taskId).pipe(Effect.mapError(boundaryError));
+          if (Option.isNone(task))
+            return yield* Effect.fail(
+              new BridgeError({ code: "NotFound", message: "The requested task was not found" }),
+            );
+          if (task.value.botId !== identity.botId)
+            return yield* Effect.fail(
+              new BridgeError({
+                code: "Forbidden",
+                message: "A session may only read its own Bot's original sessions",
+              }),
+            );
+          const { taskId, ...query } = args;
+          const result = yield* sessions.read(taskId, query).pipe(Effect.mapError(boundaryError));
+          return yield* checked(ReadTaskSessionOutput, result);
         }),
       getTask: (identity, input) =>
         Effect.gen(function* () {

@@ -1,10 +1,12 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import type { Duplex } from "node:stream";
 import {
+  BotMemory,
   Changes,
   EventBus,
   MainThread,
   MessageFiles,
+  memoryDreamTriggerId,
   SessionReader,
   SessionRecords,
   TaskRegistry,
@@ -16,6 +18,7 @@ import {
   AutConfig,
   BotConfig,
   BotId,
+  BotMemoryResponse,
   BotResponse,
   BotsResponse,
   ConfigResponse,
@@ -40,6 +43,12 @@ import {
   McpServerResponse,
   McpServersResponse,
   McpTestResponse,
+  MemoryFileResponse,
+  MemoryGraphResponse,
+  MemoryListInput,
+  MemoryPath,
+  MemoryReadInput,
+  MemoryWriteInput,
   MessageId,
   MessagePageInput,
   MessagePageResponse,
@@ -83,6 +92,7 @@ import { Administration } from "./admin.js";
 import { DaemonError, decode, io, publicError } from "./errors.js";
 import { InboundGateway } from "./inbound.js";
 import { McpSupervisor } from "./mcp-supervisor.js";
+import { MemoryDreams } from "./memory-dreams.js";
 import { Authentication } from "./ownership.js";
 import { Recovery } from "./recovery.js";
 import { RouteTest } from "./route-test.js";
@@ -204,6 +214,8 @@ export const HttpServerLive = (port = 4317) =>
       const secretReader = yield* SecretReader;
       const thread = yield* MainThread;
       const files = yield* MessageFiles;
+      const memory = yield* BotMemory;
+      const dreams = yield* MemoryDreams;
       const tasks = yield* TaskRegistry;
       const triggers = yield* TriggerRegistry;
       const sessions = yield* SessionReader;
@@ -236,11 +248,13 @@ export const HttpServerLive = (port = 4317) =>
             );
           if (
             !(
-              method === "GET" &&
-              (path === "/v1/messages" ||
-                path === "/v1/tasks" ||
-                path === "/v1/secrets/status" ||
-                /^\/v1\/tasks\/[^/]+\/session$/.test(path))
+              (method === "GET" &&
+                (path === "/v1/messages" ||
+                  path === "/v1/tasks" ||
+                  path === "/v1/secrets/status" ||
+                  /^\/v1\/tasks\/[^/]+\/session$/.test(path) ||
+                  /^\/v1\/bots\/[^/]+\/memory(?:\/(?:file|graph))?$/.test(path))) ||
+              (method === "DELETE" && /^\/v1\/bots\/[^/]+\/memory\/file$/.test(path))
             )
           )
             yield* decode(Schema.Record({ key: Schema.String, value: Schema.Never }), rawQuery);
@@ -381,6 +395,56 @@ export const HttpServerLive = (port = 4317) =>
             return yield* respond(response, 201, BotResponse, {
               bot: yield* admin.createBot(yield* body(request, BotConfig)),
             });
+          const memoryMatch = /^\/v1\/bots\/([^/]+)\/memory$/.exec(path);
+          if (method === "GET" && memoryMatch?.[1]) {
+            const id = yield* decode(BotId, yield* pathId(memoryMatch[1]));
+            const query = yield* decode(MemoryListInput, rawQuery);
+            const listing = yield* memory.list(id, query.snapshot);
+            yield* dreams.ensure;
+            const dream = yield* triggers.get(memoryDreamTriggerId(id));
+            return yield* respond(response, 200, BotMemoryResponse, {
+              ...listing,
+              dream: Option.getOrNull(dream),
+            });
+          }
+          const memoryGraphMatch = /^\/v1\/bots\/([^/]+)\/memory\/graph$/.exec(path);
+          if (method === "GET" && memoryGraphMatch?.[1]) {
+            const id = yield* decode(BotId, yield* pathId(memoryGraphMatch[1]));
+            const query = yield* decode(MemoryListInput, rawQuery);
+            return yield* respond(
+              response,
+              200,
+              MemoryGraphResponse,
+              yield* memory.graph(id, query.snapshot),
+            );
+          }
+          const memoryFileMatch = /^\/v1\/bots\/([^/]+)\/memory\/file$/.exec(path);
+          if (memoryFileMatch?.[1]) {
+            const id = yield* decode(BotId, yield* pathId(memoryFileMatch[1]));
+            if (method === "GET") {
+              const query = yield* decode(MemoryReadInput, rawQuery);
+              return yield* respond(response, 200, MemoryFileResponse, {
+                file: yield* memory.read(id, query.path, query.snapshot),
+              });
+            }
+            if (method === "PUT") {
+              const input = yield* body(request, MemoryWriteInput);
+              return yield* respond(response, 200, MemoryFileResponse, {
+                file: yield* memory.write(id, input.path, input.content),
+              });
+            }
+            if (method === "DELETE") {
+              const input = yield* decode(Schema.Struct({ path: MemoryPath }), rawQuery);
+              yield* memory.remove(id, input.path);
+              return yield* respond(response, 200, AcceptedResponse, { accepted: true });
+            }
+          }
+          const memoryClearMatch = /^\/v1\/bots\/([^/]+)\/memory\/clear$/.exec(path);
+          if (method === "POST" && memoryClearMatch?.[1]) {
+            const id = yield* decode(BotId, yield* pathId(memoryClearMatch[1]));
+            yield* memory.clear(id);
+            return yield* respond(response, 200, AcceptedResponse, { accepted: true });
+          }
           const botMatch = /^\/v1\/bots\/([^/]+)$/.exec(path);
           if (botMatch?.[1] && (method === "PUT" || method === "DELETE")) {
             const id = yield* decode(BotId, yield* pathId(botMatch[1]));

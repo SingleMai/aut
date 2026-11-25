@@ -10,7 +10,8 @@ Store 或原生 transcript 读取仅用于验收审计，不替代用户操作�
 - macOS、Node 24.18.0 LTS、pnpm 10.33.0，先完成 `pnpm check`；脚本加载各包的 `dist/`，
   修改源码后至少重新 `pnpm build`，不能用旧构建验收新代码。
 - PATH 中已有可运行、已登录的 `codex`。模型与 Provider 从现有 CLI 只读发现；脚本不会改写
-  全局配置、登录信息或用户项目。测试 bot 在自己的临时配置中使用 `effort:low`。
+  全局配置、登录信息或用户项目。一般测试 bot 在自己的临时配置中使用 `effort:low`；
+  `memory-live.ts` 保留发现得到的完整模型选择，包括 effort。
 - 环境中已有 `TYPESAFE_API_KEY`。请通过现有凭据管理方式提供，不把密钥写到探针、命令记录或结果文件。
   真实调用消耗当前 Codex/Jev 额度。
 - 为减少开发机资源竞争，建议逐个运行验收脚本；产品本身不设置并发 session 上限。
@@ -31,6 +32,7 @@ rtk proxy env AUT_E2E_DELIVERY_RESULT=/tmp/aut-delivery-recheck.json node --expe
 rtk proxy env AUT_E2E_RESULT=/tmp/aut-trigger-recheck.json node --experimental-strip-types spikes/e2e/trigger-live.ts
 rtk proxy env AUT_E2E_RESULT=/tmp/aut-mcp-recheck.json node --experimental-strip-types spikes/e2e/mcp-management-live.ts
 rtk proxy env AUT_E2E_RESULT=/tmp/aut-files-recheck.json node --experimental-strip-types spikes/e2e/message-files-live.ts
+rtk proxy env AUT_E2E_RESULT=/tmp/aut-memory-recheck.json node --experimental-strip-types spikes/e2e/memory-live.ts
 ```
 
 各脚本的进度输出包含临时目录和阶段。脚本退出失败不代表用户动作未送达；先只读核对该目录的
@@ -50,6 +52,7 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-files-recheck.json node --experimental-str
 | `trigger-live.ts` | 一次性计划触发真实 Codex 任务，核对触发器运行台账、任务回包、决策日志与 fired 事件，并验证暂停、恢复和更新 |
 | `mcp-management-live.ts` | 主助手通过原生 MCP 管理工具接入 You.com 公开服务，测试/启用并精确授权 `you-search`；再从主会话创建一次性计划，核对原生 transcript 的实际搜索调用、返回结果、台账、回包和触发决策日志 |
 | `message-files-live.ts` | 上传 CSV，真实 Bot 读取后交付 Markdown/CSV；引用回复要求覆盖工作目录中的报告，核对同任务续聊、新文件 ID、旧版仍为 TOTAL=42、新版为 TOTAL=43，保留原生 transcript 和决策日志 |
+| `memory-live.ts` | 同工作目录两个 Bot 各自注入随机记忆标记，原生工具写入会话笔记；将默认整理计划调整为即将到期的一次性计划，验证实际 `read_task_session`、长期事实提升、独立整理会话、运行台账和整理前快照。整理生成发布流程与预演验收的知识链接、核心入口和可读取的图谱；新工作会话沿链接读取并回答未在新提示给出的事实，另一个 Bot 文件及图谱不变 |
 
 慢脑探针只在临时系统bot与回声bot配置中添加明确的合成指令，要求慢脑通过 `propose_route`
 派活，并要求普通worker仅执行回声验证；不会通过shell直接调用后台API来伪造MCP路径。
@@ -68,6 +71,8 @@ rtk proxy env AUT_E2E_RESULT=/tmp/aut-files-recheck.json node --experimental-str
 | `results/delivery-0.169.0.json` | Jev实际输出queue与steer且执行无降级；原生题等待期间排队、答题后依次完成，steer在一个父turn内生效，始终同Task同会话游标，最终idle空队列且已记录子进程退出 |
 | `results/mcp-management-live.json` | Codex 0.171.0 的真实管理操作和一次性搜索调用通过；保存完整工具输入/结果，主会话摘要经过回包门槛后截断，来源全文保留在原报告。公开端点未使用 OAuth，不代表第三方账户登录验收 |
 | `results/message-files-live-final.json` | Codex 0.171.0 完成 CSV 读取、两个文件交付和同任务引用修订；旧/新快照 ID 不同，旧版仍为 TOTAL=42、新版 TOTAL=43。主会话摘要经过两次改写后的截断，卡片和原报告独立保留。`message-files-live.json` 为修整文件链接截断显示前的首轮成功记录 |
+| `results/memory-live-0.171.0.json` | Codex 0.171.0、现有 `agy-cli/gemini-4-neon/high` 完成记忆注入、原生笔记、Bot 隔离和定时整理；整理通过原生 MCP 读取工作会话，提升事实并清理已合并笔记，独立会话与快照可审查。9 次真实 Jev 1.14.0 可读性调用成功返回，得分 0.11–0.34；三个含合成标记的报告均经过两次改写后截断，不能表述为可读性放行 |
+| `results/memory-graph-live-0.171.0.json` | Codex 0.171.0、现有 `agy-cli/gemini-4-neon/high` 完成笔记→真实定时整理→核心链接入口和两主题知识→图谱 API 的链路。图中实际生成「发布流程→预演验收」且无断链；新工作会话原生读取两个知识文件，准确答出新提示没有给出的验收人、环境和检查项，未改文件，另一 Bot 的文件及图为空且未污染。整理通过原生 MCP 读原会话并留快照。12 次真实 Jev 调用成功，得分 0.24–0.55，四个回包均在两次改写后截断；不代表可读性门槛放行或桌面图谱视觉验收 |
 | `results/main-thread-partial-0.167.0.json` | 早期新任务与同任务续聊完成，但最后fast查询未完成；15秒HTTP客户端超时后探针关闭。只证明已记录的部分场景 |
 | `results/questions-main-thread-partial-0.167.0.json` | 同步答案已原生送达，但未观察最终报告，异步场景未执行完；没有重发该答案 |
 | `results/progress-startup-0.167.0.json` | 首次发现未创建系统bot，API仍可用，模型回合尚未开始；不构成progress/gate验收结果 |

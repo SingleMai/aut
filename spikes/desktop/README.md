@@ -159,3 +159,22 @@ node spikes/desktop/mcp-ui-qa.ts
 标准输入接受 `{"command":"seed"}`，追加已验证但停用、需要登录和连接失败三种**合成远程状态**；`{"command":"audit"}` 输出配置并保存 `audit.json`，用于核对只存引用和取消无写入。`{"command":"empty"}` 仅重置这个临时注册表。Ctrl+C 关闭本次预览和 daemon，保留临时目录便于核对。
 
 已验证 1280px 常规与 1040px 窄窗口、深浅主题。实录和边界见 [MCP 界面记录](../e2e/results/mcp-ui-parity.json)，源码映射见 [MCP 界面对照](../../docs/mcp-ui-parity.md)。第三方 OAuth 实际登录和 Electron 安装包不属于本次浏览器 UI 验证。
+
+## 核心记忆与知识图谱
+
+`memory-graph-qa.ts` 创建独立 daemon 与桌面预览，写入核心记忆、八篇互相关联/独立知识和一份笔记。
+仅使用合成文档，不启动模型，不修改用户数据或 Provider。
+
+```sh
+pnpm build
+pnpm --filter @aut/desktop bundle
+node --experimental-strip-types spikes/desktop/memory-graph-qa.ts
+```
+
+打开输出的 URL，进入「记忆体验助手 → 记忆」。检查核心内容默认阅读，沿链接进入知识图谱、选择节点、搜索和列表切换；
+编辑文档补充相对链接后，保存应更新图谱。尝试有草稿时切换分区、选历史快照、创建和删除文档，检查内容与边是否同步。
+原生修改输出的 `memoryDirectory` 后主动刷新，应看到新内容；缺失目标只显示断链，不生成知识节点。
+深浅主题与窄窗口都应能阅读，正文不能压到自动整理状态栏。Ctrl+C 关闭本次预览与 daemon，保留隔离目录。
+
+实测见 [Memory 图谱界面记录](../e2e/results/memory-graph-ui.json)。真实模型学习、定时整理与新会话回读由
+`spikes/e2e/memory-live.ts` 单独验证；该浏览器 fixture 不证明模型行为或 Electron 安装包。

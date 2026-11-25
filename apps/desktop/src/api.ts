@@ -2,6 +2,7 @@ import {
   AcceptedResponse,
   type AutConfig,
   type BotConfig,
+  BotMemoryResponse,
   BotResponse,
   BotsResponse,
   ConfigResponse,
@@ -20,6 +21,9 @@ import {
   McpServerResponse,
   McpServersResponse,
   McpTestResponse,
+  MemoryFileResponse,
+  MemoryGraphResponse,
+  type MemoryWriteInput,
   MessagePageResponse,
   MessageResponse,
   ReportResponse,
@@ -73,6 +77,9 @@ export const validate = <A, I>(schema: Schema.Schema<A, I>, value: unknown) =>
 export const messagePageSize = 50;
 const beforeQuery = (before?: string) =>
   before === undefined ? "" : `&before=${encodeURIComponent(before)}`;
+const memoryBase = (botId: string) => `/v1/bots/${encodeURIComponent(botId)}/memory`;
+const memorySnapshotQuery = (snapshot?: string) =>
+  snapshot === undefined ? "" : `snapshot=${encodeURIComponent(snapshot)}`;
 
 export const desktopApi = {
   uploadFile: (input: FileUploadInput) => request("POST", "/v1/files", FileResponse, input),
@@ -115,6 +122,34 @@ export const desktopApi = {
       : request("PUT", `/v1/bots/${encodeURIComponent(existingId)}`, BotResponse, bot),
   deleteBot: (id: string) =>
     request("DELETE", `/v1/bots/${encodeURIComponent(id)}`, DeletedResponse),
+  listBotMemory: (botId: string, snapshot?: string) =>
+    request(
+      "GET",
+      `${memoryBase(botId)}${snapshot === undefined ? "" : `?${memorySnapshotQuery(snapshot)}`}`,
+      BotMemoryResponse,
+    ),
+  getBotMemoryGraph: (botId: string, snapshot?: string) =>
+    request(
+      "GET",
+      `${memoryBase(botId)}/graph${snapshot === undefined ? "" : `?${memorySnapshotQuery(snapshot)}`}`,
+      MemoryGraphResponse,
+    ),
+  readBotMemory: (botId: string, path: string, snapshot?: string) =>
+    request(
+      "GET",
+      `${memoryBase(botId)}/file?path=${encodeURIComponent(path)}${snapshot === undefined ? "" : `&${memorySnapshotQuery(snapshot)}`}`,
+      MemoryFileResponse,
+    ),
+  writeBotMemory: (botId: string, input: MemoryWriteInput) =>
+    request("PUT", `${memoryBase(botId)}/file`, MemoryFileResponse, input),
+  deleteBotMemory: (botId: string, path: string) =>
+    request(
+      "DELETE",
+      `${memoryBase(botId)}/file?path=${encodeURIComponent(path)}`,
+      AcceptedResponse,
+    ),
+  clearBotMemory: (botId: string) =>
+    request("POST", `${memoryBase(botId)}/clear`, AcceptedResponse),
   testRoute: (input: RouteTestInput) => request("POST", "/v1/route-test", RouteTestResponse, input),
   getConfig: () => request("GET", "/v1/config", ConfigResponse),
   saveConfig: (config: AutConfig) => request("PUT", "/v1/config", ConfigResponse, config),

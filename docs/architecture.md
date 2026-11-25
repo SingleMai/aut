@@ -9,9 +9,9 @@
 - 帮用户管理所有 agent 会话：派发、问进度、继续对话、取消/重试，全部在一个入口完成。
 - 协调者行为可预测、可回放、可评测：不"自作主张"。
 - 复用现有 harness CLI，用户自由选择模型与工作流（bot）。
+- bot 长期记忆由 aut 按 bot 隔离管理，设计与落地范围见 [Bot 记忆](memory.md)（ADR-0068、ADR-0069）。
 
 **非目标（MVP）**
-- 不做 bot 记忆（交给 harness 读取 workdir 文件）。
 - 不向用户开放底层 session 的直接交互界面（只读的任务面板除外）。
 - 不做云端或外部事件驱动的主动型 agent。v1 的本地主动型 agent 通过 TriggerRegistry 实现，触发器定义和 occurrence 运行账本持久化在 SQLite，daemon scoped scheduler 只负责到期检查和把 trigger.fired 事件投递给 Chief。调度语义与重启追赶边界见 ADR-0056。
 - 不做多用户/云端/团队功能。

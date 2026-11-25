@@ -136,11 +136,17 @@ const setup = (
                   return Effect.succeed({ thread: { id: thread.thread.id } });
                 if (method === "config/read" && failures.config)
                   return Effect.succeed({
-                    config: { mcp_servers: "SYNTHETIC_CREDENTIAL_DO_NOT_LOG" },
+                    config: {
+                      features: { memories: false },
+                      memories: { use_memories: false, generate_memories: false },
+                      mcp_servers: "SYNTHETIC_CREDENTIAL_DO_NOT_LOG",
+                    },
                   });
                 if (method === "config/read")
                   return Effect.succeed({
                     config: {
+                      features: { memories: false },
+                      memories: { use_memories: false, generate_memories: false },
                       mcp_servers: {
                         "inherited.fixture": {
                           command: "inherited",

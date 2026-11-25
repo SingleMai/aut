@@ -22,6 +22,8 @@ import {
   type ProposeRouteOutput,
   type ReadMainThreadInput,
   type ReadMainThreadOutput,
+  type ReadTaskSessionInput,
+  type ReadTaskSessionOutput,
   TaskId,
   type UpdateTriggerOutput,
   type UpdateTriggerToolInput,
@@ -71,6 +73,10 @@ export class BridgeBackend extends Context.Tag("aut/McpBridge/Backend")<
       identity: SessionIdentity,
       input: GetTaskInput,
     ) => Effect.Effect<GetTaskOutput, BridgeError>;
+    readonly readTaskSession: (
+      identity: SessionIdentity,
+      input: ReadTaskSessionInput,
+    ) => Effect.Effect<ReadTaskSessionOutput, BridgeError>;
     readonly createBot: (
       identity: SessionIdentity,
       input: CreateBotInput,

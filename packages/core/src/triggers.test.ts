@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { BotConfig, BotId, TaskId, Trigger, TriggerId, type TriggerRun } from "@aut/protocol";
+import { BotConfig, BotId, Task, TaskId, Trigger, TriggerId, type TriggerRun } from "@aut/protocol";
 import { Effect, Schema } from "effect";
 import { afterEach, describe, expect, it } from "vitest";
 import { ConfigStore } from "./config-store.js";
@@ -85,7 +85,9 @@ describe("TriggerRegistry", () => {
         expect(dispatches).toHaveLength(1);
         expect(dispatches[0]?.run.scheduledAt).toBe(2_000);
         const second = yield* registry.advance(2_500);
-        expect(second).toHaveLength(0);
+        expect(second.map((value) => value.run.id)).toEqual(
+          dispatches.map((value) => value.run.id),
+        );
         const runs = yield* registry.listRuns(TriggerId.make("trigger-1"));
         return runs;
       }),
@@ -114,6 +116,14 @@ describe("TriggerRegistry", () => {
             payload: {},
           }),
         ).toBe(true);
+        expect(
+          yield* registry.start(dispatch.run.id, {
+            triggerId: dispatch.trigger.id,
+            botId: configuredBot.id,
+            prompt: dispatch.trigger.prompt,
+            payload: {},
+          }),
+        ).toBe(false);
         yield* registry.accepted(dispatch.run.id, TaskId.make("task-1"));
         const runs = yield* registry.listRuns(TriggerId.make("trigger-1"));
         const events = yield* store.transaction((tx) => tx.list("events"));
@@ -130,6 +140,104 @@ describe("TriggerRegistry", () => {
       kind: "fired",
       triggerId: "trigger-1",
     });
+    expect(result.events).toHaveLength(1);
+  });
+
+  it("retries queued once occurrences and expires them after the catch-up window", async () => {
+    await run(
+      Effect.gen(function* () {
+        const store = yield* Store;
+        const registry = yield* TriggerRegistry;
+        yield* store.transaction((tx) =>
+          tx.insert("triggers", {
+            ...trigger,
+            schedule: { kind: "once", at: 1_000 },
+          }),
+        );
+        const first = yield* registry.advance(1_000);
+        expect(first).toHaveLength(1);
+        expect((yield* registry.advance(1_001))[0]?.run.id).toBe(first[0]?.run.id);
+        expect(yield* registry.advance(CATCH_UP_MS + 1_001)).toEqual([]);
+        expect(yield* registry.listRuns(trigger.id)).toMatchObject([
+          { status: "missed", finishedAt: CATCH_UP_MS + 1_001 },
+        ]);
+      }),
+      directory(),
+    );
+  });
+
+  it("pausing cancels queued occurrences and works after the target bot was removed", async () => {
+    await run(
+      Effect.gen(function* () {
+        const config = yield* ConfigStore;
+        const store = yield* Store;
+        const registry = yield* TriggerRegistry;
+        yield* config.writeBots([configuredBot]);
+        yield* store.transaction((tx) =>
+          tx.insert("triggers", {
+            ...trigger,
+            schedule: { kind: "once", at: 1_000 },
+          }),
+        );
+        const [dispatch] = yield* registry.advance(1_000);
+        if (!dispatch) return yield* Effect.die("Missing dispatch");
+        yield* config.writeBots([]);
+        expect((yield* registry.update(trigger.id, { enabled: false })).enabled).toBe(false);
+        expect(
+          yield* registry.start(dispatch.run.id, {
+            triggerId: trigger.id,
+            botId: configuredBot.id,
+            prompt: trigger.prompt,
+            payload: {},
+          }),
+        ).toBe(false);
+        yield* config.writeBots([configuredBot]);
+        yield* registry.update(trigger.id, { enabled: true });
+        expect(yield* registry.advance(1_001)).toEqual([]);
+        expect(yield* registry.listRuns(trigger.id)).toMatchObject([{ status: "skipped" }]);
+      }),
+      directory(),
+    );
+  });
+
+  it("recovers interrupted dispatch without duplicating its event or an already-created task", async () => {
+    await run(
+      Effect.gen(function* () {
+        const store = yield* Store;
+        const registry = yield* TriggerRegistry;
+        yield* store.transaction((tx) => tx.insert("triggers", trigger));
+        const [dispatch] = yield* registry.advance(1_000);
+        if (!dispatch) return yield* Effect.die("Missing dispatch");
+        const event = {
+          triggerId: trigger.id,
+          botId: configuredBot.id,
+          prompt: trigger.prompt,
+          payload: {},
+        };
+        yield* registry.start(dispatch.run.id, event);
+        expect((yield* registry.advance(1_001))[0]?.run.id).toBe(dispatch.run.id);
+        expect(yield* registry.start(dispatch.run.id, event)).toBe(true);
+        const taskId = TaskId.make(`trigger:${dispatch.run.id}`);
+        const task = Schema.decodeUnknownSync(Task)({
+          id: taskId,
+          botId: configuredBot.id,
+          title: "Synthetic trigger task",
+          status: "idle",
+          createdAt: 1_001,
+          updatedAt: 1_001,
+          lastActivityAt: 1_001,
+          session: { instanceId: "local" },
+          pendingRequestIds: [],
+          queue: [],
+          origin: { kind: "trigger" },
+        });
+        yield* store.transaction((tx) => tx.insert("tasks", task));
+        expect(yield* registry.advance(1_002)).toEqual([]);
+        expect(yield* registry.listRuns(trigger.id)).toMatchObject([{ status: "ran", taskId }]);
+        expect(yield* store.transaction((tx) => tx.list("events"))).toHaveLength(1);
+      }),
+      directory(),
+    );
   });
 
   it("marks occurrences outside the restart catch-up window as missed", async () => {

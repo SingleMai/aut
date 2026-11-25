@@ -4,6 +4,7 @@ import * as Common from "./common.js";
 import * as Config from "./config.js";
 import * as Domain from "./domain.js";
 import * as Mcp from "./mcp.js";
+import * as Memory from "./memory.js";
 
 const option = { id: "blue", label: "Blue", description: "Use the blue theme" };
 const question = {
@@ -151,6 +152,29 @@ const summary = {
   pendingRequestIds: ["r1"],
 };
 const excerpt = { id: "m1", at: 1, author: "user", text: "Research this", taskId: "t1" };
+const memoryEntry = { path: "knowledge/主题/事实.md", bytes: 7, updatedAt: 1 };
+const memoryFile = { ...memoryEntry, content: "Memory\n" };
+const memorySnapshot = { id: "snapshot-1", createdAt: 1, reason: "dream" };
+const memoryListing = {
+  botId: "b1",
+  directory: "/tmp/aut/memory/bot-hash",
+  files: [memoryEntry],
+  snapshots: [memorySnapshot],
+};
+const memoryGraphNode = { path: memoryEntry.path, title: "主题事实", updatedAt: 1 };
+const memoryGraphEdge = { source: memoryEntry.path, target: "knowledge/背景.md" };
+const memoryGraph = {
+  botId: "b1",
+  nodes: [memoryGraphNode, { path: memoryGraphEdge.target, title: "背景", updatedAt: 2 }],
+  edges: [memoryGraphEdge],
+  brokenLinks: [{ source: memoryEntry.path, target: "knowledge/缺失.md" }],
+};
+const taskSession = {
+  task,
+  history: { turns: [] },
+  availability: "available",
+  hasEarlier: false,
+};
 
 type Case = {
   readonly schema: Schema.Schema.AnyNoContext;
@@ -531,6 +555,86 @@ const cases: Record<string, Case> = {
   ListTasksOutput: { schema: Mcp.ListTasksOutput, valid: [summary], invalid: [{}] },
   GetTaskInput: { schema: Mcp.GetTaskInput, valid: { taskId: "t1" }, invalid: { taskId: "" } },
   GetTaskOutput: { schema: Mcp.GetTaskOutput, valid: task, invalid: {} },
+  ReadTaskSessionInput: {
+    schema: Mcp.ReadTaskSessionInput,
+    valid: { taskId: "t1", before: "turn-1", limit: 20 },
+    invalid: { taskId: "t1", limit: 21 },
+  },
+  ReadTaskSessionOutput: {
+    schema: Mcp.ReadTaskSessionOutput,
+    valid: taskSession,
+    invalid: { ...taskSession, availability: "ready" },
+  },
+  MemoryPath: {
+    schema: Memory.MemoryPath,
+    valid: memoryEntry.path,
+    invalid: "notes/../MEMORY.md",
+  },
+  MemoryFileEntry: {
+    schema: Memory.MemoryFileEntry,
+    valid: memoryEntry,
+    invalid: { ...memoryEntry, bytes: -1 },
+  },
+  MemoryFile: {
+    schema: Memory.MemoryFile,
+    valid: memoryFile,
+    invalid: { ...memoryFile, content: null },
+  },
+  MemorySnapshotReason: {
+    schema: Memory.MemorySnapshotReason,
+    valid: "dream",
+    invalid: "restore",
+  },
+  MemorySnapshot: {
+    schema: Memory.MemorySnapshot,
+    valid: memorySnapshot,
+    invalid: { ...memorySnapshot, createdAt: -1 },
+  },
+  MemoryListing: {
+    schema: Memory.MemoryListing,
+    valid: memoryListing,
+    invalid: { ...memoryListing, botId: "" },
+  },
+  BotMemoryResponse: {
+    schema: Memory.BotMemoryResponse,
+    valid: { ...memoryListing, dream: trigger },
+    invalid: { ...memoryListing, dream: {} },
+  },
+  MemoryListInput: {
+    schema: Memory.MemoryListInput,
+    valid: { snapshot: memorySnapshot.id },
+    invalid: { snapshot: "" },
+  },
+  MemoryReadInput: {
+    schema: Memory.MemoryReadInput,
+    valid: { path: "MEMORY.md", snapshot: memorySnapshot.id },
+    invalid: { path: "knowledge/file.txt" },
+  },
+  MemoryWriteInput: {
+    schema: Memory.MemoryWriteInput,
+    valid: { path: "notes/session.md", content: "" },
+    invalid: { path: "MEMORY.md", content: "x".repeat(Memory.MEMORY_FILE_MAX_BYTES + 1) },
+  },
+  MemoryFileResponse: {
+    schema: Memory.MemoryFileResponse,
+    valid: { file: memoryFile },
+    invalid: { file: { ...memoryFile, path: "/outside.md" } },
+  },
+  MemoryGraphNode: {
+    schema: Memory.MemoryGraphNode,
+    valid: memoryGraphNode,
+    invalid: { ...memoryGraphNode, path: "notes/session.md" },
+  },
+  MemoryGraphEdge: {
+    schema: Memory.MemoryGraphEdge,
+    valid: memoryGraphEdge,
+    invalid: { ...memoryGraphEdge, target: "../other-bot/knowledge/private.md" },
+  },
+  MemoryGraphResponse: {
+    schema: Memory.MemoryGraphResponse,
+    valid: memoryGraph,
+    invalid: { botId: "b1", nodes: [memoryGraphNode] },
+  },
   McpServerSummary: {
     schema: Mcp.McpServerSummary,
     valid: {
@@ -590,7 +694,7 @@ const cases: Record<string, Case> = {
 
 describe("protocol boundary schemas", () => {
   it("covers every exported data schema in these modules", () => {
-    const schemas = Object.entries({ ...Common, ...Config, ...Domain, ...Mcp })
+    const schemas = Object.entries({ ...Common, ...Config, ...Domain, ...Mcp, ...Memory })
       .filter(([, value]) => Schema.isSchema(value))
       .map(([name]) => name)
       .sort();
@@ -607,6 +711,20 @@ describe("protocol boundary schemas", () => {
       expect(Schema.decodeUnknownEither(schema)(invalid)._tag).toBe("Left");
     });
   }
+});
+
+it.each([
+  { ...memoryGraph, nodes: undefined },
+  { ...memoryGraph, edges: undefined },
+  { ...memoryGraph, brokenLinks: undefined },
+  { ...memoryGraph, nodes: [{ ...memoryGraphNode, updatedAt: -1 }] },
+  { ...memoryGraph, nodes: [{ ...memoryGraphNode, title: "" }] },
+  { ...memoryGraph, nodes: [{ ...memoryGraphNode, path: "/knowledge/external.md" }] },
+  { ...memoryGraph, edges: [{ ...memoryGraphEdge, source: "MEMORY.md" }] },
+  { ...memoryGraph, edges: [{ ...memoryGraphEdge, target: "notes/session.md" }] },
+  { ...memoryGraph, brokenLinks: [{ ...memoryGraphEdge, target: "https://example.com/file.md" }] },
+])("rejects incomplete graphs and non-knowledge or invalid nested data: %j", (input) => {
+  expect(Schema.decodeUnknownEither(Memory.MemoryGraphResponse)(input)._tag).toBe("Left");
 });
 
 it("allows absent decision output only for failed or pending execution", () => {

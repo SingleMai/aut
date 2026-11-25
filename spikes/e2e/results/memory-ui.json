@@ -1,0 +1,103 @@
+{
+  "at": "2026-11-24T14:34:37.598Z",
+  "surface": "Desktop browser preview with real isolated DaemonLive API and IPC allowlist",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-memory-ui-A1AJTZ",
+  "checks": {
+    "editAndSave": true,
+    "newNestedMarkdown": true,
+    "dirtyDraftCancelPreserves": true,
+    "dirtyDraftDiscardSwitches": true,
+    "readonlySnapshot": true,
+    "deleteWithConfirmation": true,
+    "clearWithConfirmation": true,
+    "preClearSnapshotPreserved": true,
+    "pausePersistsAcrossReload": true,
+    "resume": true,
+    "refreshedContentsPersist": true,
+    "snapshotLabelsDistinct": true,
+    "darkAndLight": true,
+    "noHorizontalOverflowAt1040": true
+  },
+  "files": [
+    {
+      "path": "MEMORY.md",
+      "bytes": 142,
+      "updatedAt": 1795530435335
+    },
+    {
+      "path": "knowledge/记忆方案.md",
+      "bytes": 197,
+      "updatedAt": 1795530435635
+    },
+    {
+      "path": "notes/2026-11-24-设计讨论.md",
+      "bytes": 196,
+      "updatedAt": 1795530524057
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "8a713cc1-fa3f-41fa-b0cb-e8fed6c98390",
+      "createdAt": 1795530524050,
+      "reason": "edit"
+    },
+    {
+      "id": "2b5eab36-bbea-4339-beaa-43869f72bf11",
+      "createdAt": 1795530435632,
+      "reason": "edit"
+    },
+    {
+      "id": "d416198a-637a-4fcc-8e5f-3a09f31c4347",
+      "createdAt": 1795530435333,
+      "reason": "edit"
+    },
+    {
+      "id": "162d4478-936f-40b9-ae08-547dc9659dd0",
+      "createdAt": 1795530396656,
+      "reason": "clear"
+    },
+    {
+      "id": "6e579c27-a2fb-4a83-9f09-586e426cabee",
+      "createdAt": 1795530386842,
+      "reason": "delete"
+    },
+    {
+      "id": "7c2771fc-c9b1-4d78-bd01-32a734b81c03",
+      "createdAt": 1795530275530,
+      "reason": "edit"
+    },
+    {
+      "id": "6a9afd00-a976-4f3c-ad13-777d398d23c6",
+      "createdAt": 1795530263110,
+      "reason": "edit"
+    }
+  ],
+  "dream": {
+    "id": "memory-dream:aut",
+    "name": "记忆整理 · aut",
+    "enabled": true,
+    "botId": "aut",
+    "prompt": "整理「aut」的长期记忆。",
+    "payload": {
+      "kind": "memory-dream"
+    },
+    "schedule": {
+      "kind": "daily",
+      "at": "03:00",
+      "timeZone": "America/Los_Angeles"
+    },
+    "overlap": "skip",
+    "createdAt": 1795530145420,
+    "updatedAt": 1795530435453,
+    "nextAt": 1795604400000
+  },
+  "screenshots": [
+    "docs/assets/desktop/bot-memory.png",
+    "docs/assets/desktop/bot-memory-light.png",
+    "docs/assets/desktop/bot-memory-narrow.png"
+  ],
+  "limits": [
+    "No Electron installation package recheck in this turn.",
+    "Real model consolidation is validated separately in memory-live-0.171.0.json; this browser fixture has no dream run."
+  ]
+}

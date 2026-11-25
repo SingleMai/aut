@@ -117,6 +117,13 @@ it.scoped(
             request: (method) =>
               Effect.sync((): JsonValue => {
                 calls.push(method);
+                if (method === "config/read")
+                  return {
+                    config: {
+                      features: { memories: false },
+                      memories: { use_memories: false, generate_memories: false },
+                    },
+                  };
                 if (method === "thread/start") return { thread: { id: thread.id } };
                 if (method === "turn/start")
                   return { turn: { id: required(thread.turns[turnIndex++]).id } };

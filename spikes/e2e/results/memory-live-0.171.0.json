@@ -1,0 +1,389 @@
+{
+  "at": "2026-11-24T14:31:56.775Z",
+  "cliVersion": "codex-cli 0.171.0",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-e2e-0v0Gh6",
+  "modelSelection": {
+    "instanceId": "aut-codex",
+    "model": "agy-cli/gemini-4-neon",
+    "effort": "high"
+  },
+  "checks": {
+    "realClassifier": true,
+    "nativeHarness": true,
+    "sameWorkdir": true,
+    "memoryInjected": true,
+    "nativeNotesWritten": true,
+    "namespaceIsolation": true,
+    "defaultDreamOn": true,
+    "scheduledDreamConsolidated": true,
+    "separateRetainedDreamSession": true,
+    "originalSessionRead": true,
+    "dreamSnapshot": true
+  },
+  "defaults": [
+    {
+      "id": "memory-dream:memory-live-a",
+      "name": "记忆整理 · 记忆验收 a",
+      "enabled": true,
+      "botId": "memory-live-a",
+      "prompt": "整理「记忆验收 a」的长期记忆。",
+      "payload": {
+        "kind": "memory-dream"
+      },
+      "schedule": {
+        "kind": "daily",
+        "at": "03:00",
+        "timeZone": "America/Los_Angeles"
+      },
+      "overlap": "skip",
+      "createdAt": 1795530465574,
+      "updatedAt": 1795530465574,
+      "nextAt": 1795604400000
+    },
+    {
+      "id": "memory-dream:memory-live-b",
+      "name": "记忆整理 · 记忆验收 b",
+      "enabled": true,
+      "botId": "memory-live-b",
+      "prompt": "整理「记忆验收 b」的长期记忆。",
+      "payload": {
+        "kind": "memory-dream"
+      },
+      "schedule": {
+        "kind": "daily",
+        "at": "03:00",
+        "timeZone": "America/Los_Angeles"
+      },
+      "overlap": "skip",
+      "createdAt": 1795530465616,
+      "updatedAt": 1795530465616,
+      "nextAt": 1795604400000
+    }
+  ],
+  "workA": {
+    "run": {
+      "id": "run:memory-work-memory-live-a:1795530468699",
+      "triggerId": "memory-work-memory-live-a",
+      "occurrenceKey": "memory-work-memory-live-a:1795530468699",
+      "scheduledAt": 1795530468699,
+      "status": "ran",
+      "taskId": "trigger:run:memory-work-memory-live-a:1795530468699",
+      "startedAt": 1795530469501,
+      "finishedAt": 1795530541802
+    },
+    "task": {
+      "id": "trigger:run:memory-work-memory-live-a:1795530468699",
+      "botId": "memory-live-a",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20df4-b51b-76e3-bc5e-2e0a0af6c53a"
+          }
+        }
+      }
+    },
+    "report": "记忆标记：MEMORY_A_f531c378；笔记已保存。",
+    "reply": "记忆标记：MEMORY_A_f531c378；笔记已保存。…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": [
+        "fileChange"
+      ]
+    }
+  },
+  "workB": {
+    "run": {
+      "id": "run:memory-work-memory-live-b:1795530544869",
+      "triggerId": "memory-work-memory-live-b",
+      "occurrenceKey": "memory-work-memory-live-b:1795530544869",
+      "scheduledAt": 1795530544869,
+      "status": "ran",
+      "taskId": "trigger:run:memory-work-memory-live-b:1795530544869",
+      "startedAt": 1795530545819,
+      "finishedAt": 1795530600157
+    },
+    "task": {
+      "id": "trigger:run:memory-work-memory-live-b:1795530544869",
+      "botId": "memory-live-b",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20df5-dbc5-7833-811e-e80270198d74"
+          }
+        }
+      }
+    },
+    "report": "记忆标记：MEMORY_B_f531c378",
+    "reply": "记忆标记：MEMORY_B_f531c378…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": []
+    }
+  },
+  "dream": {
+    "run": {
+      "id": "run:memory-dream:memory-live-a:1795530603372",
+      "triggerId": "memory-dream:memory-live-a",
+      "occurrenceKey": "memory-dream:memory-live-a:1795530603372",
+      "scheduledAt": 1795530603372,
+      "status": "ran",
+      "taskId": "trigger:run:memory-dream:memory-live-a:1795530603372",
+      "startedAt": 1795530604194,
+      "finishedAt": 1795530716727
+    },
+    "task": {
+      "id": "trigger:run:memory-dream:memory-live-a:1795530603372",
+      "botId": "memory-live-a",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20df6-c09e-76b1-8430-48a501a02b6c"
+          }
+        }
+      }
+    },
+    "report": "\n\n原始会话可读取。已将 `RELEASE_ALIAS_f531c378` 提升至 `MEMORY.md`，保留原 namespace token，并删除已合并旧笔记。",
+    "reply": "已完成记忆整理，原始会话可正常读取。已将 RELEASE_ALIAS_f531c378 提升至 MEMORY.md，保留了原有 namespace token，并删除已合并的旧笔记。…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": [
+        "commandExecution",
+        "aut.list_tasks",
+        "commandExecution",
+        "aut.read_task_session",
+        "fileChange"
+      ]
+    }
+  },
+  "syntheticNotes": [
+    {
+      "path": "notes/62fadb4ca16d98b7c1854e368b7495b3d4de98058e7576332670d66e63e733da.md",
+      "bytes": 90,
+      "updatedAt": 1795530497322,
+      "content": "# Session Notes\n\n## Confirmed Facts\n- Fixture release-train alias: RELEASE_ALIAS_f531c378\n"
+    }
+  ],
+  "consolidated": [
+    {
+      "path": "MEMORY.md",
+      "bytes": 122,
+      "updatedAt": 1795530680679,
+      "content": "# Synthetic fixture memory\n\nMemory namespace token: MEMORY_A_f531c378\nFixture release-train alias: RELEASE_ALIAS_f531c378\n"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "5f0d51e7-090d-4772-8880-b2ae1b08421d",
+      "createdAt": 1795530604245,
+      "reason": "dream"
+    },
+    {
+      "id": "b9ef53ce-e317-4337-b508-004f3daa90c0",
+      "createdAt": 1795530465556,
+      "reason": "edit"
+    }
+  ],
+  "unchangedBotB": [
+    {
+      "path": "MEMORY.md",
+      "bytes": 70,
+      "updatedAt": 1795530465567
+    }
+  ],
+  "triggerDecisionLogIds": [
+    "aa07c48e-19ce-4766-a0cd-409bb45fec6a",
+    "5a11d656-41b1-47eb-8ac1-f0039847ec00",
+    "9f00ed0b-1c6b-4b1f-9704-16ec19582a41"
+  ],
+  "replyGates": [
+    {
+      "id": "3381407e-82be-4267-a90a-d92b4db965e9",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.32
+              }
+            },
+            "latencyMs": 821,
+            "usage": {
+              "inputTokens": 322
+            }
+          },
+          "latencyMs": 822
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.29
+              }
+            },
+            "latencyMs": 1199,
+            "usage": {
+              "inputTokens": 322
+            }
+          },
+          "latencyMs": 1200
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.34
+              }
+            },
+            "latencyMs": 610,
+            "usage": {
+              "inputTokens": 322
+            }
+          },
+          "latencyMs": 611
+        }
+      ]
+    },
+    {
+      "id": "5edee3c2-097d-4707-95ea-c6645e203879",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.2
+              }
+            },
+            "latencyMs": 458,
+            "usage": {
+              "inputTokens": 315
+            }
+          },
+          "latencyMs": 459
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.22
+              }
+            },
+            "latencyMs": 886,
+            "usage": {
+              "inputTokens": 315
+            }
+          },
+          "latencyMs": 887
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.21
+              }
+            },
+            "latencyMs": 435,
+            "usage": {
+              "inputTokens": 315
+            }
+          },
+          "latencyMs": 435
+        }
+      ]
+    },
+    {
+      "id": "86b61877-4518-4abc-86b6-eef44e25851b",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.11
+              }
+            },
+            "latencyMs": 429,
+            "usage": {
+              "inputTokens": 350
+            }
+          },
+          "latencyMs": 430
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.14
+              }
+            },
+            "latencyMs": 434,
+            "usage": {
+              "inputTokens": 358
+            }
+          },
+          "latencyMs": 434
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.13
+              }
+            },
+            "latencyMs": 431,
+            "usage": {
+              "inputTokens": 356
+            }
+          },
+          "latencyMs": 432
+        }
+      ]
+    }
+  ]
+}

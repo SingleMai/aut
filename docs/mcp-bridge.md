@@ -26,6 +26,7 @@ HTTP请求不能自报身份，权限变更或Scope撤销立即作用于后续�
 | read_main_thread | 所有合法bot | ids为1–50个唯一ID；与before/limit互斥。分页默认50、上限50 |
 | list_tasks | 所有合法bot | 可按bot/status过滤，默认50、上限50 |
 | get_task | 所有合法bot | 指定TaskId，返回结构化Task |
+| read_task_session | 所有合法bot | 仅同 bot 的 Task；分页读取原生会话，默认10回合、最多20，使用 nextBefore 继续向前读。未知或跨 bot 拒绝；不启动/恢复工作 |
 | create_bot | worker、coordinator | 创建普通 Bot，返回 ID 和名称。模型选择与工作目录可继承调用者，可指定形象 `characterId`。与手动创建共用 Administration |
 | create_trigger | worker、coordinator | 创建 once、daily、cron 或 interval 计划。worker 只能指定自身 Bot，coordinator 可指定任一已配置 Bot。可提供稳定 `id`，超时或断线后用该 ID 核对结果 |
 | get_trigger | 所有合法bot | 按稳定 `triggerId` 读取一个触发器，用于核对 `create_trigger` 的不确定结果 |

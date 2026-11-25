@@ -3,6 +3,14 @@ import { expect, it } from "vitest";
 import { ApiRequest } from "./bridge.js";
 
 it.each([
+  ["GET", "/v1/bots/bot-1/memory"],
+  ["GET", "/v1/bots/bot-1/memory?snapshot=one"],
+  ["GET", "/v1/bots/bot-1/memory/file?path=knowledge%2Fplan.md&snapshot=one"],
+  ["GET", "/v1/bots/bot-1/memory/graph"],
+  ["GET", "/v1/bots/bot-1/memory/graph?snapshot=one"],
+  ["PUT", "/v1/bots/bot-1/memory/file"],
+  ["DELETE", "/v1/bots/bot-1/memory/file?path=notes%2Fwork.md"],
+  ["POST", "/v1/bots/bot-1/memory/clear"],
   ["GET", "/v1/mcp/servers"],
   ["POST", "/v1/mcp/servers"],
   ["PUT", "/v1/mcp/servers/server-1"],
@@ -25,6 +33,11 @@ it.each([
 });
 
 it.each([
+  ["PUT", "/v1/bots/bot-1/memory/file?snapshot=one"],
+  ["DELETE", "/v1/bots/bot-1/memory"],
+  ["PUT", "/v1/bots/bot-1/memory/graph"],
+  ["DELETE", "/v1/bots/bot-1/memory/graph"],
+  ["GET", "/v1/bots/bot-1/memory/secret"],
   ["GET", "https://remote.example/v1/mcp/servers"],
   ["GET", "/v1/mcp/servers?token=x"],
   ["PUT", "/v1/mcp/servers/x/auth/start"],

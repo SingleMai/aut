@@ -337,6 +337,13 @@ const fake = () =>
             request: (method) =>
               Effect.sync(() => {
                 calls.push(method);
+                if (method === "config/read")
+                  return {
+                    config: {
+                      features: { memories: false },
+                      memories: { use_memories: false, generate_memories: false },
+                    },
+                  };
                 if (method === "thread/start")
                   return { thread: { id: historical[0]?.id ?? "missing" } };
                 if (method === "turn/start")

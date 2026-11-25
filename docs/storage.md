@@ -32,6 +32,9 @@ events/decision_logs 不直接触发资源失效。只读、无变化的 set、�
 
 ## JSON 配置
 
+Bot 记忆和最多 10 份审查快照直接保存在 `memory/`、`memory-history/` 下，不进入 SQLite；
+目录归属、限额和快照行为集中见 [Bot 记忆](memory.md)。整理任务使用现有 triggers/trigger_runs/tasks/sessions，数据库格式不变。
+
 输入附件和成功报告中的本地成果由 `MessageFiles` 保存至 `files/<id>/`；清单与内容独立于 Bot 工作目录。消息仅记录不可变引用，不追踪源文件后续变化。范围、限额、引用续聊和失败行为统一见 [ADR-0064](decisions/0064-message-files.md)，草稿租期、引用保护和回收见 [ADR-0065](decisions/0065-file-lifecycle.md)。该服务不修改 SQLite 版本或用户的 Provider 配置。
 
 `bots.json` 保存 `BotsConfig`，`config.json` 保存 `AutConfig`，`mcp.json` 保存版本为 1 的

@@ -31,6 +31,8 @@ import {
   ProposeRouteOutput,
   ReadMainThreadInput,
   ReadMainThreadOutput,
+  ReadTaskSessionInput,
+  ReadTaskSessionOutput,
   UpdateTriggerOutput,
   UpdateTriggerToolInput,
 } from "@aut/protocol";
@@ -56,6 +58,11 @@ const WireReply = Schema.Union(
   }),
 );
 export const BridgeCall = Schema.Union(
+  Schema.Struct({
+    tool: Schema.Literal("read_task_session"),
+    input: ReadTaskSessionInput,
+    requestId: NonEmptyString,
+  }),
   Schema.Struct({
     tool: Schema.Literal("mcp_info"),
     input: McpInfoInput,
@@ -210,6 +217,10 @@ export const makeBridgeSocket = (options: {
     const fibers = new Set<Fiber.RuntimeFiber<void, never>>();
     const dispatch = (identity: SessionIdentity, call: BridgeCall) => {
       switch (call.tool) {
+        case "read_task_session":
+          return backend
+            .readTaskSession(identity, call.input)
+            .pipe(Effect.flatMap((output) => checked(ReadTaskSessionOutput, output)));
         case "mcp_info":
           return backend
             .mcpInfo(identity, call.input)

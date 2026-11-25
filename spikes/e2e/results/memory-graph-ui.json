@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-24",
+  "surface": "Desktop browser preview with real isolated DaemonApiLive API and IPC allowlist",
+  "fixture": "spikes/desktop/memory-graph-qa.ts",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-memory-graph-qa-ECwWio",
+  "botId": "qa-memory",
+  "checks": {
+    "coreMemoryOpensInReadingMode": true,
+    "explicitEditAndSave": true,
+    "dirtyTabSwitchWarnsAndContinuePreservesDraft": true,
+    "savedLinkChangesGraphFrom14To15Edges": true,
+    "nodeSelectionKeepsSmallGraphPositions": true,
+    "searchByDocumentTitle": true,
+    "listViewSelectsDocument": true,
+    "relativeLinksNavigateCoreKnowledgeAndNotes": true,
+    "snapshotGraphRetains14EdgesAndDisablesEditing": true,
+    "newDocumentAddsNodeAndEdge": true,
+    "confirmedDeleteRemovesNodeAndEdge": true,
+    "missingLinkDisabledAndShownAsBrokenWithoutInventedNode": true,
+    "nativeFileChangeAppearsAfterRefresh": true,
+    "pausePersistsAcrossRefreshAndResumeWorks": true,
+    "darkAndLightThemes": true,
+    "noPageOrPanelHorizontalOverflowAt820": true,
+    "readerAndGraphDoNotOverlapFooter": true
+  },
+  "result": {
+    "knowledgeNodes": 8,
+    "knowledgeEdges": 15,
+    "brokenLinks": 0,
+    "dreamEnabled": true
+  },
+  "verification": {
+    "workspaceBuild": "passed",
+    "productionAndTestTypes": "passed",
+    "biome": "passed",
+    "dependencyBoundaries": "passed",
+    "desktopBundle": "passed",
+    "testFiles": 102,
+    "testsPassed": 1504,
+    "testsSkipped": 1,
+    "runner": "vitest run --maxWorkers=4"
+  },
+  "screenshots": [
+    "docs/assets/desktop/memory-core-reading.png",
+    "docs/assets/desktop/memory-knowledge-graph.png",
+    "docs/assets/desktop/memory-knowledge-narrow.png"
+  ],
+  "limits": [
+    "Synthetic UI documents; real scheduled consolidation and fresh-session recall are verified separately in memory-graph-live-0.171.0.json.",
+    "No Electron package rebuild or installation recheck.",
+    "Corepack's pnpm entry could not find its cached pnpm.cjs; checks used the installed workspace tsc, vitest, biome and build scripts directly. No global package-manager configuration was changed."
+  ]
+}

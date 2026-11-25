@@ -1,5 +1,12 @@
 # aut 协议与接口
 
+文件记忆边界见 ADR-0069 与 `packages/protocol/src/memory.ts`：MemoryListing 包含 botId、directory、files、snapshots，
+BotMemoryResponse 另带 dream（Trigger 或 null）；MemoryFile 包含 path、bytes、updatedAt、content。
+MemoryGraphResponse（ADR-0070）包含 botId、nodes（知识文件 path/title/updatedAt）、edges 和 brokenLinks（source/target）。
+共享 `resolveMemoryLink` 解析同一 Bot 记忆目录内的文档相对链接，供图谱和正文导航使用；外部、绝对、越界或无效路径不解析。
+所有文件操作限定 bot 的相对 Markdown 路径。`read_task_session` MCP 复用 TaskSessionInput/Response，额外要求同 bot 归属。
+Changes 资源新增 memory，用于应用内文件编辑后的界面失效；原生文件编辑由刷新读取。
+
 主会话附件与成果快照见 [ADR-0064](decisions/0064-message-files.md)：`MessageFile` 包含稳定 ID、文件名、类型、字节数、SHA-256 与快照路径。消息及 MCP 摘录携带 `files`，回包可携带 `fileIssues`；交接包请求项携带相同文件引用。新增上传和读取边界由 `packages/protocol/src/files.ts` 定义。
 
 > 下文用 TypeScript 风格伪代码描述结构；**实现时一律用 Effect `Schema` 定义**，放在 `packages/protocol`，类型由 Schema 推导。

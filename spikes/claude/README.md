@@ -1,5 +1,7 @@
 # Claude Code 协议探针
 
+原生自动记忆开关的 **2.1.330** 对照实测与证据边界见 [native-memory.md](native-memory.md)，统一关闭的接入决策见 ADR-0068。
+
 本目录保存 Claude Code `2.1.325` 在 macOS 上的真实 `stream-json` 收发样本。探针只使用新的临时工作目录和固定合成提示，不读取已有会话，也不修改全局配置。Claude Code 的认证和模型沿用当前机器配置。
 
 ## 已确认的协议

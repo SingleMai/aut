@@ -2,6 +2,10 @@ import { DaemonEvent, FileId, JsonValue, NonEmptyString } from "@aut/protocol";
 import { Schema } from "effect";
 
 const routes = [
+  ["GET", /^\/v1\/bots\/[^/?#]+\/memory(?:\/(?:file|graph))?(?:\?[^#]+)?$/],
+  ["PUT", /^\/v1\/bots\/[^/?#]+\/memory\/file$/],
+  ["DELETE", /^\/v1\/bots\/[^/?#]+\/memory\/file\?[^#]+$/],
+  ["POST", /^\/v1\/bots\/[^/?#]+\/memory\/clear$/],
   ["GET", /^\/v1\/files\/[a-f0-9]{64}$/],
   ["POST", /^\/v1\/files$/],
   ["POST", /^\/v1\/files\/keepalive$/],

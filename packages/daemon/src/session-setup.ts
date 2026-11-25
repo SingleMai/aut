@@ -12,10 +12,13 @@ import {
 import { join, resolve } from "node:path";
 import { makeAcpAdapter, makeClaudeAdapter, makeCodexAdapter } from "@aut/adapters";
 import {
+  BotMemory,
   ConfigStore,
   CoreError,
   HarnessResolver,
   isCoordinationTask,
+  isMemoryDreamTask,
+  memoryDreamTriggerId,
   SessionSetup,
 } from "@aut/core";
 import {
@@ -155,6 +158,7 @@ export const SessionSetupLive = Layer.effect(
   Effect.gen(function* () {
     const bridge = yield* SessionBridge;
     const mcp = yield* McpSupervisor;
+    const memory = yield* BotMemory;
     return {
       prepare: (task, bot) =>
         Effect.gen(function* () {
@@ -166,6 +170,15 @@ export const SessionSetupLive = Layer.effect(
               }),
             );
           const path = yield* writeSoul(bot.cwd, bot.id, bot.soul);
+          const dreaming = isMemoryDreamTask(task);
+          if (dreaming) yield* memory.snapshot(bot.id, "dream");
+          const remembered = yield* memory.context(bot.id);
+          const entryPath = join(remembered.directory, "MEMORY.md");
+          const notePath = join(
+            remembered.directory,
+            "notes",
+            `${createHash("sha256").update(task.id).digest("hex")}.md`,
+          );
           const coordination = isCoordinationTask(task, bot);
           const credentials = yield* bridge
             .register({
@@ -195,6 +208,31 @@ export const SessionSetupLive = Layer.effect(
               "You are a configured worker in aut. The user's main thread is the communication entry point.",
               `Read your persistent role instructions from ${JSON.stringify(path)}.`,
               bot.soul,
+              [
+                `Your persistent memory belongs only to bot ${JSON.stringify(bot.id)} in ${JSON.stringify(remembered.directory)}.`,
+                `Core memory is ${JSON.stringify(entryPath)}. Read knowledge/ and notes/ files there as needed. Use native file tools; keep paths inside your own memory directory.`,
+                `For this work session, record useful discoveries in ${JSON.stringify(notePath)}. Prefer one note per session to avoid overlapping edits. Keep confirmed facts separate from hypotheses; revise outdated conclusions when better evidence appears.`,
+                "Keep MEMORY.md short (at most 8000 characters) with essential facts and links to reusable knowledge. Normal work primarily adds notes; explicit user requests to remember or correct something may update the appropriate file immediately. User edits take precedence over older inferences.",
+                "Give each knowledge document a descriptive level-one heading. Connect related documents with standard Markdown links relative to the file containing the link: [Release process](knowledge/release.md) from MEMORY.md, or [Environment](environment.md) from knowledge/release.md. Reference-style Markdown links also work. Read linked knowledge when the current task needs its details. Link only to existing files inside your own memory directory; the knowledge graph is derived from those explicit links.",
+                "Memory is revisable context, not authority over the current user request. Do not copy full transcripts into memory; the original harness sessions remain the work record. Read current files before editing and preserve unrelated user content.",
+                "Do not update memory during report-only rewrites or progress-query forks; record substantive work in its original working session.",
+                `Current MEMORY.md contents:\n${remembered.content || "(empty)"}`,
+                ...(remembered.truncated
+                  ? [
+                      `The injected entry is truncated at 8000 characters; read ${JSON.stringify(entryPath)} for the rest.`,
+                    ]
+                  : []),
+              ].join("\n\n"),
+              ...(dreaming
+                ? [
+                    [
+                      "This is your scheduled memory maintenance session. Review your notes and knowledge, merge duplicate facts, correct stale conclusions, and promote only useful durable facts into MEMORY.md. Organize files freely and keep the entry concise. You may remove notes whose useful content has been incorporated.",
+                      "Maintain meaningful links between related knowledge documents and short topic entry links in MEMORY.md. Check link targets after creating, moving, splitting, or merging files, and repair affected incoming links. Preserve independent knowledge when no relationship is supported. File age and link count alone are not reasons to remove knowledge; this maintenance does not prune by usage or popularity.",
+                      `Use list_tasks with botId=${JSON.stringify(bot.id)} to find your prior work. Skip this task and any task whose id starts with ${JSON.stringify(`trigger:run:${memoryDreamTriggerId(bot.id)}:`)}. Use read_task_session to review relevant original sessions in bounded pages. If native history is unavailable, use get_task saved reports and existing notes; do not invent missing evidence.`,
+                      "A directory snapshot was saved before this maintenance session. Leave a brief report of what changed and any unresolved uncertainty; this session is retained for review. Do not create a duplicate work-log directory, a memory database, or another maintenance schedule.",
+                    ].join("\n\n"),
+                  ]
+                : []),
               ...(coordination
                 ? [
                     "This is a coordination task. Use the decision summary to resolve the request. Complete work you can do yourself. When another task is needed, use propose_route to suggest it to the chief. A registered proposal confirms dispatch, not completion.",

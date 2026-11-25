@@ -1,0 +1,538 @@
+{
+  "at": "2026-11-24T18:28:01.511Z",
+  "cliVersion": "codex-cli 0.171.0",
+  "dataDirectory": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-e2e-sfLURV",
+  "modelSelection": {
+    "instanceId": "aut-codex",
+    "model": "agy-cli/gemini-4-neon",
+    "effort": "high"
+  },
+  "checks": {
+    "realClassifier": true,
+    "nativeHarness": true,
+    "sameWorkdir": true,
+    "memoryInjected": true,
+    "nativeNotesWritten": true,
+    "namespaceIsolation": true,
+    "defaultDreamOn": true,
+    "scheduledDreamConsolidated": true,
+    "separateRetainedDreamSession": true,
+    "originalSessionRead": true,
+    "dreamSnapshot": true,
+    "knowledgeGraphDerivedFromFiles": true,
+    "knowledgeRelationVerified": true,
+    "noBrokenKnowledgeLinks": true,
+    "conciseCoreKnowledgeEntry": true,
+    "graphBotIsolation": true,
+    "freshSessionKnowledgeRecall": true,
+    "recalledMemoryUnchanged": true
+  },
+  "defaults": [
+    {
+      "id": "memory-dream:memory-live-a",
+      "name": "记忆整理 · 记忆验收 a",
+      "enabled": true,
+      "botId": "memory-live-a",
+      "prompt": "整理「记忆验收 a」的长期记忆。",
+      "payload": {
+        "kind": "memory-dream"
+      },
+      "schedule": {
+        "kind": "daily",
+        "at": "03:00",
+        "timeZone": "America/Los_Angeles"
+      },
+      "overlap": "skip",
+      "createdAt": 1795544599764,
+      "updatedAt": 1795544599764,
+      "nextAt": 1795604400000
+    },
+    {
+      "id": "memory-dream:memory-live-b",
+      "name": "记忆整理 · 记忆验收 b",
+      "enabled": true,
+      "botId": "memory-live-b",
+      "prompt": "整理「记忆验收 b」的长期记忆。",
+      "payload": {
+        "kind": "memory-dream"
+      },
+      "schedule": {
+        "kind": "daily",
+        "at": "03:00",
+        "timeZone": "America/Los_Angeles"
+      },
+      "overlap": "skip",
+      "createdAt": 1795544599795,
+      "updatedAt": 1795544599795,
+      "nextAt": 1795604400000
+    }
+  ],
+  "workA": {
+    "run": {
+      "id": "run:memory-work-memory-live-a-initial:1795544602837",
+      "triggerId": "memory-work-memory-live-a-initial",
+      "occurrenceKey": "memory-work-memory-live-a-initial:1795544602837",
+      "scheduledAt": 1795544602837,
+      "status": "ran",
+      "taskId": "trigger:run:memory-work-memory-live-a-initial:1795544602837",
+      "startedAt": 1795544603663,
+      "finishedAt": 1795544660792
+    },
+    "task": {
+      "id": "trigger:run:memory-work-memory-live-a-initial:1795544602837",
+      "botId": "memory-live-a",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20ecc-5c5f-7f40-9b58-e023f68891fc"
+          }
+        }
+      }
+    },
+    "report": "记忆标记：MEMORY_A_99880805；笔记已保存。",
+    "reply": "记忆标记：MEMORY_A_99880805；笔记已保存。…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": [
+        "fileChange"
+      ]
+    }
+  },
+  "workB": {
+    "run": {
+      "id": "run:memory-work-memory-live-b-initial:1795544663887",
+      "triggerId": "memory-work-memory-live-b-initial",
+      "occurrenceKey": "memory-work-memory-live-b-initial:1795544663887",
+      "scheduledAt": 1795544663887,
+      "status": "ran",
+      "taskId": "trigger:run:memory-work-memory-live-b-initial:1795544663887",
+      "startedAt": 1795544664801,
+      "finishedAt": 1795544691859
+    },
+    "task": {
+      "id": "trigger:run:memory-work-memory-live-b-initial:1795544663887",
+      "botId": "memory-live-b",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20ecd-4b27-7271-b1f8-30e234316d8a"
+          }
+        }
+      }
+    },
+    "report": "记忆标记：MEMORY_B_99880805",
+    "reply": "记忆标记：MEMORY_B_99880805…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": []
+    }
+  },
+  "dream": {
+    "run": {
+      "id": "run:memory-dream:memory-live-a:1795544695034",
+      "triggerId": "memory-dream:memory-live-a",
+      "occurrenceKey": "memory-dream:memory-live-a:1795544695034",
+      "scheduledAt": 1795544695034,
+      "status": "ran",
+      "taskId": "trigger:run:memory-dream:memory-live-a:1795544695034",
+      "startedAt": 1795544695870,
+      "finishedAt": 1795544826126
+    },
+    "task": {
+      "id": "trigger:run:memory-dream:memory-live-a:1795544695034",
+      "botId": "memory-live-a",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20ecd-c485-7670-9c34-56845765b15b"
+          }
+        }
+      }
+    },
+    "report": "\n\n已完成记忆整理：核对历史会话并清理旧笔记，已将发布流程、预演验收及长期配置事实整理至知识目录并建立相对链接，核心记忆仅保留原有标记与两项简短入口，无未决事项。",
+    "reply": "已完成记忆整理，无未决事项。已核对近期工作会话并清理旧笔记，将发布流程、预演验收及长期配置事实整理为互相关联的知识文档，核心记忆保留原有标记与两项简短入口。…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": [
+        "aut.list_tasks",
+        "commandExecution",
+        "aut.read_task_session",
+        "commandExecution",
+        "fileChange"
+      ]
+    }
+  },
+  "recall": {
+    "run": {
+      "id": "run:memory-work-memory-live-a-recall:1795544829186",
+      "triggerId": "memory-work-memory-live-a-recall",
+      "occurrenceKey": "memory-work-memory-live-a-recall:1795544829186",
+      "scheduledAt": 1795544829186,
+      "status": "ran",
+      "taskId": "trigger:run:memory-work-memory-live-a-recall:1795544829186",
+      "startedAt": 1795544830135,
+      "finishedAt": 1795544881271
+    },
+    "task": {
+      "id": "trigger:run:memory-work-memory-live-a-recall:1795544829186",
+      "botId": "memory-live-a",
+      "status": "idle",
+      "session": {
+        "instanceId": "aut-codex",
+        "cursor": {
+          "kind": "codex",
+          "data": {
+            "threadId": "01a20ecf-d119-7ae1-97cf-8d413ca7c1ee"
+          }
+        }
+      }
+    },
+    "report": "灯塔项目发布前预演在沙盒环境进行，由知夏验收，必须核对登录与导出。",
+    "reply": "灯塔项目发布前预演在沙盒环境进行，由知夏验收，必须核对登录与导出。…\n详情见任务面板",
+    "history": {
+      "availability": "available",
+      "turns": 1,
+      "tools": [
+        "commandExecution",
+        "commandExecution"
+      ]
+    }
+  },
+  "knowledgeGraph": {
+    "botId": "memory-live-a",
+    "nodes": [
+      {
+        "path": "knowledge/rehearsal-acceptance.md",
+        "title": "预演验收",
+        "updatedAt": 1795544793991
+      },
+      {
+        "path": "knowledge/release-process.md",
+        "title": "发布流程",
+        "updatedAt": 1795544793990
+      }
+    ],
+    "edges": [
+      {
+        "source": "knowledge/release-process.md",
+        "target": "knowledge/rehearsal-acceptance.md"
+      }
+    ],
+    "brokenLinks": []
+  },
+  "verifiedRelation": {
+    "source": "knowledge/release-process.md",
+    "target": "knowledge/rehearsal-acceptance.md"
+  },
+  "recallEvidence": [
+    {
+      "name": "commandExecution",
+      "input": "/bin/zsh -lc 'cat /private/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-e2e-sfLURV/memory/6abf079bb6e6a9978a3fe684cc69fbf539c997d00dc81bee3d676f1434ac1f7e/knowledge/rehearsal-acceptance.md'",
+      "output": "# 预演验收\n\n- 预演在沙盒环境进行。\n- 验收人是知夏。\n- 必须核对登录与导出。\n",
+      "exitCode": 0
+    }
+  ],
+  "syntheticNotes": [
+    {
+      "path": "notes/9e79780cb2d3040bb826f772aa9278c9f6094abae5b3a629890b12c6e392418e.md",
+      "bytes": 353,
+      "updatedAt": 1795544633246,
+      "content": "# 会话笔记\n\n## 已确认事实（长期有效）\n\n- Fixture release-train alias: RELEASE_ALIAS_99880805\n\n## 已确认的关联主题（原始事实）\n\n### 发布流程\n- 灯塔项目发布前必须完成预演，发布流程依赖预演验收。\n\n### 预演验收\n- 预演在沙盒环境进行，验收人是知夏，必须核对登录与导出。\n"
+    }
+  ],
+  "consolidated": [
+    {
+      "path": "MEMORY.md",
+      "bytes": 275,
+      "updatedAt": 1795544793991,
+      "content": "# Synthetic fixture memory\n\nMemory namespace token: MEMORY_A_99880805\n\n## 知识入口\n\n- [发布流程](knowledge/release-process.md)：灯塔项目发布流程与 Fixture release-train alias\n- [预演验收](knowledge/rehearsal-acceptance.md)：发布前预演验收说明\n"
+    },
+    {
+      "path": "knowledge/rehearsal-acceptance.md",
+      "bytes": 106,
+      "updatedAt": 1795544793991,
+      "content": "# 预演验收\n\n- 预演在沙盒环境进行。\n- 验收人是知夏。\n- 必须核对登录与导出。\n"
+    },
+    {
+      "path": "knowledge/release-process.md",
+      "bytes": 175,
+      "updatedAt": 1795544793990,
+      "content": "# 发布流程\n\n- 灯塔项目发布前必须完成预演，发布流程依赖[预演验收](rehearsal-acceptance.md)。\n- Fixture release-train alias: RELEASE_ALIAS_99880805\n"
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "6dd7b8f1-9b4d-4e08-b135-76ca5f998d89",
+      "createdAt": 1795544695876,
+      "reason": "dream"
+    },
+    {
+      "id": "3bd7d8f7-02e6-4ead-95d6-26ef5456bc1b",
+      "createdAt": 1795544599737,
+      "reason": "edit"
+    }
+  ],
+  "unchangedBotB": [
+    {
+      "path": "MEMORY.md",
+      "bytes": 70,
+      "updatedAt": 1795544599753
+    }
+  ],
+  "triggerDecisionLogIds": [
+    "53896a39-5c45-4dff-a1c4-f4950318bc77",
+    "044bc463-153d-4ff6-914b-2cddc4d1f3f3",
+    "3567507c-351b-4ae0-aa89-7bddce1b3729",
+    "a73afc8a-dffd-466d-ac55-aee1044baae5"
+  ],
+  "replyGates": [
+    {
+      "id": "280a61d3-d661-4016-9ed3-9216a7455086",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.51
+              }
+            },
+            "latencyMs": 451,
+            "usage": {
+              "inputTokens": 323
+            }
+          },
+          "latencyMs": 452
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.48
+              }
+            },
+            "latencyMs": 619,
+            "usage": {
+              "inputTokens": 323
+            }
+          },
+          "latencyMs": 619
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.49
+              }
+            },
+            "latencyMs": 425,
+            "usage": {
+              "inputTokens": 323
+            }
+          },
+          "latencyMs": 425
+        }
+      ]
+    },
+    {
+      "id": "9123da41-a24a-4cec-be14-8a05d624efe8",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.25
+              }
+            },
+            "latencyMs": 445,
+            "usage": {
+              "inputTokens": 316
+            }
+          },
+          "latencyMs": 445
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.24
+              }
+            },
+            "latencyMs": 425,
+            "usage": {
+              "inputTokens": 316
+            }
+          },
+          "latencyMs": 425
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.24
+              }
+            },
+            "latencyMs": 412,
+            "usage": {
+              "inputTokens": 316
+            }
+          },
+          "latencyMs": 412
+        }
+      ]
+    },
+    {
+      "id": "6de3dded-45dc-4cbf-b3e8-0360c44d30a6",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.4
+              }
+            },
+            "latencyMs": 413,
+            "usage": {
+              "inputTokens": 378
+            }
+          },
+          "latencyMs": 414
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.41
+              }
+            },
+            "latencyMs": 430,
+            "usage": {
+              "inputTokens": 378
+            }
+          },
+          "latencyMs": 431
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.55
+              }
+            },
+            "latencyMs": 435,
+            "usage": {
+              "inputTokens": 377
+            }
+          },
+          "latencyMs": 437
+        }
+      ]
+    },
+    {
+      "id": "57d6cb70-4b29-4bb5-8490-d72ff24d4082",
+      "output": {
+        "gate": "truncate"
+      },
+      "calls": [
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.39
+              }
+            },
+            "latencyMs": 448,
+            "usage": {
+              "inputTokens": 332
+            }
+          },
+          "latencyMs": 449
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.39
+              }
+            },
+            "latencyMs": 414,
+            "usage": {
+              "inputTokens": 332
+            }
+          },
+          "latencyMs": 415
+        },
+        {
+          "backend": "jev",
+          "model": "jev-1.14.0",
+          "response": {
+            "answers": {
+              "readable": {
+                "type": "noul",
+                "noul": 0.38
+              }
+            },
+            "latencyMs": 451,
+            "usage": {
+              "inputTokens": 332
+            }
+          },
+          "latencyMs": 452
+        }
+      ]
+    }
+  ]
+}

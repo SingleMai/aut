@@ -9,7 +9,14 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ConfigStore, CoreLive, HarnessResolver, SessionSetup } from "@aut/core";
+import {
+  BotMemory,
+  ConfigStore,
+  CoreLive,
+  HarnessResolver,
+  memoryDreamTriggerId,
+  SessionSetup,
+} from "@aut/core";
 import type { BridgeSocket } from "@aut/mcp-bridge";
 import { BotConfig, type McpServerConfig, Task } from "@aut/protocol";
 import { Effect, Either, Exit, Fiber, Layer, Redacted, Schema, Scope } from "effect";
@@ -92,10 +99,17 @@ it("writes only its managed soul, preserves AGENTS and injects authorized MCP pr
   const setup = SessionSetupLive.pipe(
     Layer.provideMerge(SessionBridgeLive),
     Layer.provideMerge(mcpSupervisor([external])),
+    Layer.provideMerge(CoreLive({ dataDirectory: directory() })),
   );
   const input = await Effect.runPromise(
     Effect.scoped(
       Effect.gen(function* () {
+        yield* (yield* ConfigStore).writeBots([bot]);
+        yield* (yield* BotMemory).write(
+          bot.id,
+          "MEMORY.md",
+          "Remember the synthetic blue preference.",
+        );
         yield* (yield* SessionBridge).bind(socket);
         const inner = yield* Scope.make();
         const input = yield* Scope.extend((yield* SessionSetup).prepare(makeTask(bot), bot), inner);
@@ -118,6 +132,8 @@ it("writes only its managed soul, preserves AGENTS and injects authorized MCP pr
   expect(input.mcpServers[0]).toEqual(external);
   expect(input.mcpServers[1]?.name).toBe("aut");
   expect(input.instructions).not.toContain("synthetic-session-secret");
+  expect(input.instructions).toContain("Remember the synthetic blue preference.");
+  expect(input.instructions).toContain("notes");
   expect(readFileSync(role, "utf8")).not.toContain("synthetic-session-secret");
 });
 
@@ -143,6 +159,55 @@ it("waits for listener readiness and refuses a second binding", async () => {
   );
 });
 
+it("isolates memory for bots sharing a workdir and snapshots a dedicated dream session", async () => {
+  const cwd = directory();
+  const bot = makeBot(cwd);
+  const other = Schema.decodeUnknownSync(BotConfig)({ ...bot, id: "other-bot" });
+  const layer = SessionSetupLive.pipe(
+    Layer.provideMerge(
+      Layer.succeed(SessionBridge, {
+        bind: () => Effect.void,
+        register: () => Effect.succeed(credentials),
+      }),
+    ),
+    Layer.provideMerge(mcpSupervisor()),
+    Layer.provideMerge(CoreLive({ dataDirectory: directory() })),
+  );
+  await Effect.runPromise(
+    Effect.scoped(
+      Effect.gen(function* () {
+        yield* (yield* ConfigStore).writeBots([bot, other]);
+        const memory = yield* BotMemory;
+        yield* memory.write(bot.id, "MEMORY.md", "OWN_MEMORY_CANARY");
+        yield* memory.write(other.id, "MEMORY.md", "OTHER_MEMORY_CANARY");
+        const setup = yield* SessionSetup;
+        const first = yield* setup.prepare(makeTask(bot), bot);
+        expect(first.instructions).toContain("OWN_MEMORY_CANARY");
+        expect(first.instructions).not.toContain("OTHER_MEMORY_CANARY");
+        const root = yield* memory.directory(bot.id);
+        writeFileSync(join(root, "MEMORY.md"), "NATIVE_FILE_EDIT_CANARY");
+        const second = yield* setup.prepare(makeTask(bot), bot);
+        expect(second.instructions).toContain("NATIVE_FILE_EDIT_CANARY");
+        const dream = Schema.decodeUnknownSync(Task)({
+          ...makeTask(bot),
+          id: `trigger:run:${memoryDreamTriggerId(bot.id)}:1`,
+          origin: { kind: "trigger" },
+        });
+        const prepared = yield* setup.prepare(dream, bot);
+        expect(prepared.model).toBe(bot.modelSelection.model);
+        expect(prepared.instructions).toContain("scheduled memory maintenance session");
+        expect(prepared.instructions).toContain("read_task_session");
+        expect(
+          (yield* memory.list(bot.id)).snapshots.some((snapshot) => snapshot.reason === "dream"),
+        ).toBe(true);
+        expect(
+          (yield* memory.list(other.id)).snapshots.some((snapshot) => snapshot.reason === "dream"),
+        ).toBe(false);
+      }).pipe(Effect.provide(layer)),
+    ),
+  );
+});
+
 it("rejects symlinked managed directories before registering a session", async () => {
   const path = directory();
   const bot = makeBot(path);
@@ -155,6 +220,7 @@ it("rejects symlinked managed directories before registering a session", async (
       }),
     ),
     Layer.provideMerge(mcpSupervisor()),
+    Layer.provideMerge(CoreLive({ dataDirectory: directory() })),
   );
   const outcome = await Effect.runPromise(
     Effect.scoped(

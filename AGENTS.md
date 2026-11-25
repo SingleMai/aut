@@ -19,6 +19,7 @@ aut 是一个开源的 personal agent 客户端：用户只在 **main thread（�
 - chief、路由、回包与交接：`docs/decision-tree.md`。
 - 数据结构与跨模块接口：`docs/protocol.md`。
 - Harness 接入与协议探针：`docs/harness-adapters.md`。
+- Bot 记忆、文件组织与定时整理：`docs/memory.md`。
 - 桌面交互：`docs/desktop.md`；工具展示对照：`docs/omb-tool-parity.md`；品牌：`docs/brand.md`。
 - 存储、本地 API、MCP：分别读 `docs/storage.md`、`docs/local-api.md`、`docs/mcp-bridge.md`。
 - 分类器：`docs/classifier.md`。
@@ -46,7 +47,7 @@ aut 是一个开源的 personal agent 客户端：用户只在 **main thread（�
 ### 上下文
 7. **main thread 不默认全量注入任何 session。** 交接包只包含：模板任务头、用户原话、
    经 Jev 剪枝且受 token 预算约束的相关片段、引用 ID。其余上下文由 agent 通过 MCP 工具 `read_main_thread` 按需拉取。
-8. **bot 没有 memory 功能。** 长期指令放在 bot 的 `soul`（落成 workdir 下的文件，由 harness 自己读取）。
+8. **bot 记忆由 aut 按 bot 隔离管理。** Harness 原生自动记忆由 adapter 统一关闭，不提供来源选择；文件职责与接入范围见 `docs/memory.md`（ADR-0068）。长期指令继续放在 `soul`，与工作积累的记忆分开。
 
 ### 权限与问答
 9. **默认最高权限**，使用各 harness 原生的放行方式；仍到达的 permission 请求自动放行。

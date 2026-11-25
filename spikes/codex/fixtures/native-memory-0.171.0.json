@@ -1,0 +1,69 @@
+{
+  "cli": "codex",
+  "version": "codex-cli 0.171.0",
+  "recordedAt": "2026-11-24T13:40:44.148Z",
+  "passed": true,
+  "scope": "Real app-server configuration, one synthetic no-tool turn, and thread metadata; no memory consolidation run",
+  "projection": "Only memory configuration fields, synthetic IDs and native responses are retained",
+  "invocation": [
+    "app-server",
+    "--stdio",
+    "--strict-config",
+    "--disable",
+    "memories",
+    "-c",
+    "memories.use_memories=false",
+    "-c",
+    "memories.generate_memories=false",
+    "-c",
+    "sqlite_home=<temporary-directory>",
+    "-c",
+    "log_dir=<temporary-directory>"
+  ],
+  "providerConfigurationChanged": false,
+  "userConfigUnchanged": true,
+  "existingUserMemoriesTouched": false,
+  "isolatedStateDatabase": true,
+  "modelTurnsStarted": 1,
+  "childExited": true,
+  "stderrBytes": 1503,
+  "evidence": [
+    {
+      "check": "strict_config_and_effective_values",
+      "feature": false,
+      "useMemories": false,
+      "generateMemories": false
+    },
+    {
+      "check": "synthetic_turn",
+      "status": "completed",
+      "toolItems": 0,
+      "model": "agy-cli/gemini-4-neon"
+    },
+    {
+      "check": "new_thread",
+      "id": "01a20dc9-6ddc-7c40-a2c7-f480b49f5398",
+      "mode": "disabled"
+    },
+    {
+      "check": "set_enabled_on_synthetic_thread",
+      "response": {},
+      "mode": "enabled"
+    },
+    {
+      "check": "resume_existing_thread",
+      "sameId": true,
+      "mode": "enabled"
+    },
+    {
+      "check": "set_disabled_on_synthetic_thread",
+      "response": {},
+      "mode": "disabled"
+    },
+    {
+      "check": "fork",
+      "id": "01a20dc9-92fc-78a2-a07d-8c5cfd236ec5",
+      "mode": "disabled"
+    }
+  ]
+}

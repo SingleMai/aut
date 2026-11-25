@@ -9,6 +9,7 @@ import { Effect } from "effect";
 import { useState } from "react";
 import { desktopApi, validate } from "./api.js";
 import { BotEditor } from "./bot-editor.js";
+import { BotMemory } from "./bot-memory.js";
 import { BotAvatar, botCharacter } from "./characters/bot-avatar.js";
 import type { DesktopData } from "./desktop-data.js";
 import { t } from "./i18n.js";
@@ -71,15 +72,18 @@ export function BotsPage({
   data,
   flash,
   settings,
+  openTask,
 }: {
   bots: readonly BotConfig[];
   config: AutConfig;
   data: DesktopData;
   flash: Flash;
   settings: () => void;
+  openTask: (id: string) => void;
 }) {
   const [editor, setEditor] = useState<{ bot?: BotConfig; focusCharacter: boolean }>();
   const [deleting, setDeleting] = useState<BotConfig>();
+  const [memory, setMemory] = useState<BotConfig>();
   const remove = useAction(flash);
   return (
     <>
@@ -121,6 +125,15 @@ export function BotsPage({
                 type="button"
                 color="gray"
                 variant="surface"
+                aria-label={`${t.botMemory} ${bot.name}`}
+                onClick={() => setMemory(bot)}
+              >
+                {t.botMemory}
+              </Button>
+              <Button
+                type="button"
+                color="gray"
+                variant="surface"
                 onClick={() => setEditor({ bot, focusCharacter: false })}
               >
                 {t.edit}
@@ -142,6 +155,14 @@ export function BotsPage({
         ))}
       </div>
       <RouteExperiment flash={flash} />
+      {memory && (
+        <BotMemory
+          bot={memory}
+          flash={flash}
+          openTask={openTask}
+          close={() => setMemory(undefined)}
+        />
+      )}
       {editor && (
         <BotEditor
           {...editor}

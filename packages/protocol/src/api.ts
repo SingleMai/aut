@@ -143,6 +143,7 @@ export const DaemonResource = Schema.Literal(
   "config",
   "mcp",
   "triggers",
+  "memory",
 );
 export type DaemonResource = typeof DaemonResource.Type;
 export const ResourcesChanged = Schema.Struct({

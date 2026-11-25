@@ -4,11 +4,13 @@
 // 738ec88472a3b888ff7b7793755d89da613ed301. See NOTICE.
 
 import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import {
   type BotId,
   CreateTriggerInput,
   type JsonValue,
-  type TaskId,
+  type Task,
+  TaskId,
   Trigger,
   TriggerId,
   type TriggerRun,
@@ -22,6 +24,24 @@ import { CoreError, validate } from "./errors.js";
 import { Store } from "./store.js";
 
 export const CATCH_UP_MS = 12 * 60 * 60 * 1_000;
+const memoryDreamPrefix = "memory-dream:";
+export const memoryDreamTriggerId = (botId: BotId): TriggerId =>
+  TriggerId.make(`${memoryDreamPrefix}${botId}`);
+export const isMemoryDreamTrigger = (trigger: Pick<Trigger, "id" | "botId" | "payload">) =>
+  trigger.id === memoryDreamTriggerId(trigger.botId) &&
+  trigger.payload !== null &&
+  typeof trigger.payload === "object" &&
+  !Array.isArray(trigger.payload) &&
+  "kind" in trigger.payload &&
+  trigger.payload.kind === "memory-dream";
+export const isMemoryDreamTask = (task: Pick<Task, "id" | "botId" | "origin">) => {
+  const prefix = `trigger:run:${memoryDreamTriggerId(task.botId)}:`;
+  return (
+    task.origin.kind === "trigger" &&
+    task.id.startsWith(prefix) &&
+    /^\d+$/.test(task.id.slice(prefix.length))
+  );
+};
 const minuteMs = 60 * 1_000;
 const maxScheduleSearchMs = 366 * 24 * 60 * minuteMs;
 const maxEnumeratedOccurrences = 2_000;
@@ -250,6 +270,8 @@ export const TriggerRegistryLive = Layer.effect(
           updatedAt: now,
           ...(nextAt === undefined ? {} : { nextAt }),
         });
+        if (id.startsWith(memoryDreamPrefix) && !isMemoryDreamTrigger(trigger))
+          return yield* fail("InvalidRequest", "Memory dream trigger IDs are reserved");
         yield* store.transaction((tx) =>
           Effect.gen(function* () {
             if (Option.isSome(yield* tx.get("triggers", id)))
@@ -276,20 +298,36 @@ export const TriggerRegistryLive = Layer.effect(
             if (Option.isNone(current)) return yield* fail("NotFound", `Unknown trigger: ${id}`);
             const schedule = checked.schedule ?? current.value.schedule;
             const botId = checked.botId ?? current.value.botId;
-            const candidate = { ...current.value, ...checked, schedule, botId, updatedAt: now };
+            const candidate = {
+              ...current.value,
+              ...checked,
+              schedule,
+              botId,
+              updatedAt: now,
+              payload: checked.payload === undefined ? current.value.payload : checked.payload,
+            };
             yield* validateScheduleRuntime(schedule);
-            yield* validateBot(config, botId);
+            if (candidate.enabled) yield* validateBot(config, botId);
+            if (isMemoryDreamTrigger(current.value) && !isMemoryDreamTrigger(candidate))
+              return yield* fail("ImmutableField", "Memory dream trigger identity cannot change");
             const scheduleChanged =
               checked.schedule !== undefined &&
               JSON.stringify(checked.schedule) !== JSON.stringify(current.value.schedule);
             const nextAt = scheduleChanged
               ? nextOccurrence(schedule, now - 1)
               : current.value.nextAt;
+            const { nextAt: _previousNextAt, ...withoutNextAt } = candidate;
             const value = yield* validate(Trigger, {
-              ...candidate,
-              ...(nextAt === undefined ? { nextAt: undefined } : { nextAt }),
+              ...withoutNextAt,
+              ...(nextAt === undefined ? {} : { nextAt }),
             });
             yield* tx.set("triggers", value);
+            if (checked.enabled === false) {
+              const runs = yield* tx.list("trigger_runs", { limit: Number.MAX_SAFE_INTEGER });
+              for (const run of runs)
+                if (run.triggerId === id && run.status === "queued")
+                  yield* tx.set("trigger_runs", { ...run, status: "skipped", finishedAt: now });
+            }
             return value;
           }),
         );
@@ -313,17 +351,35 @@ export const TriggerRegistryLive = Layer.effect(
         return yield* store.transaction((tx) =>
           Effect.gen(function* () {
             const triggers = yield* tx.list("triggers", { limit: Number.MAX_SAFE_INTEGER });
-            const runs = yield* tx.list("trigger_runs", { limit: Number.MAX_SAFE_INTEGER });
-            const dispatches: TriggerDispatch[] = [];
-            for (const run of runs.filter((value) => value.status === "running")) {
+            const runs = new Map(
+              (yield* tx.list("trigger_runs", { limit: Number.MAX_SAFE_INTEGER })).map((run) => [
+                run.id,
+                run,
+              ]),
+            );
+            const saveRun = (run: TriggerRun) =>
+              tx
+                .set("trigger_runs", run)
+                .pipe(Effect.tap(() => Effect.sync(() => runs.set(run.id, run))));
+            for (const initial of [...runs.values()].filter(
+              (value) => value.status === "running",
+            )) {
+              let run = initial;
               if (!run.taskId) {
-                const { startedAt: _startedAt, ...withoutStart } = run;
-                yield* tx.set("trigger_runs", { ...withoutStart, status: "queued" });
-                continue;
+                const taskId = TaskId.make(`trigger:${run.id}`);
+                const created = yield* tx.get("tasks", taskId);
+                if (Option.isSome(created)) {
+                  run = { ...run, taskId };
+                  yield* saveRun(run);
+                } else {
+                  const { startedAt: _startedAt, ...withoutStart } = run;
+                  yield* saveRun({ ...withoutStart, status: "queued" });
+                  continue;
+                }
               }
-              const task = yield* tx.get("tasks", run.taskId);
+              const task = yield* tx.get("tasks", run.taskId ?? TaskId.make(`trigger:${run.id}`));
               if (Option.isSome(task) && terminalTask(task.value.status)) {
-                yield* tx.set("trigger_runs", {
+                yield* saveRun({
                   ...run,
                   status: task.value.status === "idle" ? "ran" : "failed",
                   finishedAt: now,
@@ -333,13 +389,17 @@ export const TriggerRegistryLive = Layer.effect(
                 });
               }
             }
+            // Pending dispatches survive busy bots and restarts, but not the catch-up window.
+            for (const run of runs.values())
+              if (run.status === "queued" && run.scheduledAt < now - CATCH_UP_MS)
+                yield* saveRun({ ...run, status: "missed", finishedAt: now });
             for (const trigger of triggers) {
               if (!trigger.enabled) continue;
               const due = dueOccurrences(trigger, now);
               if (!due.length) continue;
               const latestDue = due[due.length - 1] as number;
               const latest = latestDue >= now - CATCH_UP_MS ? latestDue : undefined;
-              const existing = runs.filter((run) => run.triggerId === trigger.id);
+              const existing = [...runs.values()].filter((run) => run.triggerId === trigger.id);
               const known = new Set(existing.map((run) => run.occurrenceKey));
               const missed = latest === undefined ? due : due.slice(0, -1);
               for (const scheduledAt of missed) {
@@ -368,7 +428,7 @@ export const TriggerRegistryLive = Layer.effect(
                     ...(busy ? { finishedAt: now } : {}),
                   };
                   yield* tx.insert("trigger_runs", run);
-                  if (!busy) dispatches.push({ trigger, run });
+                  runs.set(run.id, run);
                 }
               }
               const nextAt = nextOccurrence(trigger.schedule, latestDue);
@@ -379,6 +439,18 @@ export const TriggerRegistryLive = Layer.effect(
                   ? { ...withoutNextAt, updatedAt: now, enabled: false }
                   : { ...withoutNextAt, updatedAt: now, nextAt },
               );
+            }
+            const dispatches: TriggerDispatch[] = [];
+            for (const run of runs.values()) {
+              if (run.status !== "queued") continue;
+              const trigger = triggers.find((value) => value.id === run.triggerId);
+              // A once schedule is exhausted after enqueueing; an explicit pause cancels its queue.
+              if (
+                trigger &&
+                (trigger.enabled ||
+                  (trigger.schedule.kind === "once" && trigger.nextAt === undefined))
+              )
+                dispatches.push({ trigger, run });
             }
             return dispatches;
           }),
@@ -399,8 +471,16 @@ export const TriggerRegistryLive = Layer.effect(
           if (Option.isNone(current))
             return yield* fail("NotFound", `Unknown trigger run: ${runId}`);
           if (current.value.status !== "queued") return false;
+          if (current.value.triggerId !== event.triggerId)
+            return yield* fail("InvalidRequest", "Trigger run belongs to another trigger");
+          const trigger = yield* tx.get("triggers", event.triggerId);
+          if (Option.isNone(trigger) || trigger.value.botId !== event.botId) return false;
+          if (
+            !trigger.value.enabled &&
+            !(trigger.value.schedule.kind === "once" && trigger.value.nextAt === undefined)
+          )
+            return false;
           const now = yield* Clock.currentTimeMillis;
-          yield* tx.set("trigger_runs", { ...current.value, status: "running", startedAt: now });
           const storedEvent = {
             source: "trigger",
             kind: "fired",
@@ -412,7 +492,16 @@ export const TriggerRegistryLive = Layer.effect(
             scheduledAt: current.value.scheduledAt,
             payload: event.payload,
           } as const;
-          yield* tx.insert("events", { id: `trigger:${runId}`, at: now, event: storedEvent });
+          const eventId = `trigger:${runId}`;
+          const previous = yield* tx.get("events", eventId);
+          if (Option.isSome(previous) && !isDeepStrictEqual(previous.value.event, storedEvent))
+            return yield* fail(
+              "Conflict",
+              "The trigger changed after its occurrence was recorded; dispatch was not replayed",
+            );
+          yield* tx.set("trigger_runs", { ...current.value, status: "running", startedAt: now });
+          if (Option.isNone(previous))
+            yield* tx.insert("events", { id: eventId, at: now, event: storedEvent });
           return true;
         }),
       );

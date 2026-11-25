@@ -1,5 +1,7 @@
 # Codex P0 协议探针
 
+原生记忆开关的 0.171.0 配置、线程资格与生产 adapter 冷恢复实测见 [native-memory.md](native-memory.md)，接入决策见 ADR-0068。
+
 ## 原生上下文状态（0.171.0）
 
 `fixtures/session-context-0.171.0.jsonl` 在独立临时目录，以进程级
