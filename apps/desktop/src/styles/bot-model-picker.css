@@ -1,0 +1,276 @@
+.bot-model-fields {
+  margin-bottom: 20px;
+}
+.bot-model-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: fit-content;
+  min-width: 240px;
+  max-width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.bot-model-trigger:hover,
+.bot-model-trigger[data-state="open"] {
+  border-color: var(--gray-8);
+  background: var(--raised);
+}
+.bot-model-trigger:focus-visible {
+  outline: 2px solid var(--accent-8);
+  outline-offset: 2px;
+}
+.bot-model-trigger-text {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+.bot-model-trigger-text strong {
+  max-width: 260px;
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bot-model-trigger-text > span {
+  min-width: 0;
+  font-size: 12px;
+  color: var(--secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bot-model-trigger > svg {
+  width: 14px;
+  height: 14px;
+  transform: rotate(90deg);
+  flex-shrink: 0;
+}
+.bot-model-picker {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--gray-a5);
+  border-radius: 12px;
+  box-shadow: var(--shadow-6);
+}
+.bot-model-picker-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px 10px 10px;
+  border-bottom: 1px solid var(--edge);
+}
+.bot-model-picker-header > .rt-TextFieldRoot {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.bot-model-picker-header > .rt-TextFieldRoot:focus-within {
+  box-shadow: inset 0 0 0 1px var(--accent-7);
+}
+.bot-model-browser {
+  display: grid;
+  grid-template-columns: 156px minmax(0, 1fr) 180px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.bot-model-programs {
+  padding: 10px 8px;
+  border-right: 1px solid var(--edge);
+  background: var(--gray-2);
+  overflow-y: auto;
+}
+.bot-model-programs button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.bot-model-programs button:hover {
+  background: var(--gray-a3);
+}
+.bot-model-programs button[aria-pressed="true"] {
+  background: var(--accent-3);
+  color: var(--accent-11);
+}
+.bot-model-programs small {
+  color: var(--secondary);
+  font-size: 11px;
+}
+.bot-model-results {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  min-width: 0;
+  min-height: 0;
+}
+.bot-model-list {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.bot-model-list button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  text-align: left;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.bot-model-list button:hover,
+.bot-model-list button:focus-visible {
+  background: var(--gray-a3);
+}
+.bot-model-list button[aria-pressed="true"] {
+  background: var(--accent-3);
+  color: var(--accent-11);
+}
+.bot-model-list button > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bot-model-list strong {
+  font-size: 14px;
+  font-weight: 400;
+}
+.bot-model-list svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.bot-model-hint {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--secondary);
+  margin: 12px 0;
+}
+.bot-model-column-label {
+  padding: 6px 12px 12px;
+  color: var(--secondary);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.bot-model-parameters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-left: 1px solid var(--edge);
+  padding: 16px 12px;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+.bot-model-parameter {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+}
+.bot-model-parameter:last-child {
+  flex: 0 0 auto;
+}
+.bot-model-parameter-values {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.bot-model-parameter:last-child .bot-model-parameter-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.bot-model-parameter .bot-model-hint {
+  padding-inline: 8px;
+}
+.bot-model-parameter:last-child .bot-model-hint {
+  grid-column: 1 / -1;
+}
+.bot-model-parameter legend {
+  font-size: 12px;
+  color: var(--secondary);
+  margin: 0 0 8px;
+  padding: 0 8px;
+}
+.bot-model-parameter button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.bot-model-parameter button:hover,
+.bot-model-parameter button:focus-visible {
+  background: var(--gray-a3);
+}
+.bot-model-parameter button[aria-pressed="true"] {
+  color: var(--accent-11);
+}
+.bot-model-parameter svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+@media (max-width: 680px) {
+  .bot-model-browser {
+    grid-template-columns: 124px minmax(0, 1fr) 144px;
+  }
+  .bot-model-programs,
+  .bot-model-results,
+  .bot-model-parameters {
+    padding: 6px;
+  }
+  .bot-model-programs button,
+  .bot-model-list button {
+    padding: 8px;
+  }
+  .bot-model-column-label {
+    padding-inline: 6px;
+  }
+}

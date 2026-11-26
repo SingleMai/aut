@@ -1,6 +1,5 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { type CodexDefaults, readCodexDefaults } from "@aut/adapters";
 import {
   ConfigStore,
   CoreError,
@@ -10,6 +9,11 @@ import {
 } from "@aut/core";
 import { type BotConfig, BotId, type HarnessInstanceConfig, NonEmptyString } from "@aut/protocol";
 import { Context, Effect, Layer, Ref, Schema } from "effect";
+import {
+  type DefaultsDiscoveryInput,
+  type DiscoveredDefaults,
+  harnessRegistration,
+} from "./harness-registry.js";
 
 export const PrimaryAssistantSetup = Schema.Union(
   Schema.Struct({ status: Schema.Literal("ready") }),
@@ -23,32 +27,20 @@ export class PrimaryAssistantDefaultsProbe extends Context.Tag("aut/PrimaryAssis
   PrimaryAssistantDefaultsProbe,
   {
     readonly supports: (instance: HarnessInstanceConfig) => boolean;
-    readonly read: (input: {
-      readonly instance: HarnessInstanceConfig;
-      readonly cwd: string;
-      readonly timeoutMs: number;
-    }) => Effect.Effect<CodexDefaults, CoreError>;
+    readonly read: (input: DefaultsDiscoveryInput) => Effect.Effect<DiscoveredDefaults, CoreError>;
   }
 >() {}
 export const PrimaryAssistantDefaultsProbeLive = Layer.succeed(PrimaryAssistantDefaultsProbe, {
-  supports: (instance) => instance.kind === "codex",
-  read: ({ instance, cwd, timeoutMs }) =>
-    readCodexDefaults({
-      command: instance.command,
-      args: instance.args,
-      ...(instance.env ? { env: instance.env } : {}),
-      cwd,
-      timeoutMs,
-    }).pipe(
-      Effect.mapError(
-        () =>
-          new CoreError({
-            code: "Configuration",
-            message:
-              "A configured Codex model could not be discovered without changing its settings.",
-          }),
-      ),
-    ),
+  supports: (instance) => !!harnessRegistration(instance.kind)?.defaults,
+  read: (input) => {
+    const reader = harnessRegistration(input.instance.kind)?.defaults;
+    const unavailable = () =>
+      new CoreError({
+        code: "Configuration",
+        message: "The configured model could not be discovered from the selected program.",
+      });
+    return reader ? reader(input).pipe(Effect.mapError(unavailable)) : Effect.fail(unavailable());
+  },
 });
 
 export class PrimaryAssistantBootstrap extends Context.Tag("aut/PrimaryAssistantBootstrap")<
@@ -100,7 +92,8 @@ export const PrimaryAssistantBootstrapLive = (options: PrimaryAssistantBootstrap
             const supported = (bot: BotConfig) =>
               settings.harnessInstances.some(
                 (instance) =>
-                  instance.id === bot.modelSelection.instanceId && probe.supports(instance),
+                  instance.id === bot.modelSelection.instanceId &&
+                  !!harnessRegistration(instance.kind),
               );
             const primary = bots.find((bot) => bot.system === "primary");
             if (primary)
@@ -152,7 +145,7 @@ export const PrimaryAssistantBootstrapLive = (options: PrimaryAssistantBootstrap
               );
               if (discovered._tag === "Left")
                 return needsConfiguration(
-                  "Model discovery did not return an unambiguous configured model. Configure the harness/model in Settings and retry.",
+                  "Model discovery did not return an unambiguous configured model. Configure the model in the Bot editor and retry.",
                 );
               if (empty) {
                 const discoveredInstance = instance;

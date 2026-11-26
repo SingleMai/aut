@@ -22,17 +22,20 @@ export function ConfigurationForm({
   flash,
   submit,
   children,
+  onErrors,
 }: {
   className: string;
   flash: Flash;
   submit: (data: FormData) => Effect.Effect<unknown, FieldErrors | UiError>;
   children: (busy: boolean) => ReactNode;
+  onErrors?: (errors: FieldMessages) => void;
 }) {
   const form = useRef<HTMLFormElement>(null);
   const [errors, setErrors] = useState<FieldMessages>({});
   const focus = useRef<FieldMessages>(null);
   const save = useAction(flash);
   function report(next: FieldMessages) {
+    onErrors?.(next);
     focus.current = next;
     setErrors((previous) => ({ ...previous, ...next }));
   }

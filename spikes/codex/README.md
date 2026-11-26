@@ -203,3 +203,9 @@ rtk proxy env AUT_HISTORY_READ_RESULT=/tmp/aut-history-read-new.json node spikes
 该复验需要同一 CLI 会话存储中仍有前述 thread；换机器先按前述命令重新录制，
 再通过 `AUT_HISTORY_VIEW_FIXTURE=/tmp/aut-session-view-new.jsonl` 与 `AUT_HISTORY_MCP_FIXTURE=/tmp/aut-session-mcp-new.jsonl`
 指定本机样本，无需覆盖仓库证据。
+
+## 模型参数目录（ADR-0077）
+
+`fixtures/model-options-0.171.0.json` 录制模型与思考/速度能力投影；不包含描述、账号、密钥或工作回合。
+Codex 0.171.0 使用 model/list 的 supportedReasoningEfforts / serviceTiers；运行时通过 turn/start.serviceTierForTurn 传递，标准速度使用 default。
+构建后复现：`node spikes/model-options-probe.mjs codex /absolute/path/new-fixture.json`（拒绝覆盖已有记录）。

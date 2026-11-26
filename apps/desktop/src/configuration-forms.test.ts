@@ -1,75 +1,33 @@
 import { Effect } from "effect";
 import { expect, it } from "vitest";
-import { readBotForm, readSettingsForm } from "./configuration-forms.js";
+import { readBotForm, readClassifierForm } from "./configuration-forms.js";
 
 function form(values: Record<string, string>) {
   const data = new FormData();
   for (const [name, value] of Object.entries(values)) data.set(name, value);
   return data;
 }
-const row = (key: string, id: string) => ({
-  [`${key}.id`]: id,
-  [`${key}.name`]: "Local",
-  [`${key}.kind`]: "codex",
-  [`${key}.command`]: "codex",
-  [`${key}.args`]: "[]",
-  [`${key}.env`]: "{}",
-});
-it("locates simultaneous syntax, schema, and uniqueness errors by stable row key", () => {
+it("locates concurrent classifier field errors without echoing the entered credential", () => {
   const data = form({
-    ...row("last", "shared"),
-    ...row("first", "shared"),
-    "first.args": "[",
-    "last.env": '{"SECRET":42}',
     "primary.backend": "service",
     "primary.endpoint": "ftp://fixture",
     "primary.model": "latest",
     "primary.key": "invalid raw input",
   });
-  const errors = Effect.runSync(
-    Effect.flip(readSettingsForm(data, [{ key: "last" }, { key: "first" }])),
-  ).fields;
-  expect(Object.keys(errors).sort()).toEqual([
-    "first.args",
-    "first.id",
-    "last.env",
-    "primary.endpoint",
-    "primary.key",
-    "primary.model",
-  ]);
-  expect(JSON.stringify(errors)).not.toMatch(/SECRET|invalid raw input/);
-  expect(
-    Effect.runSync(Effect.flip(readSettingsForm(data, [{ key: "last" }]))).fields,
-  ).not.toHaveProperty("first.id");
+  const errors = Effect.runSync(Effect.flip(readClassifierForm(data))).fields;
+  expect(Object.keys(errors).sort()).toEqual(["primary.endpoint", "primary.key", "primary.model"]);
+  expect(JSON.stringify(errors)).not.toContain("invalid raw input");
 });
 it("keeps independent credentials and an empty optional backend separate from a partial backend", () => {
   const data = form({ "primary.key": "secret:primary" });
-  expect(Effect.runSync(readSettingsForm(data, []))).toEqual({ harnessInstances: [] });
+  expect(Effect.runSync(readClassifierForm(data))).toBeUndefined();
   data.set("fallback.model", "fixture-v1");
-  const errors = Effect.runSync(Effect.flip(readSettingsForm(data, []))).fields;
+  const errors = Effect.runSync(Effect.flip(readClassifierForm(data))).fields;
   expect(Object.keys(errors).sort()).toEqual([
     "fallback.backend",
     "fallback.endpoint",
     "primary.backend",
   ]);
-});
-it("preserves configured ACP authentication method priority", () => {
-  const data = form({
-    ...row("acp", "grok"),
-    "acp.authMethodIds": '["cached_token","grok.com"]',
-  });
-  expect(Effect.runSync(readSettingsForm(data, [{ key: "acp" }]))).toEqual({
-    harnessInstances: [
-      {
-        id: "grok",
-        name: "Local",
-        kind: "codex",
-        command: "codex",
-        args: [],
-        authMethodIds: ["cached_token", "grok.com"],
-      },
-    ],
-  });
 });
 it("does not include the removed inline MCP configuration in a Bot", () => {
   const data = form({

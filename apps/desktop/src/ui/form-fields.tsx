@@ -1,5 +1,5 @@
 import { Select, TextArea, TextField } from "@radix-ui/themes";
-import { type ComponentProps, type ReactNode, useId } from "react";
+import { type ComponentProps, type ReactNode, type Ref, useId } from "react";
 import { useFormFeedback } from "./configuration-form.js";
 
 type FieldLayout = { label: string; wide?: boolean; fieldName?: string | undefined };
@@ -37,7 +37,7 @@ export function InputField({
   wide = false,
   fieldName,
   ...input
-}: FieldLayout & Omit<TextField.RootProps, "id">) {
+}: FieldLayout & Omit<TextField.RootProps, "id"> & { ref?: Ref<HTMLInputElement> }) {
   return (
     <Field label={label} wide={wide} fieldName={fieldName ?? input.name}>
       {(control) => <TextField.Root {...input} {...control} />}

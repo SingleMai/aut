@@ -1,0 +1,15 @@
+{
+  "recordedAt": "2026-11-26T09:53:03.233Z",
+  "syntheticData": true,
+  "checks": {
+    "threeColumns": true,
+    "compact960x800WithinViewport": true,
+    "compactNoHorizontalOverflow": true,
+    "saveAndReopen": true,
+    "incompatibleParametersCleared": true,
+    "cancelPreservedSavedBot": true,
+    "escapeRestoredFocus": true,
+    "searchPreservedSelection": true,
+    "lightAndDark": true
+  }
+}

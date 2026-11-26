@@ -2,12 +2,12 @@ import { type ClassifierBackendConfig, SecretSaveInput } from "@aut/protocol";
 import { Button } from "@radix-ui/themes";
 import { Effect, Schema } from "effect";
 import { useState } from "react";
-import { desktopApi } from "./api.js";
-import { type ClassifierSlot, validKeyReference } from "./configuration-forms.js";
-import { t } from "./i18n.js";
-import { useFormFeedback } from "./ui/configuration-form.js";
-import { InputField } from "./ui/form-fields.js";
-import { type Flash, useAction } from "./ui/use-action.js";
+import { desktopApi } from "../api.js";
+import { type ClassifierSlot, validKeyReference } from "../configuration-forms.js";
+import { t } from "../i18n.js";
+import { useFormFeedback } from "../ui/configuration-form.js";
+import { InputField } from "../ui/form-fields.js";
+import { type Flash, useAction } from "../ui/use-action.js";
 
 export function ClassifierModelFields({
   slot,
@@ -63,16 +63,19 @@ export function ClassifierSettings({
           defaultValue={value?.backend ?? ""}
         />
         <ClassifierModelFields slot={slot} value={value} />
-        <InputField
-          label={t.keyRef}
-          wide
-          name={`${slot}.key`}
-          value={keyRef}
-          onChange={(e) => {
-            setKeyRef(e.target.value);
-            setStatus("");
-          }}
-        />
+        <details className="advanced-settings field-wide">
+          <summary>{t.settingsAdvanced}</summary>
+          <InputField
+            label={t.keyRef}
+            wide
+            name={`${slot}.key`}
+            value={keyRef}
+            onChange={(e) => {
+              setKeyRef(e.target.value);
+              setStatus("");
+            }}
+          />
+        </details>
       </div>
       <div className="credential-row">
         <InputField

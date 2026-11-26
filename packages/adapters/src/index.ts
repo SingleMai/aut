@@ -1,9 +1,11 @@
+export * from "./acp/models.js";
 export {
   AcpAdapterLive,
   type AcpOptions,
   acpCapabilities,
   makeAcpAdapter,
 } from "./acp/session.js";
+export * from "./claude/models.js";
 export {
   ClaudeAdapterLive,
   type ClaudeOptions,
@@ -15,6 +17,7 @@ export {
   type ReadCodexDefaultsOptions,
   readCodexDefaults,
 } from "./codex/defaults.js";
+export * from "./codex/models.js";
 export {
   CodexAdapterLive,
   type CodexOptions,

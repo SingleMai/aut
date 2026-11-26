@@ -17,8 +17,12 @@ import {
   ApiErrorResponse,
   AutConfig,
   BotConfig,
+  BotConnectionResponse,
   BotId,
   BotMemoryResponse,
+  BotModelDiscoveryInput,
+  BotModelOptionsResponse,
+  BotModelsResponse,
   BotResponse,
   BotsResponse,
   ConfigResponse,
@@ -32,6 +36,7 @@ import {
   FileReleaseResponse,
   FileResponse,
   FileUploadInput,
+  HarnessInstanceConfig,
   HealthResponse,
   ListTasksInput,
   McpAuthStartResponse,
@@ -53,6 +58,10 @@ import {
   MessagePageInput,
   MessagePageResponse,
   MessageResponse,
+  RemoteConnectionInfo,
+  RemoteHostInput,
+  RemoteHostStatus,
+  RemoteIdentity,
   ReportResponse,
   RequestId,
   RequestResponse,
@@ -86,15 +95,18 @@ import {
   Runtime,
   Schema,
   Scope,
+  Stream,
 } from "effect";
 import { WebSocket, WebSocketServer } from "ws";
 import { Administration } from "./admin.js";
+import { BotModelDiscovery, botModelOptions } from "./bot-models.js";
 import { DaemonError, decode, io, publicError } from "./errors.js";
 import { InboundGateway } from "./inbound.js";
 import { McpSupervisor } from "./mcp-supervisor.js";
 import { MemoryDreams } from "./memory-dreams.js";
 import { Authentication } from "./ownership.js";
 import { Recovery } from "./recovery.js";
+import { RemoteHost } from "./remote-host.js";
 import { RouteTest } from "./route-test.js";
 import { SecretReader } from "./secret-reader.js";
 import { SecretStore } from "./secret-store.js";
@@ -207,8 +219,10 @@ export const HttpServerLive = (port = 4317) =>
     Effect.gen(function* () {
       yield* Recovery;
       const auth = yield* Authentication;
+      const remote = yield* RemoteHost;
       const inbound = yield* InboundGateway;
       const admin = yield* Administration;
+      const models = yield* BotModelDiscovery;
       const routeTest = yield* RouteTest;
       const secrets = yield* SecretStore;
       const secretReader = yield* SecretReader;
@@ -228,7 +242,8 @@ export const HttpServerLive = (port = 4317) =>
 
       const route = (request: IncomingMessage, response: ServerResponse) =>
         Effect.gen(function* () {
-          if (!auth.matches(bearer(request)))
+          const local = auth.matches(bearer(request));
+          if (!local && !remote.matches(bearer(request)))
             return yield* Effect.fail(
               new DaemonError({
                 code: "Unauthorized",
@@ -238,6 +253,37 @@ export const HttpServerLive = (port = 4317) =>
           const url = yield* parseUrl(request);
           const method = request.method ?? "GET";
           const path = url.pathname;
+          if (path.startsWith("/v1/remote/")) {
+            yield* decode(
+              Schema.Record({ key: Schema.String, value: Schema.Never }),
+              Object.fromEntries(url.searchParams),
+            );
+            if (path === "/v1/remote/identity" && method === "GET") {
+              const host = yield* remote.status;
+              return yield* respond(response, 200, RemoteIdentity, {
+                hostId: host.id,
+                name: host.name,
+              });
+            }
+            if (!local)
+              return yield* Effect.fail(
+                new DaemonError({
+                  code: "Unauthorized",
+                  message: "Local authentication is required for host settings",
+                }),
+              );
+            if (path === "/v1/remote/host" && method === "GET")
+              return yield* respond(response, 200, RemoteHostStatus, yield* remote.status);
+            if (path === "/v1/remote/host" && method === "PUT")
+              return yield* respond(
+                response,
+                200,
+                RemoteHostStatus,
+                yield* remote.configure(yield* body(request, RemoteHostInput)),
+              );
+            if (path === "/v1/remote/connection" && method === "POST")
+              return yield* respond(response, 200, RemoteConnectionInfo, yield* remote.connection);
+          }
           const rawQuery: Record<string, unknown> = Object.fromEntries(url.searchParams);
           if (Object.keys(rawQuery).length !== Array.from(url.searchParams).length)
             return yield* Effect.fail(
@@ -389,6 +435,26 @@ export const HttpServerLive = (port = 4317) =>
             const ref = yield* pathId(reportMatch[1]);
             return yield* respond(response, 200, ReportResponse, yield* records.readReport(ref));
           }
+          if (method === "GET" && path === "/v1/bot-models/options")
+            return yield* respond(
+              response,
+              200,
+              BotModelOptionsResponse,
+              botModelOptions(yield* admin.config),
+            );
+          if (method === "POST" && path === "/v1/bot-models/discover")
+            return yield* respond(
+              response,
+              200,
+              BotModelsResponse,
+              yield* models.read(yield* body(request, BotModelDiscoveryInput)),
+            );
+          if (method === "POST" && path === "/v1/bot-models/connection")
+            return yield* respond(response, 200, BotConnectionResponse, {
+              instance: yield* admin.ensureBotConnection(
+                yield* body(request, HarnessInstanceConfig),
+              ),
+            });
           if (method === "GET" && path === "/v1/bots")
             return yield* respond(response, 200, BotsResponse, { bots: yield* admin.bots });
           if (method === "POST" && path === "/v1/bots")
@@ -628,6 +694,15 @@ export const HttpServerLive = (port = 4317) =>
         noServer: true,
         handleProtocols: (protocols) => (protocols.has("aut") ? "aut" : false),
       });
+      const remoteSockets = new Set<WebSocket>();
+      yield* remote.revocations.pipe(
+        Stream.runForEach(() =>
+          Effect.sync(() => {
+            for (const client of remoteSockets) client.terminate();
+          }),
+        ),
+        Effect.forkScoped,
+      );
       yield* Effect.addFinalizer(() => shutdown(server, sockets));
       server.on("upgrade", (request, socket, head) => {
         const upgrade = Effect.gen(function* () {
@@ -638,13 +713,19 @@ export const HttpServerLive = (port = 4317) =>
           const tokenProtocol = protocols.find((value) => value.startsWith("aut-token."));
           if (url.pathname !== "/v1/events" || url.search !== "")
             return yield* rejectUpgrade(socket, 404);
-          if (
-            !auth.matches(bearer(request)) &&
-            !auth.matches(tokenProtocol?.slice("aut-token.".length))
-          )
-            return yield* rejectUpgrade(socket, 401);
+          const wsToken = bearer(request) ?? tokenProtocol?.slice("aut-token.".length);
+          const local = auth.matches(wsToken);
+          if (!local && !remote.matches(wsToken)) return yield* rejectUpgrade(socket, 401);
           yield* io("Failed to upgrade WebSocket", () =>
             sockets.handleUpgrade(request, socket, head, (client) => {
+              if (!local) {
+                remoteSockets.add(client);
+                client.once("close", () => remoteSockets.delete(client));
+                if (!remote.matches(wsToken)) {
+                  client.terminate();
+                  return;
+                }
+              }
               Runtime.runFork(runtime)(Effect.forkIn(websocketSession(client), scope));
             }),
           );
@@ -677,6 +758,7 @@ export const HttpServerLive = (port = 4317) =>
         return yield* Effect.fail(
           new DaemonError({ code: "Transport", message: "Local daemon address is unavailable" }),
         );
+      yield* remote.start(address.port);
       return { host: "127.0.0.1" as const, port: address.port };
     }),
   );

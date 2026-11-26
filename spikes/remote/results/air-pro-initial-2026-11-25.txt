@@ -1,0 +1,23 @@
+Air → Pro 首轮真实双机检查
+
+来源：用户在本会话回贴的 Air 终端输出；不是 Agent 直接操作 Air 后采集。
+Air 日志时间：2026/11/25 17:22:31（输出未包含时区）。
+启动方式：用户在旧版启动器前加 TS_BIND_TO_INTERFACE_BY_ROUTE=1，选择客户端模式。
+测试环境沿用此前同局域网的会话上下文；本段输出未单独记录网卡或当前 Wi-Fi。
+
+用户提供的原始输出：
+
+2026/11/25 17:22:31 AuthLoop: state is Starting; done
+PASS HTTP
+PASS FileRoundTrip
+PASS Preview
+PASS WebSocket
+
+本轮连接检查通过。换网后可重新运行；这只验证重新连接
+
+结论：使用官方 Tailscale 登录的 Air 客户端到 Pro 主机，四项合成传输检查通过。
+HTTP 校验预期响应；文件检查约 650 KB 字节回传摘要；Preview 校验 HTML 内容；
+WebSocket 检查文本回传。此记录不包含账号、登录链接、连接码或节点密钥。
+
+未覆盖：直连或中继路径判定、延迟/吞吐、手机热点换网、合盖、自动重连、
+普通代理访问是否受影响，以及真实 aut / harness 任务、问题卡片和桌面预览。

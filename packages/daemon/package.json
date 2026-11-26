@@ -23,6 +23,7 @@
     "@aut/adapters": "workspace:*",
     "@aut/mcp-bridge": "workspace:*",
     "@aut/core": "workspace:*",
+    "@aut/transport": "workspace:*",
     "effect": "catalog:",
     "ws": "8.23.0"
   },

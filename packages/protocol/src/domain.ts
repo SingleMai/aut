@@ -372,6 +372,7 @@ export const StartSessionInput = Schema.Struct({
   bot: BotConfig,
   model: NonEmptyString,
   effort: optional(NonEmptyString),
+  speed: optional(NonEmptyString),
   cwd: NonEmptyString,
   instructions: Schema.String,
   mcpServers: Schema.Array(McpServerConfig),

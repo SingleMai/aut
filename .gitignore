@@ -9,6 +9,7 @@ coverage/
 deliverables/
 *.tsbuildinfo
 /.tmp/
+/.artifacts/*.zip
 /.artifacts/**/aut-darwin-*/
 /.artifacts/**/profile/
 /.artifacts/desktop-preview/aut-components.html

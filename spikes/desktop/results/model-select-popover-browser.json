@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-11-26T10:19:35.847Z",
+  "syntheticData": true,
+  "geometry": {
+    "editor": {
+      "x": 260,
+      "y": 35.203125,
+      "width": 760,
+      "height": 864
+    },
+    "trigger": {
+      "x": 288,
+      "y": 341.609375,
+      "width": 247.6796875,
+      "height": 41
+    },
+    "popup": {
+      "x": 132,
+      "y": 391,
+      "width": 840,
+      "height": 460
+    }
+  },
+  "compact": {
+    "width": 840,
+    "height": 460,
+    "inViewport": true,
+    "speedVisible": true
+  },
+  "checks": {
+    "stableModelOrder": true,
+    "escapeRestoresFocus": true,
+    "outsideOnlyDismissesPicker": true,
+    "draftRetainedOnDismiss": true
+  }
+}

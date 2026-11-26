@@ -1,0 +1,54 @@
+aut 双机连接测试
+
+这是独立的网络探针，还不是 aut 的远程工作模式。测试的是合成 HTTP、
+WebSocket、约 650 KB 文件回传和 HTML 内容，不会启动真实 Agent 任务。
+
+使用方法
+
+1. 在两台 Mac 上解压整个文件夹。程序包含 Apple Silicon 和 Intel 版本；
+   Apple Silicon 已在本机运行验证，Intel 仅完成交叉编译。
+   不需要安装 Go、Node、SSH 服务或系统版 Tailscale。
+2. Pro 上双击 Start.command，输入 1。
+   打开终端显示的 Tailscale 登录链接，按页面完成登录和添加测试节点。
+   保持终端窗口开启，记下测试连接码和 Pro 的 Tailscale IP。
+3. Air 上双击 Start.command，输入 2。
+   按提示输入 Pro 的 IP（不含端口）和测试连接码。
+   首次运行同样需登录；两台选择同一个 Tailscale 账户及网络。
+4. Air 显示 HTTP、FileRoundTrip、Preview、WebSocket 四行 PASS，
+   才表示本轮合成数据检查通过。两台的 Clash 保持日常设置。
+5. 再把 Air 切到手机热点，重新执行步骤 3，并检查平常的代理访问。
+   这一步成功只能说明切网后可以重新连接，不能证明产品会自动恢复连接。
+
+本地测试程序未经 Apple 开发者签名和公证。首次打开可能需要通过
+macOS 的“隐私与安全性”确认运行。无需关闭 Gatekeeper 或修改 Clash。
+首次登录等待上限为三分钟，超时后可以重新运行。
+本版启动器已针对 Clash TUN 调整探针自身的网卡选择，使用现有系统路由，
+不会更改 Clash、系统代理、DNS 或路由配置。
+若终端停在启动提示且未出现 tsnet 日志，检查主程序 aut-remote-probe 是否
+也需要在系统设置“隐私与安全性”中点“仍要打开”；启动脚本和主程序需分别确认。
+
+停止与状态
+
+Pro 的测试进程只在终端窗口开启时运行，Ctrl-C 结束。Air 每轮检查后退出。
+这是测试程序的生命周期，不是最终产品的后台常驻设计。
+测试状态与 Pro 连接码保存在：
+~/Library/Application Support/aut-remote-probe/
+连接码不是 Tailscale 账户密码，不要将它作为测试结果公开。
+不再使用时可在 Tailscale 设备管理中移除 aut-probe-serve / aut-probe-check
+测试节点，再删除上述专用状态目录。
+
+已验证及限制
+
+local-macos-arm64.json 记录的是 Pro 上两个 tsnet 节点、使用按系统路由选择网卡
+设置和本地测试控制面
+及中继的结果。8 项传输检查通过，网络接口、DNS、系统代理、指定公共地址
+路由在运行前后保持一致。它没有使用官方账户登录。
+真实双机、跨网络、合盖期间的任务持续运行和桌面自动重连仍未验收。
+Pro 另已验证：该设置可以在当前 Clash TUN 开启时获得官方登录 URL；账户登录
+和登录后的双机传输仍需按上述步骤操作。
+工具不能证明真实 aut/harness、交互式问题、文件打开或浏览器预览已可远程使用。
+两台机器本轮结果应分别记录网络环境、Clash 是否开启 TUN、四项检查输出，
+以及正常的代理访问是否受到影响。
+
+固定依赖：Tailscale v1.106.1，Go 1.27.4，coder/websocket v1.8.15。
+源码位于本项目 spikes/remote；第三方版权与许可随包附在 licenses/。

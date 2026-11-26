@@ -1,0 +1,4320 @@
+{
+  "cli": "claude",
+  "version": "2.1.330 (Claude Code)",
+  "recordedAt": "2026-11-26T09:43:50.128Z",
+  "projection": "Model and option metadata only. No prompts, account details, credentials or descriptions recorded.",
+  "cases": [
+    {
+      "setting": "inherited",
+      "events": [
+        {
+          "settings": {
+            "disableAllHooks": true,
+            "autoMemoryEnabled": false
+          }
+        },
+        {
+          "payload": {
+            "type": "control_response",
+            "response": {
+              "subtype": "success",
+              "request_id": "28fb6d0b-496d-4b4b-b4ff-0c7f872c1850",
+              "response": {
+                "fast_mode_state": "off",
+                "fast_mode_disabled_reason": "sdk_opt_in_required",
+                "models": [
+                  {
+                    "value": "default",
+                    "displayName": "Default (recommended)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "opus",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-fable-5-2[1m]",
+                    "displayName": "Fable",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "sonnet",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "haiku",
+                    "displayName": "devin/swe-2",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/gpt-6-luna",
+                    "displayName": "GPT-6 Luna · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-fable-5-1[1m]",
+                    "displayName": "Claude Fable 5.1 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6.1-sol",
+                    "displayName": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-astra",
+                    "displayName": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-sol",
+                    "displayName": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-sol",
+                    "displayName": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-terra",
+                    "displayName": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-luna",
+                    "displayName": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-5-5",
+                    "displayName": "Claude Haiku 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-5[1m]",
+                    "displayName": "Claude Opus 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-sonnet-5[1m]",
+                    "displayName": "Claude Sonnet 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-fable-5[1m]",
+                    "displayName": "Claude Fable 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-8[1m]",
+                    "displayName": "Claude Opus 4.8 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-4-7[1m]",
+                    "displayName": "Claude Opus 4.7 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-4-6[1m]",
+                    "displayName": "Claude Sonnet 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-6[1m]",
+                    "displayName": "Claude Opus 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5",
+                    "displayName": "Claude Opus 4.5 (latest) · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5-20251101",
+                    "displayName": "Claude Opus 4.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-4-5",
+                    "displayName": "Claude Haiku 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-haiku-4-5-20251001",
+                    "displayName": "Claude Haiku 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5",
+                    "displayName": "Claude Sonnet 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5-20250929",
+                    "displayName": "Claude Sonnet 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "codex/gpt-6.2-sol",
+                    "displayName": "GPT-6.2-Sol · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.2-astra",
+                    "displayName": "GPT-6.2-Astra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.1-terra",
+                    "displayName": "GPT-6.1 Terra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5-fast[1m]",
+                    "displayName": "Claude Opus 5.5 Fast · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/swe-2-1",
+                    "displayName": "SWE-2.1 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-neon[1m]",
+                    "displayName": "Gemini 4 Neon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-argon[1m]",
+                    "displayName": "Gemini 4 Argon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-hydrogen[1m]",
+                    "displayName": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "agy-cli/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "result": {
+        "models": [
+          {
+            "model": "default",
+            "label": "Default (recommended)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "opus",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5-2[1m]",
+            "label": "Fable",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "sonnet",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "haiku",
+            "label": "devin/swe-2",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/gpt-6-luna",
+            "label": "GPT-6 Luna · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-fable-5-1[1m]",
+            "label": "Claude Fable 5.1 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6.1-sol",
+            "label": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-astra",
+            "label": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-sol",
+            "label": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-sol",
+            "label": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-terra",
+            "label": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-luna",
+            "label": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-5-5",
+            "label": "Claude Haiku 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5[1m]",
+            "label": "Claude Opus 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5[1m]",
+            "label": "Claude Sonnet 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5[1m]",
+            "label": "Claude Fable 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-8[1m]",
+            "label": "Claude Opus 4.8 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-7[1m]",
+            "label": "Claude Opus 4.7 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-4-6[1m]",
+            "label": "Claude Sonnet 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-6[1m]",
+            "label": "Claude Opus 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5",
+            "label": "Claude Opus 4.5 (latest) · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5-20251101",
+            "label": "Claude Opus 4.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-4-5",
+            "label": "Claude Haiku 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "label": "Claude Haiku 4.5 · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5",
+            "label": "Claude Sonnet 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5-20250929",
+            "label": "Claude Sonnet 4.5 · Claude Code"
+          },
+          {
+            "model": "codex/gpt-6.2-sol",
+            "label": "GPT-6.2-Sol · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.2-astra",
+            "label": "GPT-6.2-Astra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.1-terra",
+            "label": "GPT-6.1 Terra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5-fast[1m]",
+            "label": "Claude Opus 5.5 Fast · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/swe-2-1",
+            "label": "SWE-2.1 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-neon[1m]",
+            "label": "Gemini 4 Neon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-argon[1m]",
+            "label": "Gemini 4 Argon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-hydrogen[1m]",
+            "label": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          }
+        ],
+        "defaultModel": "default",
+        "source": "catalog"
+      }
+    },
+    {
+      "setting": false,
+      "events": [
+        {
+          "settings": {
+            "fastMode": false,
+            "disableAllHooks": true,
+            "autoMemoryEnabled": false
+          }
+        },
+        {
+          "payload": {
+            "type": "control_response",
+            "response": {
+              "subtype": "success",
+              "request_id": "f1175714-c1ea-4df4-a571-adf6c4040585",
+              "response": {
+                "fast_mode_state": "off",
+                "fast_mode_disabled_reason": "sdk_opt_in_required",
+                "models": [
+                  {
+                    "value": "default",
+                    "displayName": "Default (recommended)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "opus",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-fable-5-2[1m]",
+                    "displayName": "Fable",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "sonnet",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "haiku",
+                    "displayName": "devin/swe-2",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/gpt-6-luna",
+                    "displayName": "GPT-6 Luna · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-fable-5-1[1m]",
+                    "displayName": "Claude Fable 5.1 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6.1-sol",
+                    "displayName": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-astra",
+                    "displayName": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-sol",
+                    "displayName": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-sol",
+                    "displayName": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-terra",
+                    "displayName": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-luna",
+                    "displayName": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-5-5",
+                    "displayName": "Claude Haiku 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-5[1m]",
+                    "displayName": "Claude Opus 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-sonnet-5[1m]",
+                    "displayName": "Claude Sonnet 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-fable-5[1m]",
+                    "displayName": "Claude Fable 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-8[1m]",
+                    "displayName": "Claude Opus 4.8 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-4-7[1m]",
+                    "displayName": "Claude Opus 4.7 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-4-6[1m]",
+                    "displayName": "Claude Sonnet 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-6[1m]",
+                    "displayName": "Claude Opus 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5",
+                    "displayName": "Claude Opus 4.5 (latest) · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5-20251101",
+                    "displayName": "Claude Opus 4.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-4-5",
+                    "displayName": "Claude Haiku 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-haiku-4-5-20251001",
+                    "displayName": "Claude Haiku 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5",
+                    "displayName": "Claude Sonnet 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5-20250929",
+                    "displayName": "Claude Sonnet 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "codex/gpt-6.2-sol",
+                    "displayName": "GPT-6.2-Sol · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.2-astra",
+                    "displayName": "GPT-6.2-Astra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.1-terra",
+                    "displayName": "GPT-6.1 Terra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5-fast[1m]",
+                    "displayName": "Claude Opus 5.5 Fast · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/swe-2-1",
+                    "displayName": "SWE-2.1 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-neon[1m]",
+                    "displayName": "Gemini 4 Neon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-argon[1m]",
+                    "displayName": "Gemini 4 Argon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-hydrogen[1m]",
+                    "displayName": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "agy-cli/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "result": {
+        "models": [
+          {
+            "model": "default",
+            "label": "Default (recommended)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "opus",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5-2[1m]",
+            "label": "Fable",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "sonnet",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "haiku",
+            "label": "devin/swe-2",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/gpt-6-luna",
+            "label": "GPT-6 Luna · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-fable-5-1[1m]",
+            "label": "Claude Fable 5.1 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6.1-sol",
+            "label": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-astra",
+            "label": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-sol",
+            "label": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-sol",
+            "label": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-terra",
+            "label": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-luna",
+            "label": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-5-5",
+            "label": "Claude Haiku 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5[1m]",
+            "label": "Claude Opus 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5[1m]",
+            "label": "Claude Sonnet 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5[1m]",
+            "label": "Claude Fable 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-8[1m]",
+            "label": "Claude Opus 4.8 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-7[1m]",
+            "label": "Claude Opus 4.7 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-4-6[1m]",
+            "label": "Claude Sonnet 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-6[1m]",
+            "label": "Claude Opus 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5",
+            "label": "Claude Opus 4.5 (latest) · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5-20251101",
+            "label": "Claude Opus 4.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-4-5",
+            "label": "Claude Haiku 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "label": "Claude Haiku 4.5 · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5",
+            "label": "Claude Sonnet 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5-20250929",
+            "label": "Claude Sonnet 4.5 · Claude Code"
+          },
+          {
+            "model": "codex/gpt-6.2-sol",
+            "label": "GPT-6.2-Sol · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.2-astra",
+            "label": "GPT-6.2-Astra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.1-terra",
+            "label": "GPT-6.1 Terra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5-fast[1m]",
+            "label": "Claude Opus 5.5 Fast · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/swe-2-1",
+            "label": "SWE-2.1 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-neon[1m]",
+            "label": "Gemini 4 Neon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-argon[1m]",
+            "label": "Gemini 4 Argon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-hydrogen[1m]",
+            "label": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          }
+        ],
+        "defaultModel": "default",
+        "source": "catalog"
+      }
+    },
+    {
+      "setting": true,
+      "events": [
+        {
+          "settings": {
+            "fastMode": true,
+            "disableAllHooks": true,
+            "autoMemoryEnabled": false
+          }
+        },
+        {
+          "payload": {
+            "type": "control_response",
+            "response": {
+              "subtype": "success",
+              "request_id": "54d781e6-f2f3-4921-9f25-c082dca65e00",
+              "response": {
+                "fast_mode_state": "on",
+                "models": [
+                  {
+                    "value": "default",
+                    "displayName": "Default (recommended)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "opus",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-fable-5-2[1m]",
+                    "displayName": "Fable",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "sonnet",
+                    "displayName": "Opus 5.5",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "haiku",
+                    "displayName": "devin/swe-2",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/gpt-6-luna",
+                    "displayName": "GPT-6 Luna · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "auto/claude-fable-5-1[1m]",
+                    "displayName": "Claude Fable 5.1 · routing group",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6.1-sol",
+                    "displayName": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-astra",
+                    "displayName": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-sol",
+                    "displayName": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-sol",
+                    "displayName": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-terra",
+                    "displayName": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "kui-lan/codex/gpt-5.6-luna",
+                    "displayName": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-5-5",
+                    "displayName": "Claude Haiku 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-5[1m]",
+                    "displayName": "Claude Opus 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-sonnet-5[1m]",
+                    "displayName": "Claude Sonnet 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-fable-5[1m]",
+                    "displayName": "Claude Fable 5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-8[1m]",
+                    "displayName": "Claude Opus 4.8 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "claude-opus-4-7[1m]",
+                    "displayName": "Claude Opus 4.7 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-sonnet-4-6[1m]",
+                    "displayName": "Claude Sonnet 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-6[1m]",
+                    "displayName": "Claude Opus 4.6 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5",
+                    "displayName": "Claude Opus 4.5 (latest) · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-opus-4-5-20251101",
+                    "displayName": "Claude Opus 4.5 · Claude Code",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high"
+                    ]
+                  },
+                  {
+                    "value": "claude-haiku-4-5",
+                    "displayName": "Claude Haiku 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-haiku-4-5-20251001",
+                    "displayName": "Claude Haiku 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5",
+                    "displayName": "Claude Sonnet 4.5 (latest) · Claude Code"
+                  },
+                  {
+                    "value": "claude-sonnet-4-5-20250929",
+                    "displayName": "Claude Sonnet 4.5 · Claude Code"
+                  },
+                  {
+                    "value": "codex/gpt-6.2-sol",
+                    "displayName": "GPT-6.2-Sol · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.2-astra",
+                    "displayName": "GPT-6.2-Astra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6.1-terra",
+                    "displayName": "GPT-6.1 Terra · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "codex/gpt-6-luna",
+                    "displayName": "GPT-6-Luna · Codex",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/claude-opus-5-5-fast[1m]",
+                    "displayName": "Claude Opus 5.5 Fast · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "devin/swe-2-1",
+                    "displayName": "SWE-2.1 · Devin",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-neon[1m]",
+                    "displayName": "Gemini 4 Neon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-argon[1m]",
+                    "displayName": "Gemini 4 Argon · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/gemini-4-hydrogen[1m]",
+                    "displayName": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  },
+                  {
+                    "value": "agy-cli/claude-opus-5-5[1m]",
+                    "displayName": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ],
+                    "supportsFastMode": true
+                  },
+                  {
+                    "value": "agy-cli/claude-sonnet-5-5[1m]",
+                    "displayName": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+                    "supportsEffort": true,
+                    "supportedEffortLevels": [
+                      "low",
+                      "medium",
+                      "high",
+                      "xhigh",
+                      "max"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "result": {
+        "models": [
+          {
+            "model": "default",
+            "label": "Default (recommended)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "opus",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5-2[1m]",
+            "label": "Fable",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "sonnet",
+            "label": "Opus 5.5",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "haiku",
+            "label": "devin/swe-2",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/gpt-6-luna",
+            "label": "GPT-6 Luna · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-fable-5-1[1m]",
+            "label": "Claude Fable 5.1 · routing group",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6.1-sol",
+            "label": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-astra",
+            "label": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-sol",
+            "label": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-sol",
+            "label": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-terra",
+            "label": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-luna",
+            "label": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-5-5",
+            "label": "Claude Haiku 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-5[1m]",
+            "label": "Claude Opus 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-5[1m]",
+            "label": "Claude Sonnet 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-fable-5[1m]",
+            "label": "Claude Fable 5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-8[1m]",
+            "label": "Claude Opus 4.8 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-7[1m]",
+            "label": "Claude Opus 4.7 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-sonnet-4-6[1m]",
+            "label": "Claude Sonnet 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-6[1m]",
+            "label": "Claude Opus 4.6 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5",
+            "label": "Claude Opus 4.5 (latest) · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-opus-4-5-20251101",
+            "label": "Claude Opus 4.5 · Claude Code",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              }
+            ]
+          },
+          {
+            "model": "claude-haiku-4-5",
+            "label": "Claude Haiku 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "label": "Claude Haiku 4.5 · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5",
+            "label": "Claude Sonnet 4.5 (latest) · Claude Code"
+          },
+          {
+            "model": "claude-sonnet-4-5-20250929",
+            "label": "Claude Sonnet 4.5 · Claude Code"
+          },
+          {
+            "model": "codex/gpt-6.2-sol",
+            "label": "GPT-6.2-Sol · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.2-astra",
+            "label": "GPT-6.2-Astra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6.1-terra",
+            "label": "GPT-6.1 Terra · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5-fast[1m]",
+            "label": "Claude Opus 5.5 Fast · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/swe-2-1",
+            "label": "SWE-2.1 · Devin",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-neon[1m]",
+            "label": "Gemini 4 Neon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-argon[1m]",
+            "label": "Gemini 4 Argon · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/gemini-4-hydrogen[1m]",
+            "label": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-opus-5-5[1m]",
+            "label": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "fast",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "agy-cli/claude-sonnet-5-5[1m]",
+            "label": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ]
+          }
+        ],
+        "defaultModel": "default",
+        "source": "catalog"
+      }
+    }
+  ]
+}

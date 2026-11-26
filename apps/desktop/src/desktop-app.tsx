@@ -1,6 +1,8 @@
-import type { Task } from "@aut/protocol";
+import type { DesktopConnectionStatus, Task } from "@aut/protocol";
 import { IconButton } from "@radix-ui/themes";
+import { Effect } from "effect";
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { connectionAction } from "./api.js";
 import { AutomationsPage } from "./automations-page.js";
 import { BotsPage } from "./bots-page.js";
 import { ConversationPage } from "./conversation-page.js";
@@ -21,6 +23,12 @@ export function DesktopApp() {
   const [visited, setVisited] = useState<readonly string[]>([]);
   const selected = visited[0];
   const [returnTask, setReturnTask] = useState<{ task: Task }>();
+  const [target, setTarget] = useState<DesktopConnectionStatus>({
+    mode: "local",
+    name: "本机",
+    phase: "connected",
+    canLogin: false,
+  });
   const [searchOpen, setSearchOpen] = useState(false),
     [connected, setConnected] = useState(true),
     [toast, flash] = useState("");
@@ -29,10 +37,33 @@ export function DesktopApp() {
     const stop = window.aut.onNotice((notice) => {
       if (notice.type === "connection") {
         setConnected(notice.connected);
+        setTarget((previous) =>
+          previous.mode === "local" && previous.phase !== "error"
+            ? { ...previous, phase: notice.connected ? "connected" : "disconnected" }
+            : previous,
+        );
         if (notice.connected) refresh();
+      } else if (notice.type === "target") {
+        setTarget(notice.status);
+        setConnected(notice.status.phase === "connected");
       } else if (notice.type === "changed") runUi(data.refresh(notice.resources), flash);
     });
-    refresh();
+    if (window.aut.connection)
+      runUi(
+        connectionAction({ action: "status" }).pipe(
+          Effect.tap((result) =>
+            Effect.sync(() => {
+              if (result.status) {
+                setTarget(result.status);
+                setConnected(result.status.phase === "connected");
+              }
+              if (result.status?.phase === "connected") refresh();
+            }),
+          ),
+        ),
+        flash,
+      );
+    else refresh();
     return stop;
   }, [data, refresh]);
   const openTask = useCallback(
@@ -81,6 +112,7 @@ export function DesktopApp() {
           tasks={sorted}
           latestMessage={snapshot.messages.at(-1)?.text}
           onSearchOpen={setSearchOpen}
+          connectionLabel={`${target.name} · ${t.executionStatus[target.phase]}`}
           {...{ botNames, view, selected, connected, searchOpen, navigate, openTask }}
         />
         <main className="workspace" data-view={view}>
@@ -122,6 +154,17 @@ export function DesktopApp() {
             </div>
           </header>
           <section className="content">
+            {!connected && view !== "settings" && (
+              <div className="execution-offline" role="status">
+                <span>
+                  {target.message ||
+                    (target.mode === "remote" ? t.executionOffline : t.executionLocalStarting)}
+                </span>
+                <button type="button" onClick={() => navigate("settings")}>
+                  {t.executionLocation}
+                </button>
+              </div>
+            )}
             <ConversationPage
               active={view === "conversation"}
               working={running}
@@ -154,20 +197,13 @@ export function DesktopApp() {
                 {selected ? t.loading : tasks.length ? "从左侧选择任务" : t.emptyTasks}
               </p>
             )}
-            {(view === "bots" || view === "settings") && !config && (
-              <p className="muted">{t.loading}</p>
-            )}
-            {view === "bots" && config && (
-              <BotsPage
-                {...{ bots, config, data, flash, openTask }}
-                settings={() => navigate("settings")}
-              />
-            )}
+            {view === "bots" && !config && <p className="muted">{t.loading}</p>}
+            {view === "bots" && config && <BotsPage {...{ bots, config, data, flash, openTask }} />}
             {view === "automations" && (
               <AutomationsPage {...{ bots, data, flash }} triggers={snapshot.triggers} />
             )}
             {view === "mcp" && <McpPage {...{ bots, data, flash }} servers={snapshot.mcpServers} />}
-            {view === "settings" && config && <SettingsPage {...{ config, data, flash }} />}
+            {view === "settings" && <SettingsPage {...{ config, data, flash }} status={target} />}
           </section>
         </main>
       </div>

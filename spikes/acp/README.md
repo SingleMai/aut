@@ -67,3 +67,17 @@ AUT_ACP_BIN=grok AUT_ACP_ARGS="agent stdio" \
 rtk proxy pnpm exec vitest run packages/adapters/src/acp
 rtk proxy pnpm exec tsc --build packages/adapters/tsconfig.json
 ```
+
+## Bot 模型目录
+
+`fixtures/models-opencode-1.19.5.json` 记录 OpenCode 1.19.5 的模型读取：
+initialize → session/new → session/close，返回 13 个模型选项，不发送 prompt 或更改模型。
+该探测会打开空的原生会话，close 不代表删除原生历史；不将它描述为零原生存储副作用。
+只保存模型配置投影，不记录账号凭据。复现入口复用 Claude 目录中的探针：
+
+```sh
+rtk proxy node spikes/claude/models-probe.mjs acp /tmp/aut-acp-models.json
+```
+
+先构建 adapters。通用 reader 支持已配置的 ACP 认证方法和模型分组选项；不声明未经探针
+的 provider 已可运行。回放与超时测试见 `packages/adapters/src/acp/models.test.ts`。

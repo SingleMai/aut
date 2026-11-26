@@ -569,6 +569,7 @@ export const makeCodexAdapter = (
                   ...turnAccess,
                   model: input.model,
                   ...(input.effort ? { effort: input.effort } : {}),
+                  ...(input.speed ? { serviceTierForTurn: input.speed } : {}),
                   input: nativeInput(turn.text),
                 })
                 .pipe(

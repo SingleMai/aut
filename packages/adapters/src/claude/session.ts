@@ -2,15 +2,15 @@
 // server/drivers/claude.ts and server/permission-proxy.ts, commit
 // 738ec88472a3b888ff7b7793755d89da613ed301. The runtime contract is aut's HarnessAdapter.
 import { randomUUID } from "node:crypto";
-import { chmodSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { createServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   AdapterError,
   type HarnessAdapter as AdapterShape,
-  JsonValue,
+  type JsonValue,
   type Question,
   QuestionAnswer,
   RequestId,
@@ -36,6 +36,7 @@ import {
   Stream,
 } from "effect";
 import { HarnessAdapter } from "../interface.js";
+import { claudeMemorySettings } from "./settings.js";
 import { type ClaudeTransportFactory, NodeClaudeTransport } from "./transport.js";
 import {
   asRecord,
@@ -157,48 +158,6 @@ const nativeUser = (text: string, uuid?: string): JsonValue => ({
 
 const questionProxyPath = (options: ClaudeOptions): string =>
   options.questionProxyPath ?? fileURLToPath(new URL("./question-proxy.js", import.meta.url));
-
-const memorySettings = (args: readonly string[], cwd: string) =>
-  Effect.gen(function* () {
-    const remaining: string[] = [];
-    let source: string | undefined;
-    for (let index = 0; index < args.length; index++) {
-      const arg = args[index];
-      if (arg === "--settings") {
-        source = args[++index];
-        if (source === undefined || source.startsWith("--"))
-          return yield* Effect.fail(problem("InvalidResponse", "Claude settings require a value"));
-      } else if (arg?.startsWith("--settings=")) source = arg.slice("--settings=".length);
-      else if (arg !== undefined) remaining.push(arg);
-    }
-    let settings: Readonly<Record<string, JsonValue>> = {};
-    if (source !== undefined) {
-      const text = source.trimStart().startsWith("{")
-        ? source
-        : yield* Effect.try({
-            try: () => readFileSync(resolve(cwd, source), "utf8"),
-            catch: () => problem("InvalidResponse", "Unable to read Claude settings"),
-          });
-      settings = yield* Schema.decodeUnknown(
-        Schema.parseJson(Schema.Record({ key: Schema.String, value: JsonValue })),
-      )(text).pipe(
-        Effect.mapError(() => problem("InvalidResponse", "Invalid Claude settings JSON object")),
-      );
-    }
-    const env = yield* Schema.decodeUnknown(
-      Schema.Record({ key: Schema.String, value: Schema.String }),
-    )(settings.env ?? {}).pipe(
-      Effect.mapError(() => problem("InvalidResponse", "Invalid Claude settings environment")),
-    );
-    return {
-      args: remaining,
-      settings: {
-        ...settings,
-        autoMemoryEnabled: false,
-        env: { ...env, CLAUDE_CODE_DISABLE_AUTO_MEMORY: "1" },
-      },
-    };
-  });
 
 const writeMcpConfig = (
   input: StartSessionInput,
@@ -456,7 +415,9 @@ export const makeClaudeAdapter = (
         Effect.mapError((error) => problem("InvalidResponse", String(error))),
       );
       // Claude applies settings.env after spawn; enforce the policy in both layers.
-      const nativeSettings = yield* memorySettings(options.args ?? [], input.cwd);
+      const nativeSettings = yield* claudeMemorySettings(options.args ?? [], input.cwd);
+      if (input.speed !== undefined && input.speed !== "default" && input.speed !== "fast")
+        return yield* Effect.fail(problem("InvalidResponse", "Unsupported Claude speed option"));
       const bus = yield* PubSub.unbounded<SessionEvent>();
       yield* Effect.addFinalizer(() => PubSub.shutdown(bus));
       const mutex = yield* Effect.makeSemaphore(1);
@@ -484,11 +445,18 @@ export const makeClaudeAdapter = (
       const settingsPath = join(dirname(configPath), "settings.json");
       yield* Effect.try({
         try: () =>
-          writeFileSync(settingsPath, JSON.stringify(nativeSettings.settings), {
-            encoding: "utf8",
-            mode: 0o600,
-            flag: "wx",
-          }),
+          writeFileSync(
+            settingsPath,
+            JSON.stringify({
+              ...nativeSettings.settings,
+              ...(input.speed === undefined ? {} : { fastMode: input.speed === "fast" }),
+            }),
+            {
+              encoding: "utf8",
+              mode: 0o600,
+              flag: "wx",
+            },
+          ),
         catch: () => problem("TransportError", "Unable to prepare Claude settings"),
       });
       const args = [

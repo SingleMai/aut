@@ -16,6 +16,7 @@ aut 是一个开源的 personal agent 客户端：用户只在 **main thread（�
 先读本文件，再按任务读取对应文档及其引用的相关 ADR。
 
 - 架构与进程边界：`docs/architecture.md`。
+- 远程主机、连接凭据与传输组件：`docs/decisions/0072-personal-remote-host.md`。
 - chief、路由、回包与交接：`docs/decision-tree.md`。
 - 数据结构与跨模块接口：`docs/protocol.md`。
 - Harness 接入与协议探针：`docs/harness-adapters.md`。
@@ -73,6 +74,7 @@ aut 是一个开源的 personal agent 客户端：用户只在 **main thread（�
 ## 3. 技术约定
 
 - **语言/运行时**：TypeScript（`strict: true`），Node **24.18.0 LTS**（`.nvmrc` / `engines`），pnpm **10.33.0** workspace monorepo。
+  远程传输组件的 Go 例外仅限 ADR-0072 的节点登录与固定目标网络转发；业务仍使用 TypeScript / Effect。
 - **业务逻辑统一用 Effect 3.22.4**（精确锁定于 pnpm catalog；保留本文既定的 `Context.Tag` / `Layer` / `Schema` API，避免在工程初始化中引入 Effect 4 迁移；测试使用兼容的 `@effect/vitest` 0.27.0）：
   - 模块 = `Context.Tag` Service + `Layer` 组装；daemon 入口只做 Layer 组合。
   - 所有跨进程/持久化/配置数据用 `Schema` 定义并校验（不再引入 zod 等第二套 schema 库）。
@@ -89,6 +91,7 @@ aut 是一个开源的 personal agent 客户端：用户只在 **main thread（�
 packages/
   characters/   独立 UI 模块：Bot 形象注册、动作播放及内置角色（ADR-0053）
   protocol/     共享 Schema 与类型（零运行时依赖，除 effect）
+  transport/    Effect 传输进程管理 + Go/tsnet 网络组件（ADR-0072）
   core/         chief、决策树执行器、任务状态机、main thread、存储、事件总线
   classifier/   Classifier 接口 + Jev 后端（+ 未来 LiteLLM 等）
   adapters/     HarnessAdapter 接口 + codex/（MVP）+ claude/、acp/（后续）
@@ -102,6 +105,7 @@ spikes/         各 harness 的协议探针脚本与录制样本（不进生产�
 依赖方向：`protocol` ← `classifier` / `adapters` / `mcp-bridge` ← `core` ← `daemon` ← `apps/desktop`（仅通过 API）。
 `core` 只依赖 `HarnessAdapter` / `Classifier` 接口，不依赖具体实现。
 桌面 renderer 可依赖 `@aut/characters`。该包只处理呈现，独立于 daemon 与业务协议。
+`transport` 只依赖 `protocol`；daemon 与 desktop 主进程可依赖 `transport`，core 和 renderer 不依赖它。
 
 ## 5. 测试要求
 

@@ -6,9 +6,9 @@ import { useId, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Wordmark } from "../brand.js";
 import { CharacterEditor } from "../characters/character-editor.js";
-import { ClassifierModelFields } from "../classifier-settings.js";
-import { readSettingsForm } from "../configuration-forms.js";
+import { readClassifierForm } from "../configuration-forms.js";
 import { ConversationBody } from "../conversation-body.js";
+import { ClassifierModelFields } from "../settings/classifier-settings.js";
 import { ConfigurationForm } from "../ui/configuration-form.js";
 import { type DesktopAppearance, DesktopTheme } from "../ui/theme.js";
 import { ContextPreview } from "./context-preview.js";
@@ -36,7 +36,7 @@ function FormPreview() {
         flash={setMessage}
         submit={(data) => {
           setMessage("");
-          return readSettingsForm(data, []).pipe(
+          return readClassifierForm(data).pipe(
             Effect.tap(() => Effect.sync(() => setMessage("校验通过。"))),
           );
         }}

@@ -2,7 +2,11 @@ import {
   AcceptedResponse,
   type AutConfig,
   type BotConfig,
+  BotConnectionResponse,
   BotMemoryResponse,
+  type BotModelDiscoveryInput,
+  BotModelOptionsResponse,
+  BotModelsResponse,
   BotResponse,
   BotsResponse,
   ConfigResponse,
@@ -12,6 +16,7 @@ import {
   FileReleaseResponse,
   FileResponse,
   type FileUploadInput,
+  type HarnessInstanceConfig,
   JsonValue,
   McpAuthStartResponse,
   type McpGrantInput,
@@ -26,6 +31,8 @@ import {
   type MemoryWriteInput,
   MessagePageResponse,
   MessageResponse,
+  type RemoteHostInput,
+  RemoteHostStatus,
   ReportResponse,
   RequestResponse,
   type RouteTestInput,
@@ -44,7 +51,8 @@ import {
   type UpdateTriggerInput,
 } from "@aut/protocol";
 import { Data, Effect, Schema } from "effect";
-import type { ApiRequest } from "./bridge.js";
+import type { ApiRequest, ConnectionAction } from "./bridge.js";
+import { t } from "./i18n.js";
 export class UiError extends Data.TaggedError("UiError")<{ readonly message: string }> {}
 const request = <A, I>(
   method: ApiRequest["method"],
@@ -69,6 +77,20 @@ const request = <A, I>(
       Effect.mapError(() => new UiError({ message: "服务返回的数据格式不兼容。" })),
     );
   });
+export const connectionAction = (input: ConnectionAction) =>
+  Effect.gen(function* () {
+    const invoke = window.aut.connection;
+    if (!invoke) return yield* Effect.fail(new UiError({ message: "请使用完整的桌面应用。" }));
+    const result = yield* Effect.tryPromise({
+      try: () => invoke(input),
+      catch: () => new UiError({ message: "无法更新执行位置。" }),
+    });
+    if (!result.ok) return yield* Effect.fail(new UiError({ message: result.error }));
+    return result;
+  });
+
+const remoteHostUnavailable = () => new UiError({ message: t.remoteHostUnavailable });
+
 export const validate = <A, I>(schema: Schema.Schema<A, I>, value: unknown) =>
   Schema.decodeUnknown(schema)(value).pipe(
     Effect.mapError(() => new UiError({ message: "请检查必填字段与输入格式。" })),
@@ -116,6 +138,11 @@ export const desktopApi = {
   getReport: (ref: string) =>
     request("GET", `/v1/reports/${encodeURIComponent(ref)}`, ReportResponse),
   listBots: () => request("GET", "/v1/bots", BotsResponse),
+  listBotModelOptions: () => request("GET", "/v1/bot-models/options", BotModelOptionsResponse),
+  discoverBotModels: (input: BotModelDiscoveryInput) =>
+    request("POST", "/v1/bot-models/discover", BotModelsResponse, input),
+  ensureBotConnection: (input: HarnessInstanceConfig) =>
+    request("POST", "/v1/bot-models/connection", BotConnectionResponse, input),
   saveBot: (bot: BotConfig, existingId?: string) =>
     existingId === undefined
       ? request("POST", "/v1/bots", BotResponse, bot)
@@ -151,6 +178,14 @@ export const desktopApi = {
   clearBotMemory: (botId: string) =>
     request("POST", `${memoryBase(botId)}/clear`, AcceptedResponse),
   testRoute: (input: RouteTestInput) => request("POST", "/v1/route-test", RouteTestResponse, input),
+  getRemoteHost: () =>
+    request("GET", "/v1/remote/host", RemoteHostStatus).pipe(
+      Effect.mapError(remoteHostUnavailable),
+    ),
+  configureRemoteHost: (input: typeof RemoteHostInput.Type) =>
+    request("PUT", "/v1/remote/host", RemoteHostStatus, input).pipe(
+      Effect.mapError(remoteHostUnavailable),
+    ),
   getConfig: () => request("GET", "/v1/config", ConfigResponse),
   saveConfig: (config: AutConfig) => request("PUT", "/v1/config", ConfigResponse, config),
   listMcpServers: () => request("GET", "/v1/mcp/servers", McpServersResponse),

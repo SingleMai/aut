@@ -257,3 +257,44 @@ describe("Claude adapter", () => {
     }),
   );
 });
+
+for (const speed of [undefined, "default", "fast"]) {
+  it.scopedLive(
+    `applies ${speed ?? "inherited"} Claude speed to temporary settings on start, resume and fork`,
+    () =>
+      Effect.gen(function* () {
+        const settings: unknown[] = [];
+        const factory: ClaudeTransportFactory = {
+          open: (options) =>
+            Effect.gen(function* () {
+              settings.push(
+                JSON.parse(
+                  readFileSync(
+                    options.args[options.args.indexOf("--settings") + 1] as string,
+                    "utf8",
+                  ),
+                ),
+              );
+              expect(options.args[options.args.indexOf("--effort") + 1]).toBe("high");
+              const notices = yield* Queue.unbounded<ClaudeTransportNotice>();
+              return { notices, send: () => Effect.void, stop: Effect.void };
+            }),
+        };
+        const adapter = makeClaudeAdapter(
+          { args: ["--settings", '{"fastMode":true,"model":"kept"}'] },
+          factory,
+        );
+        const selected = { ...input, effort: "high", ...(speed ? { speed } : {}) };
+        const session = yield* adapter.startSession(selected);
+        yield* adapter.resumeSession(session.cursor, selected);
+        yield* session.fork();
+        expect(settings).toHaveLength(3);
+        for (const value of settings)
+          expect(value).toMatchObject({
+            model: "kept",
+            fastMode: speed !== "default",
+            autoMemoryEnabled: false,
+          });
+      }),
+  );
+}

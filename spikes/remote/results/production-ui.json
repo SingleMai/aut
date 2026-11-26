@@ -1,0 +1,14 @@
+{
+  "at": "2026-11-25",
+  "fixture": "Synthetic connection states using the production renderer; no real host pairing",
+  "hostEnableAndLoginVisible": true,
+  "remoteHostManagementHidden": true,
+  "draftRetainedAcrossDisconnectAndReconnect": true,
+  "offlineConnectionSettingsAccessible": true,
+  "lightAndDarkInspected": true,
+  "width1040NoHorizontalOverflow": true,
+  "screenshots": [
+    "docs/assets/desktop/remote-host-settings.png",
+    "docs/assets/desktop/remote-air-offline.png"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-11-26T10:21:56.540Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "checks": [
+    {
+      "file": "ui.js",
+      "sha256": "1ae0b52fdb5075a95de1cd5809ded44a866e4cc02709c065d38a94bafe70ca1b",
+      "matchesReviewedBuild": true
+    },
+    {
+      "file": "style.css",
+      "sha256": "a4cfc7e914e4fce0da64afb1bfdc05bea94556d17fb35ef2f97a9cd5ff68b4a9",
+      "matchesReviewedBuild": true
+    },
+    {
+      "file": "index.html",
+      "sha256": "fd02d0dd4350ef2e331da27280c1de98918ce48b7319d83485086913ff82ba78",
+      "matchesReviewedBuild": true
+    }
+  ]
+}

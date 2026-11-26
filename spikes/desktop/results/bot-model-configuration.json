@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-25",
+  "adr": "0075",
+  "kind": "synthetic-ui-and-isolated-tests",
+  "tests": {
+    "files": 52,
+    "passed": 476,
+    "command": "vitest run apps/desktop/src packages/daemon/src/daemon.test.ts packages/daemon/src/primary-assistant.test.ts packages/adapters/src/codex/models.test.ts packages/adapters/src/codex/defaults.test.ts --maxWorkers=4"
+  },
+  "checks": [
+    "production TypeScript",
+    "test/tools TypeScript",
+    "Biome",
+    "dependency boundaries",
+    "desktop bundle",
+    "git diff --check"
+  ],
+  "browser": {
+    "tool": "ego-browser",
+    "modelDiscovery": true,
+    "keyboardSelection": true,
+    "cancelWrites": 0,
+    "saveUpdatedBotOnly": true,
+    "reusedConnections": 1,
+    "globalAgentManagementAbsent": true,
+    "lightTheme": true,
+    "darkTheme": true,
+    "narrowWidth": 960,
+    "horizontalOverflow": false
+  },
+  "screenshots": [
+    "docs/assets/desktop/bot-model-configuration.png",
+    "docs/assets/desktop/bot-model-configuration-dark.png"
+  ],
+  "limits": [
+    "Browser bridge uses synthetic data; no user settings were edited.",
+    "Codex protocol coverage reuses recorded defaults-projection.json plus synthetic failure/pagination cases.",
+    "No new native package or real two-device acceptance in this change.",
+    "Existing host authentication is reused; interactive account login remains out of scope."
+  ]
+}

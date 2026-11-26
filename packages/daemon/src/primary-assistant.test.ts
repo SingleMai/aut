@@ -45,8 +45,6 @@ const probe = (
     Effect.succeed({
       model: "discovered-model",
       effort: "xhigh",
-      provider: "existing-provider",
-      source: "configured",
     }),
 ) =>
   Layer.succeed(PrimaryAssistantDefaultsProbe, {
@@ -110,6 +108,44 @@ it("reuses the configured primary assistant and specialist without probing", asy
   );
 });
 
+it.each(["claude", "acp"])(
+  "keeps a configured %s primary ready and can reuse its specialist selection",
+  async (kind) => {
+    const path = directory();
+    await run(
+      Effect.gen(function* () {
+        const config = yield* ConfigStore;
+        const settings = { harnessInstances: [{ ...instance, kind }] };
+        const primary = { ...user, id: BotId.make("aut"), system: "primary" as const };
+        yield* config.writeConfig(settings);
+        yield* config.writeBots([primary, user]);
+        const service = () =>
+          bootstrap(
+            path,
+            probe(() => Effect.die("Must not probe an explicitly selected model")),
+          );
+        expect(
+          yield* Effect.flatMap(PrimaryAssistantBootstrap, (value) => value.status).pipe(
+            Effect.provide(service()),
+          ),
+        ).toEqual({ status: "ready" });
+        expect(yield* config.readBots).toEqual([primary, user]);
+        yield* config.writeBots([user]);
+        expect(
+          yield* Effect.flatMap(PrimaryAssistantBootstrap, (value) => value.status).pipe(
+            Effect.provide(service()),
+          ),
+        ).toEqual({ status: "ready" });
+        expect(
+          (yield* config.readBots).find((bot) => bot.system === "primary")?.modelSelection,
+        ).toEqual(user.modelSelection);
+        expect(yield* config.readConfig).toEqual(settings);
+      }),
+      path,
+    );
+  },
+);
+
 it("adds one primary assistant, handles ID collisions and copies the existing model/effort/workdir", async () => {
   const path = directory();
   await run(
@@ -162,8 +198,6 @@ it("uses only discovered native defaults when creating a fresh aut configuration
               return Effect.succeed({
                 model: "reported-native-default",
                 effort: "xhigh",
-                provider: null,
-                source: "reported-default",
               });
             }),
           ),
@@ -205,8 +239,6 @@ it("probes an existing instance without changing its provider arguments or envir
               expect(input.cwd).toBe(process.cwd());
               return Effect.succeed({
                 model: "custom-configured-model",
-                provider: "unchanged-provider",
-                source: "configured",
               });
             }),
           ),

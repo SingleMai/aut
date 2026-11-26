@@ -134,6 +134,7 @@ export const ModelSelection = Schema.Struct({
   instanceId: NonEmptyString,
   model: NonEmptyString,
   effort: optional(NonEmptyString),
+  speed: optional(NonEmptyString),
 });
 export type ModelSelection = typeof ModelSelection.Type;
 

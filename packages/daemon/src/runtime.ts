@@ -6,6 +6,7 @@ import { HttpServer } from "./http.js";
 
 export interface DaemonOptions extends CoreOptions {
   readonly port?: number;
+  readonly transportBinary?: string;
 }
 export const environmentOptions = Effect.gen(function* () {
   const dataDirectory = process.env.AUT_DATA_DIR;
@@ -14,7 +15,13 @@ export const environmentOptions = Effect.gen(function* () {
     Number(process.env.AUT_PORT ?? 4317),
   );
   if (dataDirectory !== undefined) yield* decode(NonEmptyString, dataDirectory);
-  return { ...(dataDirectory === undefined ? {} : { dataDirectory }), port };
+  return {
+    ...(dataDirectory === undefined ? {} : { dataDirectory }),
+    port,
+    ...(process.env.AUT_TRANSPORT_BINARY
+      ? { transportBinary: process.env.AUT_TRANSPORT_BINARY }
+      : {}),
+  };
 });
 
 export class DaemonRuntime extends Context.Tag("aut/DaemonRuntime")<

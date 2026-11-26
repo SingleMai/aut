@@ -4,6 +4,7 @@ import {
   BotConfig,
   type BotId,
   type BotsConfig,
+  HarnessInstanceConfig,
   type MainThreadMessage,
   type MessageId,
   RoutingCandidateId,
@@ -19,6 +20,9 @@ export class Administration extends Context.Tag("aut/DaemonAdministration")<
   {
     readonly bots: Effect.Effect<BotsConfig, CoreError>;
     readonly config: Effect.Effect<AutConfig, CoreError>;
+    readonly ensureBotConnection: (
+      instance: HarnessInstanceConfig,
+    ) => Effect.Effect<HarnessInstanceConfig, CoreError | DaemonError>;
     readonly createBot: (
       bot: BotConfig,
       originTaskId?: TaskId,
@@ -86,6 +90,36 @@ export const AdministrationLive = Layer.scoped(
     return {
       bots: config.readBots,
       config: config.readConfig,
+      ensureBotConnection: (input) =>
+        config.withMutation(
+          Effect.gen(function* () {
+            const instance = yield* decode(HarnessInstanceConfig, input);
+            const key = (value: HarnessInstanceConfig) =>
+              JSON.stringify([
+                value.name,
+                value.kind,
+                value.command,
+                value.args,
+                Object.entries(value.env ?? {}).sort(([a], [b]) => a.localeCompare(b)),
+                value.authMethodIds ?? [],
+              ]);
+            const current = yield* config.readConfig;
+            const matching = current.harnessInstances.find((entry) => key(entry) === key(instance));
+            if (matching) return matching;
+            if (current.harnessInstances.some((entry) => entry.id === instance.id))
+              return yield* Effect.fail(
+                new DaemonError({
+                  code: "Conflict",
+                  message: "The connection identifier is already in use.",
+                }),
+              );
+            yield* config.updateConfig((value) => ({
+              ...value,
+              harnessInstances: [...value.harnessInstances, instance],
+            }));
+            return instance;
+          }),
+        ),
       undoBotCreation: receipts.undo,
       createBot: (input, originTaskId) =>
         mutate(

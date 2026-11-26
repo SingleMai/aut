@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { copyFile, cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -8,6 +9,14 @@ import { build } from "esbuild";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const staging = await mkdtemp(resolve(tmpdir(), "aut-package-"));
 try {
+  execFileSync(
+    process.execPath,
+    [
+      resolve(root, "../../packages/transport/scripts/build-native.mjs"),
+      resolve(staging, "transport"),
+    ],
+    { stdio: "inherit" },
+  );
   await mkdir(resolve(staging, "app/dist"), { recursive: true });
   for (const file of ["main.cjs", "preload.cjs", "ui.js", "index.html", "style.css"])
     await copyFile(resolve(root, "dist", file), resolve(staging, "app/dist", file));
@@ -65,7 +74,7 @@ try {
     platform: "darwin",
     arch: process.arch,
     asar: true,
-    extraResource: [resolve(staging, "daemon")],
+    extraResource: [resolve(staging, "daemon"), resolve(staging, "transport")],
     electronVersion: "45.3.3",
   });
   for (const output of results) {
@@ -74,6 +83,7 @@ try {
       resolve(root, "dist/renderer-LICENSES.txt"),
       resolve(resources, "renderer-LICENSES.txt"),
     );
+    await copyFile(resolve(root, "node_modules/ws/LICENSE"), resolve(resources, "ws-LICENSE.txt"));
     for (const file of ["LICENSE", "NOTICE"])
       await copyFile(resolve(root, "../..", file), resolve(resources, file));
   }

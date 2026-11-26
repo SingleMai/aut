@@ -15,9 +15,11 @@ import {
   StateSourceLive,
   StoredSessionSnapshotSourceLive,
 } from "@aut/core";
+import { RemoteTransportLive } from "@aut/transport";
 import { Effect, Layer } from "effect";
 import { AdministrationLive } from "./admin.js";
 import { AdmissionInboxLive, ChiefIngressLive } from "./admission.js";
+import { BotModelDiscoveryLive } from "./bot-models.js";
 import { BridgeBackendLive } from "./bridge-backend.js";
 import { BridgeRuntimeLive } from "./bridge-runtime.js";
 import { ConfiguredTreeLive } from "./configured-tree.js";
@@ -33,6 +35,7 @@ import {
   PrimaryAssistantDefaultsProbeLive,
 } from "./primary-assistant.js";
 import { RecoveryLive } from "./recovery.js";
+import { RemoteHostLive } from "./remote-host.js";
 import { RouteTestLive } from "./route-test.js";
 import { type DaemonOptions, DaemonRuntimeLive, environmentOptions } from "./runtime.js";
 import { SecretReaderLive } from "./secret-reader.js";
@@ -42,6 +45,7 @@ import { TriggerSchedulerLive } from "./triggers.js";
 
 export * from "./admin.js";
 export * from "./admission.js";
+export * from "./bot-models.js";
 export * from "./bridge-backend.js";
 export * from "./bridge-runtime.js";
 export * from "./configured-tree.js";
@@ -88,7 +92,14 @@ export const DaemonApiLive = (options: DaemonOptions = {}) => {
       ),
     ),
   );
-  return HttpServerLive(options.port).pipe(Layer.provideMerge(readers));
+  const remote = RemoteHostLive.pipe(
+    Layer.provide(RemoteTransportLive(options.transportBinary)),
+    Layer.provideMerge(readers),
+  );
+  return HttpServerLive(options.port).pipe(
+    Layer.provide(BotModelDiscoveryLive),
+    Layer.provideMerge(remote),
+  );
 };
 
 export const DaemonLive = (options: DaemonOptions = {}) => {
@@ -140,7 +151,14 @@ export const DaemonLive = (options: DaemonOptions = {}) => {
     Layer.provideMerge(chief),
     Layer.provideMerge(recovered),
   );
-  return HttpServerLive(options.port).pipe(Layer.provideMerge(Layer.merge(ingress, scheduler)));
+  const remote = RemoteHostLive.pipe(
+    Layer.provide(RemoteTransportLive(options.transportBinary)),
+    Layer.provideMerge(Layer.merge(ingress, scheduler)),
+  );
+  return HttpServerLive(options.port).pipe(
+    Layer.provide(BotModelDiscoveryLive),
+    Layer.provideMerge(remote),
+  );
 };
 
 export const DaemonFromEnvironmentLive = Layer.unwrapEffect(

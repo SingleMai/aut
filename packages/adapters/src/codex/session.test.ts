@@ -675,3 +675,23 @@ it.scoped("does not include configuration values in parsing errors", () =>
     expect(error.message).not.toContain("SYNTHETIC_CREDENTIAL_DO_NOT_LOG");
   }),
 );
+
+for (const speed of [undefined, "default", "priority", "ultrafast"]) {
+  it.scoped(`forwards ${speed ?? "inherited"} speed on start, resume and fork turns`, () =>
+    Effect.gen(function* () {
+      const selected = { ...input, effort: "high", ...(speed ? { speed } : {}) };
+      const test = yield* setup("normal", "steered", {}, selected);
+      const resumed = yield* test.adapter.resumeSession(test.session.cursor, selected);
+      const forked = yield* test.session.fork();
+      for (const session of [test.session, resumed, forked])
+        yield* session.startTurn({ text: "Fixture", messageIds: [] });
+      const turns = test.requests.filter((request) => request.method === "turn/start");
+      expect(turns).toHaveLength(3);
+      for (const turn of turns) {
+        expect(turn.params).toMatchObject({ effort: "high" });
+        if (speed) expect(turn.params).toMatchObject({ serviceTierForTurn: speed });
+        else expect(turn.params).not.toHaveProperty("serviceTierForTurn");
+      }
+    }),
+  );
+}

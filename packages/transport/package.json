@@ -1,0 +1,24 @@
+{
+  "name": "@aut/transport",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
+    "build:native": "node scripts/build-native.mjs"
+  },
+  "dependencies": {
+    "@aut/protocol": "workspace:*",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2"
+  }
+}

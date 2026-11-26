@@ -71,14 +71,12 @@ export function BotsPage({
   config,
   data,
   flash,
-  settings,
   openTask,
 }: {
   bots: readonly BotConfig[];
   config: AutConfig;
   data: DesktopData;
   flash: Flash;
-  settings: () => void;
   openTask: (id: string) => void;
 }) {
   const [editor, setEditor] = useState<{ bot?: BotConfig; focusCharacter: boolean }>();
@@ -166,7 +164,7 @@ export function BotsPage({
       {editor && (
         <BotEditor
           {...editor}
-          {...{ bots, config, flash, settings, data }}
+          {...{ bots, config, flash, data }}
           close={() => setEditor(undefined)}
         />
       )}

@@ -7,18 +7,20 @@ import ts from "typescript";
 export const allowedDependencies = {
   "@aut/characters": [],
   "@aut/protocol": [],
+  "@aut/transport": ["@aut/protocol"],
   "@aut/classifier": ["@aut/protocol"],
   "@aut/adapters": ["@aut/protocol"],
   "@aut/mcp-bridge": ["@aut/protocol"],
   "@aut/core": ["@aut/protocol", "@aut/classifier", "@aut/adapters", "@aut/mcp-bridge"],
   "@aut/daemon": [
     "@aut/protocol",
+    "@aut/transport",
     "@aut/classifier",
     "@aut/adapters",
     "@aut/mcp-bridge",
     "@aut/core",
   ],
-  "@aut/desktop": ["@aut/characters", "@aut/protocol"],
+  "@aut/desktop": ["@aut/characters", "@aut/protocol", "@aut/transport"],
 };
 
 const inside = (parent, child) => {

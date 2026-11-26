@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-26",
+  "adr": "0076",
+  "environment": "Actual desktop bundle with synthetic window.aut bridge in ego-browser",
+  "checks": {
+    "startupFieldsRemoved": true,
+    "programs": [
+      "Codex",
+      "Claude Code",
+      "OpenCode",
+      "Grok (preview)",
+      "Existing custom connection"
+    ],
+    "searchAndKeyboardPick": true,
+    "escapeKeepsEditor": true,
+    "cancelWrites": 0,
+    "savedModel": {
+      "bot": "frontend",
+      "program": "Claude Code",
+      "model": "sonnet"
+    },
+    "otherBotUnchanged": true,
+    "lightViewport": [
+      1440,
+      1000
+    ],
+    "darkViewport": [
+      960,
+      800
+    ],
+    "horizontalOverflow": false,
+    "narrowPickerBottom": 789.59375,
+    "narrowPickerWithinViewport": true
+  },
+  "nativeReaders": {
+    "claude": "spikes/claude/fixtures/models-2.1.330.json",
+    "acp": "spikes/acp/fixtures/models-opencode-1.19.5.json"
+  },
+  "validation": {
+    "regressionFiles": 60,
+    "regressionPassed": 512,
+    "followups": "29 targeted cases after relative-path and Finder lookup fixes; 10 primary-assistant cases after adapter support fix. All passed.",
+    "types": "production and tools",
+    "format": "Biome",
+    "boundaries": true
+  },
+  "limitations": [
+    "UI values in screenshots are examples, not account inventory.",
+    "Grok has no authenticated task-turn validation.",
+    "This revision has not repeated the real Air/Pro network-switch test."
+  ],
+  "screenshots": [
+    "docs/assets/desktop/bot-model-picker.png",
+    "docs/assets/desktop/bot-model-picker-dark.png"
+  ]
+}

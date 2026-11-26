@@ -1,0 +1,23 @@
+{
+  "freshAirPairingAvailableWithoutLocalDaemon": true,
+  "at": "2026-11-25T12:11:42.978Z",
+  "architecture": "arm64",
+  "isolated": true,
+  "modelCalls": false,
+  "localAppConnected": true,
+  "bundledHelper": true,
+  "officialHostLoginAvailable": true,
+  "rendererSecretExportBlocked": true,
+  "osEncryptionAvailable": true,
+  "pairingSavedEncryptedThroughNativeIpc": true,
+  "pairingPreviewHidesCredentials": true,
+  "pairingThroughNewDialog": true,
+  "relaunchRequested": true,
+  "hostSurvivesDesktopSwitchAndExit": true,
+  "remoteProfileReadByRealApp": true,
+  "remoteStatus": "login",
+  "remoteOfflineSettings": true,
+  "remoteExportBlocked": true,
+  "localTokenPreserved": true,
+  "realTwoDeviceProductionTest": false
+}

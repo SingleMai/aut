@@ -40,3 +40,25 @@ node --experimental-strip-types spikes/claude/adapter-live.ts
 ```
 
 固定版本和源码来源记录见根目录 `NOTICE`。生产 Claude adapter 的回放测试必须以这些真实字段为依据，OpenMausBot 代码只作为 Apache-2.0 的可移植实现来源。
+
+## Bot 模型目录
+
+`fixtures/models-2.1.330.json` 是 Claude Code 2.1.330 的真实初始化响应投影：43 个模型选项，
+包括执行电脑已有 Provider 的自定义模型。只记录 value / displayName，不记录账号、描述或凭据。
+生产 reader 使用 control_request initialize，不发送 user frame，禁用 hooks、MCP、会话持久化；
+临时 settings 合并实例设置并在 Scope 结束后移除，用户原配置保持不变。
+
+复现（输出文件必须不存在）：
+
+```sh
+rtk proxy node spikes/claude/models-probe.mjs claude /tmp/aut-claude-models.json
+```
+
+先构建 adapters。模型目录不是实际调用验证；回放和清理/超时覆盖见
+`packages/adapters/src/claude/models.test.ts`。
+
+## 模型参数目录（ADR-0077）
+
+`fixtures/model-options-2.1.330.json` 录制模型与思考/速度能力投影；不包含描述、账号、密钥或工作回合。
+Claude Code 2.1.330 同时录制继承、fastMode=false、fastMode=true 三次初始化，fast_mode_state 分别为 off / off / on。
+构建后复现：`node spikes/model-options-probe.mjs claude /absolute/path/new-fixture.json`（拒绝覆盖已有记录）。

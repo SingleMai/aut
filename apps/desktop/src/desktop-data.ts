@@ -32,6 +32,7 @@ const resources: readonly DaemonResource[] = [
   "bots",
   "config",
   "mcp",
+  "triggers",
 ];
 export function createDesktopData() {
   let state: Snapshot = {

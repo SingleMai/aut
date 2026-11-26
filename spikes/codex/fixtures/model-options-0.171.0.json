@@ -1,0 +1,1318 @@
+{
+  "cli": "codex",
+  "version": "codex-cli 0.171.0",
+  "recordedAt": "2026-11-26T09:43:46.968Z",
+  "projection": "Model and option metadata only. No prompts, account details, credentials or descriptions recorded.",
+  "cases": [
+    {
+      "events": [
+        {
+          "method": "config/read",
+          "result": {
+            "config": {
+              "model": "agy-cli/gemini-4-neon",
+              "model_provider": null,
+              "model_reasoning_effort": "high",
+              "service_tier": "default"
+            }
+          }
+        },
+        {
+          "method": "model/list",
+          "result": {
+            "data": [
+              {
+                "model": "gpt-6.2-sol",
+                "displayName": "GPT-6.2-Sol",
+                "isDefault": true,
+                "defaultReasoningEffort": "low",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  },
+                  {
+                    "id": "ultrafast",
+                    "name": "Ultrafast"
+                  }
+                ]
+              },
+              {
+                "model": "gpt-6.2-astra",
+                "displayName": "GPT-6.2-Astra",
+                "isDefault": false,
+                "defaultReasoningEffort": "low",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "gpt-6.1-terra",
+                "displayName": "GPT-6.1 Terra",
+                "isDefault": false,
+                "defaultReasoningEffort": "low",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "gpt-6-luna",
+                "displayName": "GPT-6-Luna",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "auto/gpt-6-luna",
+                "displayName": "GPT-6 Luna · routing group",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "auto/claude-sonnet-5-5",
+                "displayName": "Claude Sonnet 5.5 · routing group",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "kui-lan/codex/gpt-6.1-sol",
+                "displayName": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "low",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-6-astra",
+                "displayName": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-6-sol",
+                "displayName": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-6-luna",
+                "displayName": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-5.6-sol",
+                "displayName": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "low",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-5.6-terra",
+                "displayName": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "kui-lan/codex/gpt-5.6-luna",
+                "displayName": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+                "isDefault": false,
+                "defaultReasoningEffort": "medium",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  }
+                ],
+                "serviceTiers": [
+                  {
+                    "id": "priority",
+                    "name": "Fast"
+                  }
+                ]
+              },
+              {
+                "model": "devin/claude-opus-5-5",
+                "displayName": "Claude Opus 5.5 · Devin",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "devin/claude-opus-5-5-fast",
+                "displayName": "Claude Opus 5.5 Fast · Devin",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "devin/claude-fable-5-1",
+                "displayName": "Claude Fable 5.1 · Devin",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "devin/swe-2-1",
+                "displayName": "SWE-2.1 · Devin",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "max"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "agy-cli/gemini-4-neon",
+                "displayName": "Gemini 4 Neon · Antigravity (local agy CLI)",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "agy-cli/gemini-4-argon",
+                "displayName": "Gemini 4 Argon · Antigravity (local agy CLI)",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "agy-cli/gemini-4-hydrogen",
+                "displayName": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "xhigh"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "agy-cli/claude-opus-5-5",
+                "displayName": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              },
+              {
+                "model": "agy-cli/claude-sonnet-5-5",
+                "displayName": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+                "isDefault": false,
+                "defaultReasoningEffort": "high",
+                "defaultServiceTier": null,
+                "supportedReasoningEfforts": [
+                  {
+                    "reasoningEffort": "low"
+                  },
+                  {
+                    "reasoningEffort": "medium"
+                  },
+                  {
+                    "reasoningEffort": "high"
+                  },
+                  {
+                    "reasoningEffort": "ultra"
+                  }
+                ],
+                "serviceTiers": []
+              }
+            ],
+            "nextCursor": null
+          }
+        }
+      ],
+      "result": {
+        "models": [
+          {
+            "model": "agy-cli/gemini-4-neon",
+            "label": "Gemini 4 Neon · Antigravity (local agy CLI)",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [],
+            "speed": "default"
+          },
+          {
+            "model": "gpt-6.2-sol",
+            "label": "GPT-6.2-Sol",
+            "effort": "low",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              },
+              {
+                "value": "ultrafast",
+                "label": "Ultrafast"
+              }
+            ]
+          },
+          {
+            "model": "gpt-6.2-astra",
+            "label": "GPT-6.2-Astra",
+            "effort": "low",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "gpt-6.1-terra",
+            "label": "GPT-6.1 Terra",
+            "effort": "low",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "gpt-6-luna",
+            "label": "GPT-6-Luna",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "auto/gpt-6-luna",
+            "label": "GPT-6 Luna · routing group",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "auto/claude-sonnet-5-5",
+            "label": "Claude Sonnet 5.5 · routing group",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "kui-lan/codex/gpt-6.1-sol",
+            "label": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)",
+            "effort": "low",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-astra",
+            "label": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-sol",
+            "label": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-6-luna",
+            "label": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-sol",
+            "label": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)",
+            "effort": "low",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-terra",
+            "label": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "kui-lan/codex/gpt-5.6-luna",
+            "label": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)",
+            "effort": "medium",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              }
+            ],
+            "speeds": [
+              {
+                "value": "default",
+                "label": "Standard"
+              },
+              {
+                "value": "priority",
+                "label": "Fast"
+              }
+            ]
+          },
+          {
+            "model": "devin/claude-opus-5-5",
+            "label": "Claude Opus 5.5 · Devin",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "devin/claude-opus-5-5-fast",
+            "label": "Claude Opus 5.5 Fast · Devin",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "devin/claude-fable-5-1",
+            "label": "Claude Fable 5.1 · Devin",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "devin/swe-2-1",
+            "label": "SWE-2.1 · Devin",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "max"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "agy-cli/gemini-4-argon",
+            "label": "Gemini 4 Argon · Antigravity (local agy CLI)",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "agy-cli/gemini-4-hydrogen",
+            "label": "Gemini 4 Hydrogen · Antigravity (local agy CLI)",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "xhigh"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "agy-cli/claude-opus-5-5",
+            "label": "Claude Opus 5.5 · Antigravity (local agy CLI)",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          },
+          {
+            "model": "agy-cli/claude-sonnet-5-5",
+            "label": "Claude Sonnet 5.5 · Antigravity (local agy CLI)",
+            "effort": "high",
+            "efforts": [
+              {
+                "value": "low"
+              },
+              {
+                "value": "medium"
+              },
+              {
+                "value": "high"
+              },
+              {
+                "value": "ultra"
+              }
+            ],
+            "speeds": []
+          }
+        ],
+        "defaultModel": "agy-cli/gemini-4-neon",
+        "source": "catalog"
+      }
+    }
+  ]
+}

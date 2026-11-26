@@ -1,7 +1,17 @@
-import { DaemonEvent, FileId, JsonValue, NonEmptyString } from "@aut/protocol";
+import {
+  ApiErrorResponse,
+  DaemonEvent,
+  DesktopConnectionStatus,
+  FileId,
+  JsonValue,
+  NonEmptyString,
+  RemoteConnectionInfo,
+} from "@aut/protocol";
 import { Schema } from "effect";
 
 const routes = [
+  ["GET", /^\/v1\/remote\/host$/],
+  ["PUT", /^\/v1\/remote\/host$/],
   ["GET", /^\/v1\/bots\/[^/?#]+\/memory(?:\/(?:file|graph))?(?:\?[^#]+)?$/],
   ["PUT", /^\/v1\/bots\/[^/?#]+\/memory\/file$/],
   ["DELETE", /^\/v1\/bots\/[^/?#]+\/memory\/file\?[^#]+$/],
@@ -22,6 +32,8 @@ const routes = [
     /^\/v1\/(?:health|messages(?:\?[^#]*)?|tasks(?:\?[^#]*)?|tasks\/[^/?#]+(?:\/session(?:\?[^#]*)?)?|requests\/[^/?#]+|reports\/[^/?#]+|bots|config|secrets\/status\?[^#]+)$/,
   ],
   ["POST", /^\/v1\/(?:messages(?:\/[^/?#]+\/undo-bot-creation)?|actions|bots|route-test|secrets)$/],
+  ["POST", /^\/v1\/bot-models\/(?:discover|connection)$/],
+  ["GET", /^\/v1\/bot-models\/options$/],
   ["PUT", /^\/v1\/(?:config|bots\/[^/?#]+)$/],
   ["DELETE", /^\/v1\/bots\/[^/?#]+$/],
 ] as const;
@@ -39,13 +51,14 @@ export const ApiResult = Schema.Union(
   Schema.Struct({ ok: Schema.Literal(true), data: JsonValue }),
   Schema.Struct({
     ok: Schema.Literal(false),
-    error: Schema.Struct({ code: NonEmptyString, message: Schema.String }),
+    ...ApiErrorResponse.fields,
   }),
 );
 export type ApiResult = typeof ApiResult.Type;
 export const DesktopNotice = Schema.Union(
   DaemonEvent,
   Schema.Struct({ type: Schema.Literal("connection"), connected: Schema.Boolean }),
+  Schema.Struct({ type: Schema.Literal("target"), status: DesktopConnectionStatus }),
 );
 export type DesktopNotice = typeof DesktopNotice.Type;
 export const FileAction = Schema.Struct({
@@ -58,7 +71,32 @@ export type FileActionResult = {
   readonly cancelled?: boolean;
   readonly error?: string;
 };
+export const ConnectionAction = Schema.Union(
+  Schema.Struct({ action: Schema.Literal("status", "login", "copy", "local", "clear-pairing") }),
+  Schema.Struct({
+    action: Schema.Literal("inspect"),
+    text: Schema.optional(Schema.String.pipe(Schema.maxLength(4096))),
+  }),
+  Schema.Struct({ action: Schema.Literal("pair"), id: Schema.UUID }),
+  Schema.Struct({ action: Schema.Literal("remote"), connection: RemoteConnectionInfo }),
+);
+export type ConnectionAction = typeof ConnectionAction.Type;
+export const PairingPreview = Schema.Struct({
+  id: Schema.UUID,
+  name: RemoteConnectionInfo.fields.name,
+  hostId: RemoteConnectionInfo.fields.hostId,
+});
+export type PairingPreview = typeof PairingPreview.Type;
+export type ConnectionActionResult =
+  | {
+      readonly ok: true;
+      readonly status?: DesktopConnectionStatus;
+      readonly preview?: PairingPreview;
+      readonly cancelled?: boolean;
+    }
+  | { readonly ok: false; readonly error: string };
 export interface DesktopBridge {
+  readonly connection?: (input: ConnectionAction) => Promise<ConnectionActionResult>;
   readonly fileAction?: (input: FileAction) => Promise<FileActionResult>;
   readonly request: (request: ApiRequest) => Promise<ApiResult>;
   readonly onNotice: (listener: (notice: DesktopNotice) => void) => () => void;

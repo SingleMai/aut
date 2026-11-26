@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import {
   mkdirSync,
   mkdtempSync,
@@ -9,7 +10,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { Effect, Stream } from "effect";
+import { Effect } from "effect";
 import { type BrowserWindow, dialog, shell } from "electron";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { DesktopConnection } from "./connection.js";
@@ -31,7 +32,7 @@ const file = {
 const request = vi.fn(() =>
   Effect.succeed({ ok: true as const, data: { file, base64: "VE9UQUw9NDI=" } }),
 );
-const service: typeof DesktopConnection.Service = { request, notices: Stream.empty };
+const service: Pick<typeof DesktopConnection.Service, "request"> = { request };
 const paths: string[] = [];
 beforeEach(() => {
   const directory = mkdtempSync(join(tmpdir(), "aut-native-snapshot-"));
@@ -114,4 +115,49 @@ it("rejects snapshot directory aliases and leaves targets unchanged when atomic 
   ).toBe(false);
   expect(readFileSync(join(target, "keep.txt"), "utf8")).toBe("keep");
   expect(readdirSync(directory).some((name) => name.startsWith(".aut-save-"))).toBe(false);
+});
+
+it("verifies remote bytes and previews only an Air cache path, including Finder and save protection", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "aut-air-cache-"));
+  paths.push(directory);
+  const remote = { directory, hostId: "office-pro" };
+  const metadata = {
+    ...file,
+    path: "/not-on-this-computer/Pro/report.md",
+    sha256: createHash("sha256").update("TOTAL=42").digest("hex"),
+  };
+  const source = {
+    request: () =>
+      Effect.succeed({ ok: true as const, data: { file: metadata, base64: "VE9UQUw9NDI=" } }),
+  };
+  expect(
+    await Effect.runPromise(
+      nativeFileAction({ id: file.id, action: "preview" }, window, source, remote),
+    ),
+  ).toEqual({ ok: true });
+  const cache = join(directory, remote.hostId, file.id, file.name);
+  expect(window.previewFile).toHaveBeenCalledWith(cache, file.name);
+  expect(readFileSync(cache, "utf8")).toBe("TOTAL=42");
+  await Effect.runPromise(
+    nativeFileAction({ id: file.id, action: "reveal" }, window, source, remote),
+  );
+  expect(shell.showItemInFolder).toHaveBeenCalledWith(cache);
+  vi.mocked(dialog.showSaveDialog).mockResolvedValueOnce({ canceled: false, filePath: cache });
+  expect(
+    (
+      await Effect.runPromise(
+        nativeFileAction({ id: file.id, action: "save" }, window, source, remote),
+      )
+    ).ok,
+  ).toBe(false);
+  vi.clearAllMocks();
+  metadata.sha256 = "0".repeat(64);
+  expect(
+    (
+      await Effect.runPromise(
+        nativeFileAction({ id: file.id, action: "preview" }, window, source, remote),
+      )
+    ).ok,
+  ).toBe(false);
+  expect(window.previewFile).not.toHaveBeenCalled();
 });

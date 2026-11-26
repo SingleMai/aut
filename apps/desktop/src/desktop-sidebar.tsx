@@ -34,6 +34,7 @@ export function DesktopSidebar({
   selected,
   latestMessage,
   connected,
+  connectionLabel,
   searchOpen,
   onSearchOpen,
   navigate,
@@ -45,6 +46,7 @@ export function DesktopSidebar({
   latestMessage: string | undefined;
   view: DesktopView;
   connected: boolean;
+  connectionLabel?: string;
   searchOpen: boolean;
   onSearchOpen: (open: boolean) => void;
   navigate: (view: DesktopView) => void;
@@ -140,7 +142,7 @@ export function DesktopSidebar({
         {nav("settings")}
       </div>
       <div className={`connection${connected ? "" : " offline"}`}>
-        {connected ? t.connected : t.disconnected}
+        {connectionLabel ?? (connected ? t.connected : t.disconnected)}
       </div>
     </aside>
   );

@@ -1,4 +1,5 @@
 export * from "./api.js";
+export * from "./bot-models.js";
 export * from "./common.js";
 export * from "./config.js";
 export * from "./domain.js";
@@ -6,5 +7,6 @@ export * from "./files.js";
 export * from "./interfaces.js";
 export * from "./mcp.js";
 export * from "./memory.js";
+export * from "./remote.js";
 export * from "./session-history.js";
 export * from "./tree.js";

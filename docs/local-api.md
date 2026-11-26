@@ -2,6 +2,11 @@
 
 > ADR-0021；所有路由需要本地 token。`packages/protocol/src/api.ts` 是请求与响应的 Schema 来源。
 
+远程访问按 ADR-0072 显式开启，使用独立访问密钥，监听地址仍为本机回环。
+`GET /v1/remote/identity` 返回主机身份；`GET/PUT /v1/remote/host` 查询/设置远程主机，
+`POST /v1/remote/connection` 导出连接信息。后两组路由仅接受本地 token；连接信息不进入日志或普通配置响应。
+配置和状态的 Schema 见 `protocol/src/remote.ts`。关闭或轮换远程凭据会终止既有远程 WebSocket。
+
 Bot 文件记忆（ADR-0069，Schema 位于 `protocol/src/memory.ts`）：`GET /v1/bots/:id/memory?snapshot=...` 返回目录、文件、快照及整理计划；
 `GET /v1/bots/:id/memory/file?path=...&snapshot=...` 读取当前或快照文件，`PUT /v1/bots/:id/memory/file` 接受 `{path,content}`，
 `DELETE /v1/bots/:id/memory/file?path=...` 删除当前文件，`POST /v1/bots/:id/memory/clear` 清空当前记忆。
@@ -49,6 +54,9 @@ Bot 文件记忆（ADR-0069，Schema 位于 `protocol/src/memory.ts`）：`GET /
 | POST | `/v1/secrets` | `{ name, key }` | `{ apiKeyRef:"secret:<name>", configured:true }`；同名原子替换 |
 | GET | `/v1/secrets/status?ref=...` | `SecretStatusInput` | `{ apiKeyRef, configured:boolean }`，绝不返回密钥 |
 | GET | `/v1/config` | — | `AutConfig` |
+| GET | `/v1/bot-models/options` | — | `BotModelOptionsResponse`；已有接入与已登记程序候选，不写配置或启动进程 |
+| POST | `/v1/bot-models/discover` | `BotModelDiscoveryInput` | `BotModelsResponse`；在执行主机读取原生模型和思考/速度选项（ADR-0077），不发送工作回合；ACP 会打开空的原生会话，读取预算 15 秒，进程清理另计（ADR-0076） |
+| POST | `/v1/bot-models/connection` | `HarnessInstanceConfig` | `{ instance }`；加锁复用相同接入或追加新引用，不覆盖已有实例，供 Bot 编辑器保存使用（ADR-0075） |
 | PUT | `/v1/config` | `AutConfig` | `AutConfig`；不能删除仍被 bot 使用的 harness 实例 |
 | GET / upgrade | `/v1/events` | WebSocket 握手 | 实时 `DaemonEvent` JSON；初始数据从读取接口获取 |
 

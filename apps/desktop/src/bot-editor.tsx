@@ -1,16 +1,18 @@
 import type { AutConfig, BotConfig } from "@aut/protocol";
-import { Button, Select } from "@radix-ui/themes";
+import { Button } from "@radix-ui/themes";
 import { Effect } from "effect";
 import { useState } from "react";
 import { desktopApi, UiError } from "./api.js";
 import { BotMcpGrants, useBotMcpGrants } from "./bot-mcp-grants.js";
+import { BotModelField } from "./bot-model-picker/bot-model-field.js";
+import { useBotModelOptions } from "./bot-model-picker/catalog.js";
 import { CharacterEditor } from "./characters/character-editor.js";
 import { readBotForm } from "./configuration-forms.js";
 import type { DesktopData } from "./desktop-data.js";
 import { t } from "./i18n.js";
 import { ConfigurationForm } from "./ui/configuration-form.js";
 import { Dialog } from "./ui/dialog.js";
-import { InputField, SelectField, TextAreaField } from "./ui/form-fields.js";
+import { InputField, TextAreaField } from "./ui/form-fields.js";
 import type { Flash } from "./ui/use-action.js";
 
 export function BotEditor({
@@ -20,7 +22,6 @@ export function BotEditor({
   focusCharacter,
   flash,
   close,
-  settings,
   data,
 }: {
   bot?: BotConfig | undefined;
@@ -29,11 +30,13 @@ export function BotEditor({
   focusCharacter: boolean;
   flash: Flash;
   close: () => void;
-  settings: () => void;
   data: DesktopData;
 }) {
   const [name, setName] = useState(bot?.name ?? "");
   const [persisted, setPersisted] = useState(bot);
+  const [cwd, setCwd] = useState(bot?.cwd ?? "");
+  const providers = useBotModelOptions(config.harnessInstances);
+  const [botId] = useState(() => bot?.id ?? `bot-${crypto.randomUUID().slice(0, 8)}`);
   const grants = useBotMcpGrants(bot?.id, data);
   return (
     <Dialog
@@ -48,8 +51,24 @@ export function BotEditor({
         flash={flash}
         submit={(form) =>
           Effect.gen(function* () {
-            const value = yield* readBotForm(form, persisted, { bots, config });
-            const saved = yield* desktopApi.saveBot(value, persisted?.id);
+            const value = yield* readBotForm(form, persisted, { bots, options: providers.options });
+            const option = providers.options.find(
+              ({ instance }) => instance.id === value.modelSelection.instanceId,
+            );
+            if (!option) return yield* Effect.fail(new UiError({ message: t.validation.instance }));
+            const connection = option.configured
+              ? option
+              : yield* desktopApi.ensureBotConnection({
+                  ...option.instance,
+                  id: `bot-model-${crypto.randomUUID()}`,
+                });
+            const saved = yield* desktopApi.saveBot(
+              {
+                ...value,
+                modelSelection: { ...value.modelSelection, instanceId: connection.instance.id },
+              },
+              persisted?.id,
+            );
             yield* Effect.sync(() => setPersisted(saved.bot));
             yield* grants
               .save(saved.bot.id)
@@ -58,7 +77,7 @@ export function BotEditor({
                   (error) => new UiError({ message: `${t.botMcpPartial} ${error.message}` }),
                 ),
               );
-            yield* data.refresh(["bots"]);
+            yield* data.refresh(["bots", "config"]);
             yield* Effect.sync(close);
           })
         }
@@ -66,63 +85,39 @@ export function BotEditor({
         {(busy) => (
           <>
             <div className="form-body">
-              <InputField
-                name="name"
-                label={t.name}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                required
-              />
-              <CharacterEditor bot={bot} name={name} />
+              <div className="form-grid">
+                <InputField
+                  name="name"
+                  label={t.name}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
+                <InputField
+                  name="cwd"
+                  label={t.cwd}
+                  value={cwd}
+                  onChange={(event) => setCwd(event.target.value)}
+                  required
+                />
+              </div>
               <TextAreaField
                 name="description"
                 label={t.description}
                 defaultValue={bot?.description ?? ""}
                 required
               />
+              <BotModelField {...{ bot, bots, providers, cwd, busy }} />
+              <CharacterEditor bot={bot} name={name} />
               <TextAreaField name="soul" label={t.soul} defaultValue={bot?.soul ?? ""} rows={4} />
-              {!config.harnessInstances.length && (
-                <div className="privacy-note">
-                  <p className="muted">{t.noConfig}</p>
-                  <Button type="button" color="gray" variant="surface" onClick={settings}>
-                    前往设置
-                  </Button>
-                </div>
-              )}
-              <div className="form-grid">
-                <InputField
-                  name="id"
-                  label={t.id}
-                  defaultValue={persisted?.id ?? ""}
-                  required
-                  disabled={!!persisted}
-                />
-                <SelectField
-                  label={t.instance}
-                  name="instance"
-                  required
-                  defaultValue={bot?.modelSelection.instanceId ?? config.harnessInstances[0]?.id}
-                >
-                  {config.harnessInstances.map((instance) => (
-                    <Select.Item key={instance.id} value={instance.id}>
-                      {instance.name}
-                    </Select.Item>
-                  ))}
-                </SelectField>
-                <InputField
-                  name="model"
-                  label={t.model}
-                  defaultValue={bot?.modelSelection.model ?? ""}
-                  required
-                />
-                <InputField name="cwd" label={t.cwd} defaultValue={bot?.cwd ?? ""} required />
-              </div>
               <details className="advanced-settings">
                 <summary>{t.advancedSettings}</summary>
                 <InputField
-                  name="effort"
-                  label={t.effort}
-                  defaultValue={bot?.modelSelection.effort ?? ""}
+                  name="id"
+                  label={t.id}
+                  defaultValue={botId}
+                  required
+                  disabled={!!persisted}
                 />
               </details>
               <BotMcpGrants state={grants} busy={busy} />

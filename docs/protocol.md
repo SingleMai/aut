@@ -1,5 +1,18 @@
 # aut 协议与接口
 
+Bot 模型配置见 [ADR-0076](decisions/0076-bot-model-picker-adapter-catalog.md) 与
+`packages/protocol/src/bot-models.ts`：`BotModelOptionsResponse` 列出已有配置和内置候选，
+包含 instance、configured、availability（installed / missing / unsupported / unknown）、discovery
+和 verification（verified / preview）。程序检测不代表账号已登录；依赖工作目录的相对命令
+标记 unknown，选择工作目录后仍可读取。
+`BotModelDiscoveryInput` 包含 instance 与执行主机工作目录 cwd；`BotModelsResponse`
+包含 models（model、可选 label / effort / speed / efforts / speeds）、可选 defaultModel，以及 source。
+efforts / speeds 是原生能力投影，元素为 value 与可选 label；effort / speed 是默认值。
+ModelSelection 与 StartSessionInput 的可选 speed 由 adapter 解释，未设置则不覆盖原生配置，见 ADR-0077。
+结果是原生配置/目录读数，不表示模型通过在线调用验证；ACP 可能创建空的原生会话。
+`BotConnectionResponse` 返回复用或追加的 instance；Bot 持久化继续使用 modelSelection，
+不新增用户需要管理的 Agent 实体。
+
 文件记忆边界见 ADR-0069 与 `packages/protocol/src/memory.ts`：MemoryListing 包含 botId、directory、files、snapshots，
 BotMemoryResponse 另带 dream（Trigger 或 null）；MemoryFile 包含 path、bytes、updatedAt、content。
 MemoryGraphResponse（ADR-0070）包含 botId、nodes（知识文件 path/title/updatedAt）、edges 和 brokenLinks（source/target）。
@@ -212,7 +225,7 @@ interface AdapterCapabilities {
 interface StartSessionInput {
   taskId: TaskId                    // 临时 fork 沿用源 task ID
   bot: BotConfig
-  model: string; effort?: string
+  model: string; effort?: string; speed?: string
   cwd: string
   instructions: string               // bot soul + aut 固定指令（模板）
   mcpServers: McpServerConfig[]      // 包含 aut McpBridge，以及当前 Bot 已授权的 MCP proxy
@@ -404,7 +417,7 @@ interface McpConfig { schemaVersion: 1; servers: McpServer[]; grants: McpGrant[]
 interface BotConfig {
   id: BotId; name: string; description: string; soul: string
   characterId?: string  // 可选的稳定形象 ID
-  modelSelection: { instanceId: string; model: string; effort?: string }
+  modelSelection: { instanceId: string; model: string; effort?: string; speed?: string }
   cwd: string
   system?: "primary"  // 仅内置主助手设置此字段
 }

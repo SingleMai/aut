@@ -1,0 +1,41 @@
+{
+  "at": "2026-11-25T12:13:36.693614+00:00",
+  "scope": "ADR-0073 settings and pairing UX",
+  "uiData": "synthetic browser fixtures; no real account sign-in",
+  "research": [
+    "https://github.com/pingdotgg/t3code/blob/dca3ab2025c15cfa5907757229be894cbc04cd80/apps/web/src/components/settings/AddEnvironmentDialog.tsx",
+    "https://code.visualstudio.com/docs/remote/tunnels",
+    "https://zed.dev/docs/remote-development"
+  ],
+  "checks": {
+    "settingsSections": true,
+    "hostReadyAndCopyAction": true,
+    "pairingInstructions": true,
+    "recognizedComputerBeforeSwitch": true,
+    "dialogInitialFocus": true,
+    "escapeClosesDialog": true,
+    "cancelRestoresFocus": true,
+    "darkTheme": true,
+    "minimumWindowWidth": 960,
+    "minimumWindowHeight": 680,
+    "horizontalOverflow": false,
+    "dialogWithinViewport": true
+  },
+  "automatedTests": {
+    "desktopFiles": 49,
+    "desktopTests": 426,
+    "types": true,
+    "testTypes": true,
+    "biome": true,
+    "boundaries": true
+  },
+  "nativeEvidence": "packaged-remote-smoke.json",
+  "realTwoDeviceProductionTest": false,
+  "screenshots": [
+    "docs/assets/desktop/settings-sharing.png",
+    "docs/assets/desktop/settings-add-computer.png",
+    "docs/assets/desktop/settings-pairing.png",
+    "docs/assets/desktop/settings-sharing-dark.png",
+    "docs/assets/desktop/settings-routing.png"
+  ]
+}

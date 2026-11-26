@@ -78,6 +78,51 @@ Claude Code 2.1.330 / Codex 0.171.0 原生记忆关闭策略有真实探针与 a
 证据：[真实整理与回读](../spikes/e2e/results/memory-graph-live-0.171.0.json)、[桌面实测](../spikes/e2e/results/memory-graph-ui.json)、
 [核心记忆](assets/desktop/memory-core-reading.png)、[知识图谱](assets/desktop/memory-knowledge-graph.png)。未重验 Electron 安装包。
 
+2026-11-25 个人远程执行主机增量验收：应用已集成独立 tsnet 组件、执行位置设置、加密配对、
+本机独占的远程凭据管理、远程 HTTP/WS 重连、心跳检测、快照刷新和校验后的本机文件缓存。
+108 个测试文件、1,520 个用例通过，1 个在线 Jev 用例按条件跳过；构建、生产/测试类型、
+Biome、依赖边界和桌面打包逐项通过。Go 生产传输的本地 control/DERP 集成测试通过 race 检查及 vet。
+测试覆盖旧密钥撤销、远程 WS 断开而本机 WS 保留、错主机拒绝、HTTP 健康但 WS 无响应时重连、
+未知写入结果不自动重放、本机启动失败仍可配对、以及远程文件缓存不使用 Pro 路径。
+
+macOS arm64 实包使用隔离目录验证了内置 helper 生成官方登录入口、实际 native IPC 与 safeStorage
+加密保存、远程配置重开、离线设置、远程凭据导出阻断、本机凭据不变，以及桌面切换/退出后原 daemon 健康。
+测试只替换确认对话框返回值和重启触发器，实际保存、退出、重新打开都使用应用代码。
+浏览器的合成状态检查确认断线前后草稿保留，深浅主题和 1040px 布局无横向溢出。
+证据：[实包记录](../spikes/remote/results/packaged-remote-smoke.json)、
+[UI 记录](../spikes/remote/results/production-ui.json)、
+[主机设置](assets/desktop/remote-host-settings.png)、[离线客户端](assets/desktop/remote-air-offline.png)、
+[复验入口](../spikes/remote/README.md#应用集成与原生验收)。
+
+ADR-0071 的旧探针已有用户报告的真实 Air/Pro 与换网通过；本次生产应用尚未完成真实双机配对、
+Air 合盖/换网后的原生问答与真实 harness 任务续跑，不以合成测试代替这些结论。
+仍需 Pro 开机、联网且不休眠；未加入登录启动项、睡眠控制、任意开发端口转发或本机 OAuth 回调转发。
+本机 CLI 和需要本机回调的第三方授权应在 Pro 完成。开发包仍未做发行签名、公证或自动更新。
+
+2026-11-25 连接与设置交互增量验收（ADR-0073）：设置分区、主机分步开启、独立添加电脑弹窗、
+连接码识别与电脑名称确认已接入。主进程按窗口暂存配对凭据，取消、覆盖及迟到剪贴板读取均不会
+恢复失效草稿；旧 JSON 仍可识别，预览不含密钥。设置分区切换保留输入，错误可展开高级字段并定位。
+桌面范围 49 个测试文件、426 个用例通过；生产与测试类型、Biome、依赖边界、bundle 与 arm64 打包通过。
+原生隔离实包通过新弹窗配对、加密保存、重开和离线入口；浏览器合成数据通过浅/深色、960px 无横向
+溢出、弹窗键盘焦点与取消回位。仍未完成新版真实双机验证。
+证据：[交互记录](../spikes/remote/results/settings-redesign-ui.json)、
+[原生实包](../spikes/remote/results/packaged-remote-smoke.json)、
+[Pro 远程访问](assets/desktop/settings-sharing.png)、[添加电脑](assets/desktop/settings-add-computer.png)。
+
+2026-11-25 设置总览修订（ADR-0074）：移除设置侧栏及工程模块分类，设备与 AI 服务以紧凑条目
+展示。远程访问使用开关，服务点击展开编辑；高级分类配置默认折叠。草稿保留、字段错误展开、
+配对和导航共 17 项相关测试通过；生产/测试类型、Biome、依赖边界与桌面 bundle 通过。
+示例数据浏览器验证远程访问关闭确认/取消、重新开启后的登录入口、服务名称及时回显、折叠草稿保留、
+深浅色与 960px 窗口无横向溢出。本轮未重打原生包，未新增真实双机验证。
+证据：[界面记录](../spikes/remote/results/settings-compact-ui.json)、[设置总览](assets/desktop/settings-compact.png)。
+
+2026-11-25 Bot 模型配置融合（ADR-0075）：全局设置移除独立 AI 服务管理，模型选择、读取与
+接入细节统一进入 Bot 编辑器。相同接入加锁复用，修改时追加独立引用；保存分类器保留最新接入。
+52 个相关测试文件、476 项测试通过；生产/测试类型、Biome、依赖边界、桌面 bundle 与 diff 检查通过。
+浏览器使用合成桥接数据验证原地读取、键盘选模型、取消无写入、保存仅影响选定 Bot、全局入口移除、
+浅深主题和 960px 窗口无横向溢出。模型探针测试复用已有真实协议投影，未新增真实账号登录或安装包复验。
+证据：[界面记录](../spikes/desktop/results/bot-model-configuration.json)、[Bot 配置](assets/desktop/bot-model-configuration.png)。
+
 ## 当前限制
 
 - 主会话问答验收使用默认模式；Plan 阻塞行为仅由 [独立协议探针](../spikes/codex/fixtures/plan-free-0.169.0.jsonl) 验证，产品未提供 Plan 切换。
@@ -93,3 +138,43 @@ Claude Code 2.1.330 / Codex 0.171.0 原生记忆关闭策略有真实探针与 a
 
 先执行 `pnpm check`；桌面复验见 [桌面验收说明](../spikes/desktop/README.md)，真实 Codex/Jev 场景见 [端到端探针说明](../spikes/e2e/README.md)。
 真实模型探针需要已有认证和显式密钥。新结果单独保存；历史样本按各自版本与范围解释。
+
+
+2026-11-26 Bot 模型选择增量验收（ADR-0076）：移除启动参数与连接细节，统一选择器展示
+Codex、Claude Code、OpenCode、Grok（待验证）及已有自定义接入。实际组件预览通过
+搜索、键盘选择、Esc 收起、取消零写入、切换后只保存当前 Bot，以及 960px 深色窗口边界。
+Claude Code 2.1.330 原生初始化返回 43 个模型选项；OpenCode 1.19.5 返回 13 个选项并关闭
+探测空会话，均未发送工作提示。主助手接受已配置的 Claude/ACP 选择，不再误用 Codex
+默认发现能力判断执行支持。60 个回归文件、512 个用例通过；后续相对路径/Finder 目录和
+主助手修正的针对性用例、生产/测试类型、Biome 与依赖边界通过。
+证据见 [界面记录](../spikes/desktop/results/bot-model-picker.json)、
+[Claude 目录](../spikes/claude/fixtures/models-2.1.330.json)、
+[ACP 目录](../spikes/acp/fixtures/models-opencode-1.19.5.json) 和
+[新版界面](assets/desktop/bot-model-picker.png)。本轮未重跑真实 Air/Pro 换网任务验证；
+Grok 完整工作回合仍未验收。macOS arm64 新包已构建，包内 daemon 在隔离目录通过
+鉴权目录/发现 API：Claude 43 个、OpenCode 13 个模型，Bot/config 未改变、任务数为零，
+见 [实包记录](../spikes/desktop/results/bot-model-picker-package.json)。未替换正在运行的用户应用。
+
+
+2026-11-26 Bot 模型参数三栏验收（ADR-0077）：provider / 模型 / 思考强度与速度统一在
+Bot 选择器中；移除自定义输入，保留已有模型和失败时的选择。Codex 0.171.0、Claude Code
+2.1.330 真实初始化录制模型能力，Claude fastMode 开关返回 off / on；选项传递覆盖新建、
+恢复与 fork，会话不改写原生配置。全量 113 文件、1,566 测试通过，1 项原有在线分类器测试
+跳过；最终布局调整后追加 14 项 UI/样式回归通过，生产与工具类型、Biome 和依赖边界通过。
+隔离打包 daemon 读取 Claude 43 / OpenCode 13 个模型，Bot 思考/速度配置经 HTTP 保存并
+从持久化文件读回，既有 Provider 配置保持一致，未创建工作任务。
+证据：`spikes/model-options-probe.mjs`、`spikes/{codex,claude}/fixtures/model-options-*.json`、
+`spikes/desktop/results/bot-model-options-package.json` 与 `bot-model-options-browser.json`；界面使用合成数据验证，图见
+`docs/assets/desktop/bot-model-options.png` 与 `bot-model-options-dark.png`。本轮不重复模型付费
+回合或真实 Air/Pro 换网验收，远程既有证据范围不变。
+
+
+2026-11-26 模型选择浮层整理（ADR-0078）：入口改为单行选择框，菜单通过 Portal 越出 Bot
+编辑框，按窗口空间定位。移除底部确认栏与重复状态；点击外围或 Esc 只关闭选择器并恢复
+焦点，Bot 草稿保留；选择模型不再重排目录。13 项 Bot 表单回归与 1 项样式构建检查通过，
+生产/工具类型、Biome、依赖边界通过。实际渲染器在 1280×960 和 960×800 的深浅色下
+确认浮层保持完整尺寸并处于窗口内，速度选项可见，无横向溢出。界面使用合成数据，证据见
+`spikes/desktop/results/model-select-popover-browser.json`；打包 renderer 与已检查构建逐字节一致，
+证据见 `model-select-popover-package.json`。图见
+`docs/assets/desktop/bot-model-select-popover.png` 与 `bot-model-select-popover-compact-dark.png`。
+本次验收限于界面和交互；模型调用与远程链路范围见前述验收。

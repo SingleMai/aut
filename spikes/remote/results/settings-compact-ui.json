@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-25T15:09:16.000256+00:00",
+  "scope": "ADR-0074 compact settings overview",
+  "uiData": "synthetic browser fixtures",
+  "checks": {
+    "singleColumnOverview": true,
+    "sharingDisableCancellationPreservesState": true,
+    "confirmedSharingDisable": true,
+    "enableOffersLogin": true,
+    "serviceTitleUpdatesWhileEditing": true,
+    "collapsedEditorPreservesDraft": true,
+    "lightAndDark": true,
+    "minimumWidth": 960,
+    "horizontalOverflow": false
+  },
+  "automatedTests": {
+    "relatedFiles": 5,
+    "relatedTests": 17,
+    "productionTypes": true,
+    "testTypes": true,
+    "biome": true,
+    "boundaries": true
+  },
+  "realTwoDeviceProductionTest": false,
+  "newNativePackageTest": false,
+  "screenshots": [
+    "docs/assets/desktop/settings-compact.png",
+    "docs/assets/desktop/settings-compact-dark.png"
+  ]
+}

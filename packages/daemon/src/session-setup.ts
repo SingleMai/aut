@@ -10,7 +10,6 @@ import {
   writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
-import { makeAcpAdapter, makeClaudeAdapter, makeCodexAdapter } from "@aut/adapters";
 import {
   BotMemory,
   ConfigStore,
@@ -28,8 +27,9 @@ import {
   mcpServerConfig,
   type SessionIdentity,
 } from "@aut/mcp-bridge";
-import { type HarnessAdapter, type HarnessInstanceConfig, StartSessionInput } from "@aut/protocol";
+import { StartSessionInput } from "@aut/protocol";
 import { Context, Deferred, Effect, Layer, Schema, type Scope } from "effect";
+import { harnessRegistration } from "./harness-registry.js";
 import { McpSupervisor } from "./mcp-supervisor.js";
 
 export class SessionBridge extends Context.Tag("aut/SessionBridge")<
@@ -65,27 +65,6 @@ export const SessionBridgeLive = Layer.effect(
   }),
 );
 
-const factories: Readonly<Record<string, (config: HarnessInstanceConfig) => HarnessAdapter>> = {
-  codex: (config) =>
-    makeCodexAdapter({
-      command: config.command,
-      args: config.args,
-      ...(config.env ? { env: config.env } : {}),
-    }),
-  claude: (config) =>
-    makeClaudeAdapter({
-      command: config.command,
-      args: config.args,
-      ...(config.env ? { env: config.env } : {}),
-    }),
-  acp: (config) =>
-    makeAcpAdapter({
-      command: config.command,
-      args: config.args,
-      ...(config.env ? { env: config.env } : {}),
-      ...(config.authMethodIds ? { authMethodIds: config.authMethodIds } : {}),
-    }),
-};
 export const HarnessResolverLive = Layer.effect(
   HarnessResolver,
   Effect.gen(function* () {
@@ -96,8 +75,7 @@ export const HarnessResolverLive = Layer.effect(
           const config = (yield* store.readConfig).harnessInstances.find(
             (entry) => entry.id === id,
           );
-          const factory =
-            config && Object.hasOwn(factories, config.kind) ? factories[config.kind] : undefined;
+          const factory = config ? harnessRegistration(config.kind)?.create : undefined;
           if (!config || !factory)
             return yield* Effect.fail(
               new CoreError({
@@ -203,6 +181,7 @@ export const SessionSetupLive = Layer.effect(
             ...(bot.modelSelection.effort === undefined
               ? {}
               : { effort: bot.modelSelection.effort }),
+            ...(bot.modelSelection.speed === undefined ? {} : { speed: bot.modelSelection.speed }),
             cwd: bot.cwd,
             instructions: [
               "You are a configured worker in aut. The user's main thread is the communication entry point.",

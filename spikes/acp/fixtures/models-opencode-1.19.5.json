@@ -1,0 +1,201 @@
+{
+  "cli": "opencode",
+  "version": "1.19.5",
+  "recordedAt": "2026-11-26T08:36:02.033Z",
+  "projection": "Model metadata only; no prompt, account details, credentials or descriptions recorded.",
+  "events": [
+    {
+      "direction": "send",
+      "method": "initialize",
+      "params": {
+        "protocolVersion": 1,
+        "clientInfo": {
+          "name": "aut-model-discovery",
+          "version": "0.0.0"
+        },
+        "clientCapabilities": {
+          "fs": {
+            "readTextFile": false,
+            "writeTextFile": false
+          },
+          "terminal": false
+        }
+      }
+    },
+    {
+      "direction": "receive",
+      "method": "initialize",
+      "result": {
+        "agentCapabilities": {
+          "loadSession": true,
+          "mcpCapabilities": {
+            "http": true,
+            "sse": true
+          },
+          "promptCapabilities": {
+            "embeddedContext": true,
+            "image": true
+          },
+          "sessionCapabilities": {
+            "close": {},
+            "fork": {},
+            "list": {},
+            "resume": {}
+          }
+        },
+        "authMethods": [
+          {
+            "id": "opencode-login"
+          }
+        ]
+      }
+    },
+    {
+      "direction": "send",
+      "method": "session/new",
+      "params": {
+        "cwd": "/var/folders/xw/9981n9gn1tdb6t730q926xcc0000gn/T/aut-model-catalog-1f6lpN",
+        "mcpServers": []
+      }
+    },
+    {
+      "direction": "receive",
+      "method": "session/new",
+      "result": {
+        "sessionId": "ses_de900aaa5ffeHOMsLQqApfGzLl",
+        "configOptions": [
+          {
+            "id": "model",
+            "category": "model",
+            "type": "select",
+            "currentValue": "opencode/big-pickle",
+            "options": [
+              {
+                "value": "deepseek/deepseek-v4-pro",
+                "name": "DeepSeek/DeepSeek V4 Pro"
+              },
+              {
+                "value": "deepseek/deepseek-flash",
+                "name": "DeepSeek/DeepSeek V4.1 Flash 1017"
+              },
+              {
+                "value": "opencode/beam-free",
+                "name": "OpenCode/Beam Free"
+              },
+              {
+                "value": "opencode/big-pickle",
+                "name": "OpenCode/Big Pickle"
+              },
+              {
+                "value": "opencode/deepseek-v4.1-flash-free",
+                "name": "OpenCode/DeepSeek V4.1 Flash Free"
+              },
+              {
+                "value": "opencode/flint-40b-free",
+                "name": "OpenCode/Flint 40B Free"
+              },
+              {
+                "value": "opencode/hy4-flash-free",
+                "name": "OpenCode/Hy4 flash Free"
+              },
+              {
+                "value": "opencode/iceman-free",
+                "name": "OpenCode/Iceman Free"
+              },
+              {
+                "value": "opencode/longcat-2.5-free",
+                "name": "OpenCode/LongCat 2.5 Free"
+              },
+              {
+                "value": "opencode/mimo-v2.6-flash-free",
+                "name": "OpenCode/MiMo-V2.6-Flash Free"
+              },
+              {
+                "value": "opencode/nemotron-3.5-lightning-free",
+                "name": "OpenCode/Nemotron 3.5 Lightning Free"
+              },
+              {
+                "value": "opencode/nemotron-3.5-super-vl-free",
+                "name": "OpenCode/Nemotron 3.5 Super VL Free"
+              },
+              {
+                "value": "opencode/tidepool-alpha-free",
+                "name": "OpenCode/Tidepool Alpha Free"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "direction": "send",
+      "method": "session/close",
+      "params": {
+        "sessionId": "ses_de900aaa5ffeHOMsLQqApfGzLl"
+      }
+    },
+    {
+      "direction": "receive",
+      "method": "session/close",
+      "result": {}
+    }
+  ],
+  "result": {
+    "models": [
+      {
+        "model": "deepseek/deepseek-v4-pro",
+        "label": "DeepSeek/DeepSeek V4 Pro"
+      },
+      {
+        "model": "deepseek/deepseek-flash",
+        "label": "DeepSeek/DeepSeek V4.1 Flash 1017"
+      },
+      {
+        "model": "opencode/beam-free",
+        "label": "OpenCode/Beam Free"
+      },
+      {
+        "model": "opencode/big-pickle",
+        "label": "OpenCode/Big Pickle"
+      },
+      {
+        "model": "opencode/deepseek-v4.1-flash-free",
+        "label": "OpenCode/DeepSeek V4.1 Flash Free"
+      },
+      {
+        "model": "opencode/flint-40b-free",
+        "label": "OpenCode/Flint 40B Free"
+      },
+      {
+        "model": "opencode/hy4-flash-free",
+        "label": "OpenCode/Hy4 flash Free"
+      },
+      {
+        "model": "opencode/iceman-free",
+        "label": "OpenCode/Iceman Free"
+      },
+      {
+        "model": "opencode/longcat-2.5-free",
+        "label": "OpenCode/LongCat 2.5 Free"
+      },
+      {
+        "model": "opencode/mimo-v2.6-flash-free",
+        "label": "OpenCode/MiMo-V2.6-Flash Free"
+      },
+      {
+        "model": "opencode/nemotron-3.5-lightning-free",
+        "label": "OpenCode/Nemotron 3.5 Lightning Free"
+      },
+      {
+        "model": "opencode/nemotron-3.5-super-vl-free",
+        "label": "OpenCode/Nemotron 3.5 Super VL Free"
+      },
+      {
+        "model": "opencode/tidepool-alpha-free",
+        "label": "OpenCode/Tidepool Alpha Free"
+      }
+    ],
+    "defaultModel": "opencode/big-pickle",
+    "source": "catalog"
+  }
+}

@@ -1,0 +1,382 @@
+{
+  "cli": "claude",
+  "version": "2.1.330 (Claude Code)",
+  "recordedAt": "2026-11-26T08:36:01.949Z",
+  "projection": "Model metadata only; no prompt, account details, credentials or descriptions recorded.",
+  "events": [
+    {
+      "direction": "send",
+      "payload": {
+        "type": "control_request",
+        "request_id": "f5ccda75-30bd-47c0-bd59-036c90fb7e30",
+        "request": {
+          "subtype": "initialize"
+        }
+      }
+    },
+    {
+      "direction": "receive",
+      "payload": {
+        "type": "control_response",
+        "response": {
+          "subtype": "success",
+          "request_id": "f5ccda75-30bd-47c0-bd59-036c90fb7e30",
+          "response": {
+            "models": [
+              {
+                "value": "default",
+                "displayName": "Default (recommended)"
+              },
+              {
+                "value": "opus",
+                "displayName": "Opus 5.5"
+              },
+              {
+                "value": "claude-fable-5-2[1m]",
+                "displayName": "Fable"
+              },
+              {
+                "value": "sonnet",
+                "displayName": "Opus 5.5"
+              },
+              {
+                "value": "haiku",
+                "displayName": "devin/swe-2"
+              },
+              {
+                "value": "auto/gpt-6-luna",
+                "displayName": "GPT-6 Luna · routing group"
+              },
+              {
+                "value": "auto/claude-sonnet-5-5[1m]",
+                "displayName": "Claude Sonnet 5.5 · routing group"
+              },
+              {
+                "value": "auto/claude-fable-5-1[1m]",
+                "displayName": "Claude Fable 5.1 · routing group"
+              },
+              {
+                "value": "kui-lan/codex/gpt-6.1-sol",
+                "displayName": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-6-astra",
+                "displayName": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-6-sol",
+                "displayName": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-6-luna",
+                "displayName": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-5.6-sol",
+                "displayName": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-5.6-terra",
+                "displayName": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "kui-lan/codex/gpt-5.6-luna",
+                "displayName": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)"
+              },
+              {
+                "value": "claude-haiku-5-5",
+                "displayName": "Claude Haiku 5.5 · Claude Code"
+              },
+              {
+                "value": "claude-sonnet-5-5[1m]",
+                "displayName": "Claude Sonnet 5.5 · Claude Code"
+              },
+              {
+                "value": "claude-opus-5-5[1m]",
+                "displayName": "Claude Opus 5.5 · Claude Code"
+              },
+              {
+                "value": "claude-opus-5[1m]",
+                "displayName": "Claude Opus 5 · Claude Code"
+              },
+              {
+                "value": "claude-sonnet-5[1m]",
+                "displayName": "Claude Sonnet 5 · Claude Code"
+              },
+              {
+                "value": "claude-fable-5[1m]",
+                "displayName": "Claude Fable 5 · Claude Code"
+              },
+              {
+                "value": "claude-opus-4-8[1m]",
+                "displayName": "Claude Opus 4.8 · Claude Code"
+              },
+              {
+                "value": "claude-opus-4-7[1m]",
+                "displayName": "Claude Opus 4.7 · Claude Code"
+              },
+              {
+                "value": "claude-sonnet-4-6[1m]",
+                "displayName": "Claude Sonnet 4.6 · Claude Code"
+              },
+              {
+                "value": "claude-opus-4-6[1m]",
+                "displayName": "Claude Opus 4.6 · Claude Code"
+              },
+              {
+                "value": "claude-opus-4-5",
+                "displayName": "Claude Opus 4.5 (latest) · Claude Code"
+              },
+              {
+                "value": "claude-opus-4-5-20251101",
+                "displayName": "Claude Opus 4.5 · Claude Code"
+              },
+              {
+                "value": "claude-haiku-4-5",
+                "displayName": "Claude Haiku 4.5 (latest) · Claude Code"
+              },
+              {
+                "value": "claude-haiku-4-5-20251001",
+                "displayName": "Claude Haiku 4.5 · Claude Code"
+              },
+              {
+                "value": "claude-sonnet-4-5",
+                "displayName": "Claude Sonnet 4.5 (latest) · Claude Code"
+              },
+              {
+                "value": "claude-sonnet-4-5-20250929",
+                "displayName": "Claude Sonnet 4.5 · Claude Code"
+              },
+              {
+                "value": "codex/gpt-6.2-sol",
+                "displayName": "GPT-6.2-Sol · Codex"
+              },
+              {
+                "value": "codex/gpt-6.2-astra",
+                "displayName": "GPT-6.2-Astra · Codex"
+              },
+              {
+                "value": "codex/gpt-6.1-terra",
+                "displayName": "GPT-6.1 Terra · Codex"
+              },
+              {
+                "value": "codex/gpt-6-luna",
+                "displayName": "GPT-6-Luna · Codex"
+              },
+              {
+                "value": "devin/claude-opus-5-5[1m]",
+                "displayName": "Claude Opus 5.5 · Devin"
+              },
+              {
+                "value": "devin/claude-opus-5-5-fast[1m]",
+                "displayName": "Claude Opus 5.5 Fast · Devin"
+              },
+              {
+                "value": "devin/swe-2-1",
+                "displayName": "SWE-2.1 · Devin"
+              },
+              {
+                "value": "agy-cli/gemini-4-neon[1m]",
+                "displayName": "Gemini 4 Neon · Antigravity (local agy CLI)"
+              },
+              {
+                "value": "agy-cli/gemini-4-argon[1m]",
+                "displayName": "Gemini 4 Argon · Antigravity (local agy CLI)"
+              },
+              {
+                "value": "agy-cli/gemini-4-hydrogen[1m]",
+                "displayName": "Gemini 4 Hydrogen · Antigravity (local agy CLI)"
+              },
+              {
+                "value": "agy-cli/claude-opus-5-5[1m]",
+                "displayName": "Claude Opus 5.5 · Antigravity (local agy CLI)"
+              },
+              {
+                "value": "agy-cli/claude-sonnet-5-5[1m]",
+                "displayName": "Claude Sonnet 5.5 · Antigravity (local agy CLI)"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "result": {
+    "models": [
+      {
+        "model": "default",
+        "label": "Default (recommended)"
+      },
+      {
+        "model": "opus",
+        "label": "Opus 5.5"
+      },
+      {
+        "model": "claude-fable-5-2[1m]",
+        "label": "Fable"
+      },
+      {
+        "model": "sonnet",
+        "label": "Opus 5.5"
+      },
+      {
+        "model": "haiku",
+        "label": "devin/swe-2"
+      },
+      {
+        "model": "auto/gpt-6-luna",
+        "label": "GPT-6 Luna · routing group"
+      },
+      {
+        "model": "auto/claude-sonnet-5-5[1m]",
+        "label": "Claude Sonnet 5.5 · routing group"
+      },
+      {
+        "model": "auto/claude-fable-5-1[1m]",
+        "label": "Claude Fable 5.1 · routing group"
+      },
+      {
+        "model": "kui-lan/codex/gpt-6.1-sol",
+        "label": "GPT-6.1-Sol · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-6-astra",
+        "label": "GPT-6-Astra · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-6-sol",
+        "label": "GPT-6-Sol · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-6-luna",
+        "label": "GPT-6-Luna · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-5.6-sol",
+        "label": "GPT-5.6-Sol · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-5.6-terra",
+        "label": "GPT-5.6-Terra · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "kui-lan/codex/gpt-5.6-luna",
+        "label": "GPT-5.6-Luna · Codex · 葵葵中转站 (LAN)"
+      },
+      {
+        "model": "claude-haiku-5-5",
+        "label": "Claude Haiku 5.5 · Claude Code"
+      },
+      {
+        "model": "claude-sonnet-5-5[1m]",
+        "label": "Claude Sonnet 5.5 · Claude Code"
+      },
+      {
+        "model": "claude-opus-5-5[1m]",
+        "label": "Claude Opus 5.5 · Claude Code"
+      },
+      {
+        "model": "claude-opus-5[1m]",
+        "label": "Claude Opus 5 · Claude Code"
+      },
+      {
+        "model": "claude-sonnet-5[1m]",
+        "label": "Claude Sonnet 5 · Claude Code"
+      },
+      {
+        "model": "claude-fable-5[1m]",
+        "label": "Claude Fable 5 · Claude Code"
+      },
+      {
+        "model": "claude-opus-4-8[1m]",
+        "label": "Claude Opus 4.8 · Claude Code"
+      },
+      {
+        "model": "claude-opus-4-7[1m]",
+        "label": "Claude Opus 4.7 · Claude Code"
+      },
+      {
+        "model": "claude-sonnet-4-6[1m]",
+        "label": "Claude Sonnet 4.6 · Claude Code"
+      },
+      {
+        "model": "claude-opus-4-6[1m]",
+        "label": "Claude Opus 4.6 · Claude Code"
+      },
+      {
+        "model": "claude-opus-4-5",
+        "label": "Claude Opus 4.5 (latest) · Claude Code"
+      },
+      {
+        "model": "claude-opus-4-5-20251101",
+        "label": "Claude Opus 4.5 · Claude Code"
+      },
+      {
+        "model": "claude-haiku-4-5",
+        "label": "Claude Haiku 4.5 (latest) · Claude Code"
+      },
+      {
+        "model": "claude-haiku-4-5-20251001",
+        "label": "Claude Haiku 4.5 · Claude Code"
+      },
+      {
+        "model": "claude-sonnet-4-5",
+        "label": "Claude Sonnet 4.5 (latest) · Claude Code"
+      },
+      {
+        "model": "claude-sonnet-4-5-20250929",
+        "label": "Claude Sonnet 4.5 · Claude Code"
+      },
+      {
+        "model": "codex/gpt-6.2-sol",
+        "label": "GPT-6.2-Sol · Codex"
+      },
+      {
+        "model": "codex/gpt-6.2-astra",
+        "label": "GPT-6.2-Astra · Codex"
+      },
+      {
+        "model": "codex/gpt-6.1-terra",
+        "label": "GPT-6.1 Terra · Codex"
+      },
+      {
+        "model": "codex/gpt-6-luna",
+        "label": "GPT-6-Luna · Codex"
+      },
+      {
+        "model": "devin/claude-opus-5-5[1m]",
+        "label": "Claude Opus 5.5 · Devin"
+      },
+      {
+        "model": "devin/claude-opus-5-5-fast[1m]",
+        "label": "Claude Opus 5.5 Fast · Devin"
+      },
+      {
+        "model": "devin/swe-2-1",
+        "label": "SWE-2.1 · Devin"
+      },
+      {
+        "model": "agy-cli/gemini-4-neon[1m]",
+        "label": "Gemini 4 Neon · Antigravity (local agy CLI)"
+      },
+      {
+        "model": "agy-cli/gemini-4-argon[1m]",
+        "label": "Gemini 4 Argon · Antigravity (local agy CLI)"
+      },
+      {
+        "model": "agy-cli/gemini-4-hydrogen[1m]",
+        "label": "Gemini 4 Hydrogen · Antigravity (local agy CLI)"
+      },
+      {
+        "model": "agy-cli/claude-opus-5-5[1m]",
+        "label": "Claude Opus 5.5 · Antigravity (local agy CLI)"
+      },
+      {
+        "model": "agy-cli/claude-sonnet-5-5[1m]",
+        "label": "Claude Sonnet 5.5 · Antigravity (local agy CLI)"
+      }
+    ],
+    "defaultModel": "default",
+    "source": "catalog"
+  }
+}

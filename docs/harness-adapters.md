@@ -12,6 +12,18 @@ queue/steer、取消/重试/恢复、fork 回包与 deep 查询，以及慢脑�
 
 ## 1. 优先级
 
+Bot 模型选择使用 daemon 的统一 adapter 登记表，覆盖 Codex、Claude Code、ACP
+及现有自定义接入（ADR-0076）。程序检测与原生模型读取分开；检测到程序不等于已登录。
+Codex 使用 config/read 与 model/list，自定义 Provider 只返回其显式模型。
+模型参数目录与传递见 ADR-0077：Codex 投影 supportedReasoningEfforts / serviceTiers，
+每次 turn/start 发送可选 serviceTierForTurn。Claude 投影 supportedEffortLevels /
+supportsFastMode，--effort 与临时 settings.fastMode 作用于每个新建、恢复或 fork 的进程。
+Claude 使用 control_request initialize 返回的 models，只投影模型与能力字段，
+不发送 user frame；禁用 hooks、MCP 和会话持久化。ACP 通过 initialize 和 session/new
+的模型 configOptions 读取；可能留下空的原生会话，支持 close 时关闭，不发送 prompt
+或更改模型。读取限时 15 秒（Codex 8 秒），子进程绑定 Scope，失败消息不含原生凭据。
+原始模型投影与复现入口分别见 spikes/claude、spikes/acp，测试回放其实际字段。
+
 | 阶段 | Harness | 接入方式 |
 |---|---|---|
 | MVP | **Codex** | `codex app-server`，NDJSON JSON-RPC over stdio |

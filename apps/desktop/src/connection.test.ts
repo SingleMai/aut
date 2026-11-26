@@ -29,6 +29,7 @@ describe("bounded cold startup", () => {
       "/usr/bin",
       "/opt/homebrew/bin",
       "/Users/sample/.local/bin",
+      "/Users/sample/.opencode/bin",
       "/usr/local/bin",
     ]);
     expect(packagedDaemonPath(undefined, "/Users/sample")).toContain(

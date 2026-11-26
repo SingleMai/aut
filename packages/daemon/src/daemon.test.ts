@@ -115,6 +115,73 @@ const task = (id: string, status: Task["status"]) =>
   });
 
 describe("local HTTP API", () => {
+  it("reuses Bot connections and isolates changed connections without replacing existing configuration", async () => {
+    const server = await start();
+    const classifier = {
+      primary: { backend: "jev", model: "jev-test", endpoint: "https://example.com/jev" },
+    };
+    await server.request("/v1/config", "PUT", { ...config, classifier });
+    await server.request("/v1/bots", "POST", bot);
+    const existing = config.harnessInstances[0];
+    if (!existing) throw new Error("Missing fixture connection");
+    const reused = await server.request("/v1/bot-models/connection", "POST", {
+      ...existing,
+      id: "draft",
+      name: existing.name,
+    });
+    expect(await reused.json()).toEqual({ instance: existing });
+    const changed = { ...existing, id: "new", command: "/isolated/codex" };
+    const responses = await Promise.all([
+      server.request("/v1/bot-models/connection", "POST", changed),
+      server.request("/v1/bot-models/connection", "POST", { ...changed, id: "retry" }),
+    ]);
+    expect(responses.map((response) => response.status)).toEqual([200, 200]);
+    const results = await Promise.all(responses.map((response) => response.json()));
+    expect(results[0].instance.id).toBe(results[1].instance.id);
+    const stored = await (await server.request("/v1/config")).json();
+    expect(stored.classifier).toEqual(classifier);
+    expect(stored.harnessInstances).toHaveLength(2);
+    expect(stored.harnessInstances[0]).toEqual(existing);
+    expect((await (await server.request("/v1/bots")).json()).bots[0]).toEqual(bot);
+    expect(
+      (
+        await server.request("/v1/bot-models/connection", "POST", {
+          ...changed,
+          id: "local",
+          command: "/third/codex",
+        })
+      ).status,
+    ).toBe(409);
+  });
+
+  it("validates model discovery and rejects unsupported readers without starting a session", async () => {
+    const server = await start();
+    expect((await server.request("/v1/bot-models/discover", "POST", {})).status).toBe(400);
+    const response = await server.request("/v1/bot-models/discover", "POST", {
+      instance: { ...config.harnessInstances[0], kind: "unsupported" },
+      cwd: "/tmp",
+    });
+    expect(response.status).toBe(503);
+    expect((await (await server.request("/v1/config")).json()).harnessInstances).toEqual([]);
+    expect((await (await server.request("/v1/tasks")).json()).tasks).toEqual([]);
+    expect(
+      (await fetch(`${server.base}/v1/bot-models/discover`, { method: "POST", body: "{}" })).status,
+    ).toBe(401);
+  });
+
+  it("lists all adapted programs without saving instances or creating tasks", async () => {
+    const server = await start();
+    const response = await server.request("/v1/bot-models/options");
+    expect(response.status).toBe(200);
+    const result = await response.json();
+    expect(
+      result.options.map((entry: { instance: { name: string } }) => entry.instance.name),
+    ).toEqual(["Codex", "Claude Code", "OpenCode", "Grok"]);
+    expect((await (await server.request("/v1/config")).json()).harnessInstances).toEqual([]);
+    expect((await (await server.request("/v1/tasks")).json()).tasks).toEqual([]);
+    expect((await fetch(`${server.base}/v1/bot-models/options`)).status).toBe(401);
+  });
+
   it("serves a bot-scoped knowledge graph for current files and read-only snapshots", async () => {
     const server = await start();
     await server.request("/v1/config", "PUT", config);

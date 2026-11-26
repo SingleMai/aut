@@ -75,7 +75,7 @@ id, name
 characterId?     客户端形象注册 ID，见 ADR-0053
 description      用户填写的专长，可用中文。路由与试验使用同一套英文判据匹配该专长
 soul             长期指令/人设，写入 workdir 下的指令文件（harness 自己读取，如 AGENTS.md）
-modelSelection   { instanceId, model, effort? }
+modelSelection   { instanceId, model, effort?, speed? }
 cwd              workdir
 system?          "primary"（当前内置主助手标记）
 ```
@@ -203,3 +203,10 @@ soul 文件按 ADR-0031 写入各 bot 工作目录的 `.aut/souls/<sha256(botId)
 | HarnessAdapter | Service 接口，每种 harness 一个 Layer；子进程用 `Scope` 管理 |
 | EventBus | `PubSub<AutEvent>`，UI 通过 daemon API 订阅 |
 | 配置/协议 | `Schema`，所有边界解码校验 |
+
+## 13. 个人远程主机验证
+
+办公室主机常驻执行、随身设备连接同一主会话，遵循 [ADR-0072](decisions/0072-personal-remote-host.md)。
+daemon 持有任务与主机传输组件；远程桌面只持有客户端传输组件及加密连接信息，断线不会启动本机执行。
+`transport` 的 Go 子进程只负责网络，业务及凭据仍由 TypeScript / Effect 管理。
+前置探针与真实双机证据见 [`spikes/remote/README.md`](../spikes/remote/README.md)；生产验收需单独记录。

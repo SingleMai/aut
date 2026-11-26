@@ -45,7 +45,7 @@ const makeBot = (cwd: string) =>
     description: "Work",
     soul: "Test role instructions",
     cwd,
-    modelSelection: { instanceId: "local", model: "test-model", effort: "low" },
+    modelSelection: { instanceId: "local", model: "test-model", effort: "low", speed: "priority" },
   });
 const makeTask = (bot: BotConfig) =>
   Schema.decodeUnknownSync(Task)({
@@ -129,6 +129,7 @@ it("writes only its managed soul, preserves AGENTS and injects authorized MCP pr
   expect(statSync(role).mode & 0o777).toBe(0o600);
   expect(input.model).toBe("test-model");
   expect(input.effort).toBe("low");
+  expect(input.speed).toBe("priority");
   expect(input.mcpServers[0]).toEqual(external);
   expect(input.mcpServers[1]?.name).toBe("aut");
   expect(input.instructions).not.toContain("synthetic-session-secret");

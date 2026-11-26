@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-11-26T09:50:06.254Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "packaged": true,
+  "isolatedData": true,
+  "programs": [
+    "Claude Code",
+    "Codex",
+    "OpenCode",
+    "Grok"
+  ],
+  "claudeModels": 43,
+  "openCodeModels": 13,
+  "configUnchanged": true,
+  "originalBotsPreservedBeforeSave": true,
+  "botOptionsRoundTrip": true,
+  "tasksCreated": 0
+}

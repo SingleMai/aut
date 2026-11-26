@@ -1,0 +1,21 @@
+{
+  "at": "2026-11-25T11:39:16.778Z",
+  "file": ".artifacts/aut-remote-macos-arm64-2026-11-25.zip",
+  "bytes": 131031281,
+  "sha256": "a5f8cca198f49fd55cc9d62a576ede997663f71c797d306e6350bf5de8978b32",
+  "zipIntegrity": "No errors detected in compressed data of .artifacts/aut-remote-macos-arm64-2026-11-25.zip.",
+  "unitTests": {
+    "files": 108,
+    "passed": 1520,
+    "skipped": 1
+  },
+  "goRace": true,
+  "goVet": true,
+  "build": true,
+  "productionAndTestTypes": true,
+  "biome": true,
+  "dependencyBoundaries": true,
+  "nativeEvidence": "spikes/remote/results/packaged-remote-smoke.json",
+  "notarized": false,
+  "wsLicenseIncluded": true
+}
