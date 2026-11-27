@@ -87,19 +87,17 @@ const run = withDaemon(directory, (api) =>
     );
 
     const settings = yield* api.request("/v1/config", ConfigResponse);
-    yield* api.request("/v1/config", ConfigResponse, "PUT", {
-      ...settings,
-      classifier: { primary: { ...settings.classifier!.primary, backend: "offline-fixture" } },
-    });
     yield* send(
       "slow-create",
-      "请创建一个普通 Bot，ID 为 tide-tables，名称为潮汐助手，专长为整理潮汐表，长期指令为用中文回答。",
+      "请主助手协调两件事：创建普通 Bot tide-tables，名称为潮汐助手，专长为整理潮汐表，长期指令为用中文回答；然后说明它和星表助手今后如何分工。",
     );
-    const card = yield* waitMessage(
-      (m) => m.kind === "clarify-card" && m.card?.options.some((o) => o.id === "none") === true,
-    );
-    yield* api.request("/v1/config", ConfigResponse, "PUT", settings);
-    yield* action({ type: "card-choice", cardId: card.card!.id, optionId: "none" });
+    const slowDispatch = (yield* api.wait(api.logs, rows => rows.some(log =>
+      log.input.eventRef === "message:slow-create" && log.execution.error !== "Execution pending"
+    ))).find(log => log.input.eventRef === "message:slow-create")!;
+    const slowOp = slowDispatch.output && "op" in slowDispatch.output ? slowDispatch.output : undefined;
+    if (slowOp?.op === "clarify")
+      yield* action({ type: "card-choice", cardId: slowOp.card.id, optionId: "none" });
+    else yield* assert(slowOp?.op === "escalate", "Expected live classification to select coordination");
     const slowTask = (yield* api.wait(api.tasks, (rows) =>
       rows.some((task) => task.origin.kind === "coordination"),
     )).find((task) => task.origin.kind === "coordination")!;
@@ -135,17 +133,20 @@ const run = withDaemon(directory, (api) =>
       ...settings,
       classifier: { primary: { ...settings.classifier!.primary, backend: "offline-fixture" } },
     });
+    const priorNotices = new Set((yield* api.messages).map(message => message.id));
     yield* action({
       type: "quote-reply",
       quotedMessageId: firstReply.id,
       text: "继续刚才那条目录记录。",
     });
     const offline = yield* waitMessage(
-      (m) => m.kind === "clarify-card" && m.card?.options.some((o) => o.id === firstTask) === true,
+      (m) => !priorNotices.has(m.id) && m.kind === "notice" && m.id.startsWith("inbound-failure:"),
     );
+    const failedQuote = (yield* api.logs).find(log => log.id === offline.decisionLogId);
     yield* assert(
-      !offline.card!.options.some((o) => o.id === originalTask),
-      "Offline quoted continuation offered the newer task",
+      failedQuote && !failedQuote.execution.ok && !failedQuote.output &&
+        failedQuote.classifierCalls.some(call => call.error),
+      "Offline quoted continuation must record a failure without dispatch",
     );
     yield* api.request("/v1/config", ConfigResponse, "PUT", settings);
 
@@ -204,7 +205,7 @@ const run = withDaemon(directory, (api) =>
       creationReceipts: { undone, repeatedStatus: repeated.botCreation!.status, used: usedReceipt },
       routeTest: routed,
       dispatchAcknowledgementMs: dispatched.at - initial.message.at,
-      offlineOptionIds: offline.card!.options.map((o) => o.id),
+      offlineNotice: offline,
       originalDecision: original.decisionLogId,
       rerouteDecision: follow.decisionLogId,
       naturalCancelDecision: naturalCancel!.id,

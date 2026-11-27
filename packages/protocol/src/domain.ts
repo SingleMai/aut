@@ -21,6 +21,7 @@ import {
 } from "./common.js";
 import { BotConfig, McpServerConfig } from "./config.js";
 import { FileIds, FileIssues, MessageFileList } from "./files.js";
+import { ClassifierErrorCode } from "./interfaces.js";
 
 export const ControlAction = Schema.Literal("cancel", "retry", "resume", "archive");
 export type ControlAction = typeof ControlAction.Type;
@@ -578,7 +579,14 @@ export const DecisionLog = Schema.Struct({
     ok: Schema.Boolean,
     error: optional(Schema.String),
     degraded: optional(Schema.Array(Schema.String)),
+    classifierFailure: optional(ClassifierErrorCode),
   }),
   correction: optional(DecisionCorrection),
-}).pipe(Schema.filter((log) => !log.execution.ok || log.output !== undefined));
+}).pipe(
+  Schema.filter((log) =>
+    log.execution.classifierFailure
+      ? !log.execution.ok && log.output === undefined
+      : !log.execution.ok || log.output !== undefined,
+  ),
+);
 export type DecisionLog = typeof DecisionLog.Type;

@@ -3,6 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import { Classifier } from "@aut/classifier/interface";
 import {
   ClassifierError,
+  type ClassifierErrorCode,
   type Classifier as ClassifierShape,
   DecisionOutput,
   DecisionRequest,
@@ -14,7 +15,7 @@ import {
   TreeConfig,
   type TreeNode,
 } from "@aut/protocol";
-import { Cause, Clock, Context, Effect, Exit, Layer, Schema } from "effect";
+import { Cause, Clock, Context, Effect, Exit, Layer, Option, Schema } from "effect";
 import { DecisionLog } from "../decision-log.js";
 import type { CoreError } from "../errors.js";
 import { TreeError } from "./errors.js";
@@ -199,12 +200,13 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                     if (question.type === "choice")
                       dynamicOptions[`${nodeId}.${questionId}`] = { ...question.criteria };
                   const deadline = (yield* Clock.currentTimeMillis) + timeoutMs;
+                  let lastError: ClassifierErrorCode = "Timeout";
                   for (const backend of [
                     classifier,
                     ...(options.fallback ? [options.fallback] : []),
                   ]) {
                     const started = yield* Clock.currentTimeMillis;
-                    if (started >= deadline) return false;
+                    if (started >= deadline) break;
                     const response = yield* Effect.uninterruptibleMask((restoreCall) =>
                       Effect.gen(function* () {
                         const exit = yield* Effect.exit(
@@ -223,15 +225,17 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                           ),
                         );
                         const latencyMs = (yield* Clock.currentTimeMillis) - started;
-                        const error = Exit.isFailure(exit)
-                          ? Cause.isInterrupted(exit.cause)
+                        let error: string | undefined;
+                        if (Exit.isFailure(exit)) {
+                          const failure = Cause.failureOption(exit.cause);
+                          lastError =
+                            failure._tag === "Some" ? failure.value.code : "InvalidResponse";
+                          error = Cause.isInterrupted(exit.cause)
                             ? "Interrupted: Classification was cancelled."
-                            : Cause.failureOption(exit.cause).pipe((value) =>
-                                value._tag === "Some"
-                                  ? `${value.value.code}: ${value.value.message}`
-                                  : "InvalidResponse: Classifier failed unexpectedly.",
-                              )
-                          : undefined;
+                            : failure._tag === "Some"
+                              ? `${lastError}: ${failure.value.message}`
+                              : "InvalidResponse: Classifier failed unexpectedly.";
+                        }
                         calls.push({
                           backend: backend.backend,
                           model: backend.model,
@@ -256,10 +260,17 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                           ...response.value.answers,
                         },
                       };
-                      return true;
+                      return node.next;
                     }
                   }
-                  return false;
+                  if (node.onError !== null) return node.onError;
+                  return yield* Effect.fail(
+                    new TreeError({
+                      code: "Classification",
+                      classifierCode: lastError,
+                      message: `Classification failed (${lastError}).`,
+                    }),
+                  );
                 });
               const interpret = Effect.gen(function* () {
                 const config = yield* validateTree(tree);
@@ -288,7 +299,7 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                       break;
                     }
                     case "classify":
-                      next = (yield* classify(node, next)) ? node.next : node.onError;
+                      next = yield* classify(node, next);
                       break;
                     case "action": {
                       const output = yield* checked(
@@ -360,15 +371,16 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                 );
               });
               const result = yield* Effect.exit(restore(interpret));
+              const failure = Exit.isFailure(result)
+                ? Option.getOrUndefined(Cause.failureOption(result.cause))
+                : undefined;
               const error = Exit.isSuccess(result)
                 ? "Execution pending"
                 : Cause.isInterrupted(result.cause)
                   ? "Interrupted: Decision was cancelled."
-                  : Cause.failureOption(result.cause).pipe((value) =>
-                      value._tag === "Some"
-                        ? `${value.value.code}: ${value.value.message}`
-                        : "Decision execution failed unexpectedly.",
-                    );
+                  : failure
+                    ? `${failure.code}: ${failure.message}`
+                    : "Decision execution failed unexpectedly.";
               const persisted = yield* Effect.exit(
                 logs.write({
                   id,
@@ -382,6 +394,7 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                   execution: {
                     ok: false,
                     error,
+                    ...(failure?.classifierCode && { classifierFailure: failure.classifierCode }),
                   },
                 }),
               );

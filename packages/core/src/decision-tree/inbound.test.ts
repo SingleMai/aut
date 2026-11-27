@@ -135,7 +135,7 @@ const answer = (request: DecisionRequest, values: Answers): DecisionResponse => 
   return { answers, latencyMs: 1 };
 };
 
-const run = async (values: Answers = {}, state: InboundState = base, unavailable = false) => {
+const runDecision = async (values: Answers, state: InboundState, unavailable: boolean) => {
   const logs: LogRecord[] = [];
   const requests: DecisionRequest[] = [];
   const dependencies = Layer.merge(
@@ -172,9 +172,15 @@ const run = async (values: Answers = {}, state: InboundState = base, unavailable
         eventRef: "fixture-event",
         state,
       });
-    }).pipe(Effect.provide(DecisionTreeLive().pipe(Layer.provide(dependencies)))),
+    }).pipe(Effect.provide(DecisionTreeLive().pipe(Layer.provide(dependencies))), Effect.either),
   );
-  return { op: Schema.decodeUnknownSync(Op)(result.output), logs, requests };
+  return { result, logs, requests };
+};
+
+const run = async (values: Answers = {}, state: InboundState = base) => {
+  const { result, logs, requests } = await runDecision(values, state, false);
+  if (result._tag === "Left") throw result.left;
+  return { op: Schema.decodeUnknownSync(Op)(result.right.output), logs, requests };
 };
 
 describe("inbound v1 branch fixtures", () => {
@@ -450,21 +456,6 @@ describe("inbound v1 branch fixtures", () => {
     expect(JSON.stringify(result.op)).not.toContain('"op":"answer"');
   });
 
-  it("keeps the explicitly quoted task on classifier failure when a newer task exists", async () => {
-    const result = await run({}, { ...base, fixedTargetId: TaskId.make("t2") }, true);
-    expect(result.op).toMatchObject({
-      op: "clarify",
-      card: {
-        options: [
-          { id: "new" },
-          { id: "t2", op: { op: "send", taskId: "t2", messageIds: base.messageIds } },
-          { id: "none" },
-        ],
-      },
-    });
-    expect(result.logs[0]?.path).toContain("unavailable");
-  });
-
   it("keeps multilingual candidate text in state and indexes it with distinct English criteria", async () => {
     const state: InboundState = {
       ...base,
@@ -501,19 +492,20 @@ describe("inbound v1 branch fixtures", () => {
     }
   });
 
-  it("uses a deterministic explicit-choice card when all classifier backends are unavailable", async () => {
-    const result = await run({}, base, true);
-    expect(result.op).toMatchObject({
-      op: "clarify",
-      card: {
-        options: [
-          { id: "new", label: "交给主助手创建新任务", op: { op: "new", botId: "aut" } },
-          { id: "t1", op: { op: "send", taskId: "t1" } },
-          { id: "none", op: { op: "escalate" } },
-        ],
-      },
-    });
-    expect(result.logs[0]?.path).toEqual(["ui", "classify", "unavailable"]);
-    expect(result.logs[0]?.classifierCalls[0]?.error).toContain("TransportError");
-  });
+  it.each([null, TaskId.make("t2")])(
+    "records failed classification without dispatch for target %s",
+    async (fixedTargetId) => {
+      const { result, logs } = await runDecision({}, { ...base, fixedTargetId }, true);
+      expect(result).toMatchObject({
+        _tag: "Left",
+        left: { code: "Classification", classifierCode: "TransportError" },
+      });
+      expect(logs).toHaveLength(1);
+      expect(logs[0]?.path).toEqual(["ui", "classify"]);
+      expect(logs[0]?.execution).toMatchObject({ ok: false, classifierFailure: "TransportError" });
+      expect(logs[0]?.output).toBeUndefined();
+      expect(logs[0]?.classifierCalls[0]?.error).toContain("TransportError");
+      expect(logs[0]?.input.state).toMatchObject({ fixedTargetId });
+    },
+  );
 });

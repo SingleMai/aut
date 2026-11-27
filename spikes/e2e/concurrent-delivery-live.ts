@@ -5,8 +5,6 @@ import { Effect } from "effect";
 import {
   AcceptedResponse,
   BotResponse,
-  BotsResponse,
-  ConfigResponse,
   MessageResponse,
   RequestResponse,
   TaskSessionResponse,
@@ -21,12 +19,12 @@ const result = await Effect.runPromise(
   withDaemon(directory, (api) =>
     Effect.gen(function* () {
       const bot = yield* configure(api, directory);
-      const manual = (yield* api.request(`/v1/bots/${bot.id}`, BotResponse, "PUT", {
+      yield* api.request(`/v1/bots/${bot.id}`, BotResponse, "PUT", {
         ...bot,
         name: "色卡助手",
         description: "处理色卡校对、色卡分区和颜色回声验证。",
         soul: `This is a synthetic acceptance fixture. For the initial request for a regional color card, use request_user_input to ask exactly one question with id fixture_tone, header Tone, text Which fixture tone?, options Warm and Cool. After an explicit answer reply briefly with that tone. For queued follow-up instructions echo every provided marker in original order. Never ask other questions.`,
-      })).bot;
+      });
       const send = (id: string, text: string) =>
         api.request("/v1/messages", MessageResponse, "POST", { id, text });
       const action = (body: unknown) => api.request("/v1/actions", AcceptedResponse, "POST", body);
@@ -62,32 +60,7 @@ const result = await Effect.runPromise(
           return { taskId, card };
         });
       const north = yield* start("north-card", "北区");
-      // Explicitly select new work on the visible fallback card while the first task awaits input.
-      const primary = (yield* api.request("/v1/bots", BotsResponse)).bots.find(
-        (bot) => bot.system === "primary",
-      )!;
-      yield* api.request(`/v1/bots/${primary.id}`, BotResponse, "PUT", {
-        ...primary,
-        cwd: directory,
-        modelSelection: manual.modelSelection,
-        soul: manual.soul,
-      });
-      const settings = yield* api.request("/v1/config", ConfigResponse);
-      yield* api.request("/v1/config", ConfigResponse, "PUT", {
-        ...settings,
-        classifier: { primary: { ...settings.classifier!.primary, backend: "offline-fixture" } },
-      });
-      yield* send("south-card", "请新建南区色卡校对任务。");
-      const setupCard = yield* waitMsg(
-        (row) =>
-          row.kind === "clarify-card" && row.card?.options.some((o) => o.id === "new") === true,
-      );
-      yield* api.request("/v1/config", ConfigResponse, "PUT", settings);
-      yield* action({ type: "card-choice", cardId: setupCard.card!.id, optionId: "new" });
-      const southCard = yield* waitMsg(
-        (row) => row.kind === "question-card" && !!row.taskId && row.taskId !== north.taskId,
-      );
-      const south = { taskId: southCard.taskId!, card: southCard };
+      const south = yield* start("south-card", "南区");
       const simultaneous = (yield* api.tasks)
         .filter((t) => t.status === "waiting_user")
         .map((t) => t.id);
@@ -101,7 +74,6 @@ const result = await Effect.runPromise(
           : [];
       yield* assert(
         ambiguous.classifierCalls.some((call) => call.response) &&
-          !ambiguous.path.includes("unavailable") &&
           choices.some((o) => o.id === north.taskId) &&
           choices.some((o) => o.id === south.taskId),
         "An ambiguous live request did not offer both tasks",

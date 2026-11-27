@@ -1,6 +1,7 @@
 import {
   AutEvent,
   BotId,
+  type DecisionLog,
   type JsonValue,
   MessageId,
   Op,
@@ -52,11 +53,7 @@ export class StateSource extends Context.Tag("aut/Chief/StateSource")<
   }
 >() {}
 
-export interface ExecutionResult {
-  readonly ok: boolean;
-  readonly error?: string;
-  readonly degraded?: readonly string[];
-}
+export type ExecutionResult = DecisionLog["execution"];
 
 export interface RegisteredExecution {
   readonly execution: ExecutionResult;

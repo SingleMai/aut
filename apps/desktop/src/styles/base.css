@@ -74,8 +74,7 @@ h3 {
   line-height: 1.75;
 }
 .detail-card,
-.bot-card,
-.settings-section {
+.bot-card {
   background: var(--surface);
   border: 1px solid var(--edge);
   border-radius: var(--radius-card);

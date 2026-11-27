@@ -1,7 +1,10 @@
 import {
   BotConfig,
   type BotModelOption,
+  type ClassifierBackendConfig,
   ClassifierConfig,
+  JEV_ENDPOINT,
+  JevServiceConfig,
   RoutingCandidateId,
   SecretReference,
 } from "@aut/protocol";
@@ -10,13 +13,32 @@ import { Data, Effect, Either, ParseResult, Schema } from "effect";
 import { t } from "./i18n.js";
 
 export type ClassifierSlot = "primary" | "fallback";
+export const validKeyReference = Schema.is(SecretReference);
+
+export function classifierSource(value: ClassifierBackendConfig) {
+  if (
+    value.backend !== "jev" ||
+    !Schema.is(JevServiceConfig)(value) ||
+    (value.apiKeyRef && !validKeyReference(value.apiKeyRef))
+  )
+    return "existing";
+  return value.endpoint === JEV_ENDPOINT ? "official" : "custom";
+}
+
+export function classifierLabel(value?: ClassifierBackendConfig) {
+  if (!value) return t.fastBrainUnconfigured;
+  const source = classifierSource(value);
+  return source === "existing"
+    ? t.fastBrainLegacy(value.backend, value.model)
+    : t.fastBrainSources[source];
+}
+
 export type FieldMessages = Readonly<Record<string, string>>;
 export class FieldErrors extends Data.TaggedError("FieldErrors")<{
   readonly fields: FieldMessages;
 }> {}
 
 const messages = t.validation;
-export const validKeyReference = Schema.is(SecretReference);
 
 const formText = (data: FormData, name: string) => String(data.get(name) ?? "");
 
@@ -88,27 +110,40 @@ export function readBotForm(
 }
 
 function readBackend(form: FormData, slot: ClassifierSlot, errors: Record<string, string>) {
-  const read = (name: string) => formText(form, `${slot}.${name}`).trim();
-  const backend = read("backend"),
-    model = read("model"),
-    endpoint = read("endpoint"),
-    apiKeyRef = read("key");
-  if (apiKeyRef && !validKeyReference(apiKeyRef)) errors[`${slot}.key`] = messages.keyReference;
-  // Saving a credential independently fills its reference without enabling a backend.
-  if (!backend && !model && !endpoint) return undefined;
+  const source = formText(form, `${slot}.source`);
+  if (source !== "official" && source !== "custom" && source !== "existing") {
+    if (slot === "primary" || source) errors[`${slot}.source`] = messages.fastBrainSource;
+    return undefined;
+  }
+  const read = (name: string) => {
+    const value = formText(form, `${slot}.${name}`);
+    return source === "existing" ? value : value.trim();
+  };
+  if (form.has(`${slot}.pendingCredential`))
+    errors[`${slot}.credential`] = messages.unsavedCredential;
+  const jev = source === "official" || source === "custom";
+  const backend = jev ? "jev" : read("backend");
+  const model = read("model");
+  const endpoint = source === "official" ? JEV_ENDPOINT : read("endpoint");
+  const apiKeyRef = read("key");
+  if (jev) {
+    if (!Schema.is(JevServiceConfig.fields.model)(model))
+      errors[`${slot}.model`] = messages.jevModel;
+    if (!Schema.is(JevServiceConfig.fields.endpoint)(endpoint))
+      errors[`${slot}.endpoint`] = messages.jevEndpoint;
+  }
+  if (source !== "existing" && apiKeyRef && !validKeyReference(apiKeyRef))
+    errors[`${slot}.key`] = messages.keyReference;
   return { backend, model, endpoint, ...(apiKeyRef ? { apiKeyRef } : {}) };
 }
-
-const optionalClassifier = Schema.UndefinedOr(ClassifierConfig);
 
 export function readClassifierForm(form: FormData) {
   const errors: Record<string, string> = {};
   const primary = readBackend(form, "primary", errors);
   const fallback = readBackend(form, "fallback", errors);
-  if (fallback && !primary) errors["primary.backend"] = messages.missingPrimary;
   return decodeForm(
-    optionalClassifier,
-    primary || fallback ? { primary, ...(fallback && { fallback }) } : undefined,
+    ClassifierConfig,
+    { primary, ...(fallback && { fallback }) },
     errors,
     ([slot, field]) => {
       if (!field) return undefined;

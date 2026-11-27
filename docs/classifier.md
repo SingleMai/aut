@@ -2,7 +2,7 @@
 
 `packages/classifier` 提供 `/interface` 的 `Classifier` Service，以及具体实现
 `makeJevLayer`、`makeMockClassifierLayer`。`core` 仅依赖 `/interface`；daemon 负责选择 Layer。
-本模块只返回类型化判断或错误，备用后端和 clarify 仍由声明式决策树处理。
+本模块返回类型化判断或错误。备用后端与最终失败的处理遵循[决策树](decision-tree.md#4-阈值与降级)。
 
 ## 使用
 
@@ -33,7 +33,7 @@ const classifierLayer = makeJevLayer({
 - choice.confidence 使用所选概率，不使用厂商集中度，见 ADR-0019。
 - `Effect.timeoutFail` 限制整个请求，包括 fetch、响应体读取、退避和重试；Scope finalizer
   使用 AbortController 终止底层请求。429/5xx 使用 `Schedule` 指数退避并尊重 Retry-After。
-- 其他 4xx、网络错误、格式错误不重试。HTTP 错误体不放入错误消息，异常文本也不包含请求或密钥。
+- 其他 4xx、网络错误、格式错误不重试。HTTP 401、403 归为 `NotConfigured`，主会话据此提示检查服务和密钥。HTTP 错误体不放入错误消息，异常文本也不包含请求或密钥。
   最终返回 `ClassifierError`，没有吞错或自动回答。
 
 ## 测试与录制

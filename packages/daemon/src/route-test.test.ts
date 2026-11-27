@@ -121,7 +121,8 @@ it("logs classifier failure and reports unavailability without invented probabil
     true,
   );
   expect(Either.isLeft(result.failed) && result.failed.left.code).toBe("Unavailable");
-  expect(result.logs[0]?.path).toEqual(["classify", "unavailable"]);
+  expect(result.logs[0]?.path).toEqual(["classify"]);
+  expect(result.logs[0]?.output).toBeUndefined();
   expect(result.logs[0]?.execution.ok).toBe(false);
   expect(result.logs[0]?.classifierCalls[0]?.error).toContain("Timeout");
 });

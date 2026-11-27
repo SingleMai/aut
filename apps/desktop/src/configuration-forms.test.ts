@@ -9,7 +9,7 @@ function form(values: Record<string, string>) {
 }
 it("locates concurrent classifier field errors without echoing the entered credential", () => {
   const data = form({
-    "primary.backend": "service",
+    "primary.source": "custom",
     "primary.endpoint": "ftp://fixture",
     "primary.model": "latest",
     "primary.key": "invalid raw input",
@@ -18,15 +18,19 @@ it("locates concurrent classifier field errors without echoing the entered crede
   expect(Object.keys(errors).sort()).toEqual(["primary.endpoint", "primary.key", "primary.model"]);
   expect(JSON.stringify(errors)).not.toContain("invalid raw input");
 });
-it("keeps independent credentials and an empty optional backend separate from a partial backend", () => {
+it("requires a primary source even with a saved key or configured backup", () => {
   const data = form({ "primary.key": "secret:primary" });
-  expect(Effect.runSync(readClassifierForm(data))).toBeUndefined();
+  expect(Object.keys(Effect.runSync(Effect.flip(readClassifierForm(data))).fields)).toEqual([
+    "primary.source",
+  ]);
+  data.set("primary.source", "off");
+  data.set("fallback.source", "custom");
   data.set("fallback.model", "fixture-v1");
   const errors = Effect.runSync(Effect.flip(readClassifierForm(data))).fields;
   expect(Object.keys(errors).sort()).toEqual([
-    "fallback.backend",
     "fallback.endpoint",
-    "primary.backend",
+    "fallback.model",
+    "primary.source",
   ]);
 });
 it("does not include the removed inline MCP configuration in a Bot", () => {

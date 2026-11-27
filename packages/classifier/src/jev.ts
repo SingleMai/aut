@@ -8,6 +8,9 @@ import {
   DecisionRequest,
   DecisionResponse,
   FiniteNumber,
+  JEV_ENDPOINT,
+  JEV_MODEL,
+  JevServiceConfig,
   NonEmptyString,
   NonNegativeInteger,
   Probability,
@@ -15,29 +18,13 @@ import {
 import { Clock, Duration, Effect, Layer, Redacted, Schedule, Schema } from "effect";
 import { Classifier } from "./interface.js";
 
-export const JEV_MODEL = "jev-1.14.0";
-export const JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone";
+export { JEV_ENDPOINT, JEV_MODEL } from "@aut/protocol";
 export const JEV_TIMEOUT_MS = 1_500;
 const SUM_TOLERANCE = 0.1;
 const EPSILON = 1e-9;
 
 export const JevConfig = Schema.Struct({
-  endpoint: NonEmptyString.pipe(
-    Schema.filter((value) => {
-      const url = Schema.decodeUnknownOption(Schema.URL)(value);
-      return (
-        url._tag === "Some" &&
-        !url.value.username &&
-        !url.value.password &&
-        !url.value.search &&
-        !url.value.hash &&
-        (url.value.protocol === "https:" ||
-          (url.value.protocol === "http:" &&
-            ["localhost", "127.0.0.1", "[::1]"].includes(url.value.hostname)))
-      );
-    }),
-  ),
-  model: Schema.String.pipe(Schema.pattern(/^jev-\d+\.\d+\.\d+$/)),
+  ...JevServiceConfig.fields,
   timeoutMs: NonNegativeInteger.pipe(Schema.greaterThan(0)),
   maxRetries: NonNegativeInteger.pipe(Schema.lessThanOrEqualTo(2)),
   retryDelayMs: NonNegativeInteger.pipe(Schema.greaterThan(0)),
@@ -171,6 +158,10 @@ const retryDetail = (error: ClassifierError, key: string): number => {
 const retryable = (error: ClassifierError) =>
   error.code === "RateLimited" ||
   (retryDetail(error, "status") >= 500 && retryDetail(error, "status") <= 599);
+const httpErrorCode = (status: number) => {
+  if (status === 401 || status === 403) return "NotConfigured";
+  return status === 429 ? "RateLimited" : "TransportError";
+};
 const retryAfter = (value: string | null, now: number): number => {
   if (!value) return 0;
   const seconds = Number(value);
@@ -239,7 +230,7 @@ export const makeJev = (options: JevOptions): Effect.Effect<ClassifierShape, Cla
                   }).pipe(Effect.ignore);
                   return yield* Effect.fail(
                     new ClassifierError({
-                      code: response.status === 429 ? "RateLimited" : "TransportError",
+                      code: httpErrorCode(response.status),
                       message: `Jev returned HTTP ${response.status}.`,
                       detail: {
                         status: response.status,

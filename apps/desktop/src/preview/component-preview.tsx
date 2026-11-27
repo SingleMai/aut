@@ -1,5 +1,5 @@
 import { ReducedCharacterMotion, wink } from "@aut/characters";
-import { type BotConfig, BotId } from "@aut/protocol";
+import { type BotConfig, BotId, JEV_MODEL } from "@aut/protocol";
 import { Button, SegmentedControl, Select, Switch } from "@radix-ui/themes";
 import { Effect } from "effect";
 import { useId, useState } from "react";
@@ -43,10 +43,10 @@ function FormPreview() {
       >
         {(busy) => (
           <>
-            <input type="hidden" name="primary.backend" value="fixture" />
+            <input type="hidden" name="primary.source" value="custom" />
             <ClassifierModelFields
               slot="primary"
-              value={{ model: "fixture-v1", endpoint: "https://" }}
+              value={{ model: JEV_MODEL, endpoint: "https://" }}
               required
             />
             <div className="preview-form-actions">

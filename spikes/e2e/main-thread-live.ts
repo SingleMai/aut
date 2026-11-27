@@ -44,21 +44,21 @@ const result = await Effect.runPromise(withDaemon(dataDirectory, (api) => Effect
   const settings = yield* api.request("/v1/config", ConfigResponse);
   const taskCount = (yield* api.tasks).length;
   yield* api.request("/v1/config", ConfigResponse, "PUT", { ...settings, classifier: { primary: { ...settings.classifier!.primary, backend: "unavailable-fixture" } } });
-  const fallbackCards: MainThreadMessage[] = [];
+  const failureNotices: MainThreadMessage[] = [];
   for (const id of ["e2e-unavailable-first", "e2e-unavailable-second"]) {
     yield* api.request("/v1/messages", MessageResponse, "POST", { id, text: "请处理一个新的回声测试。" });
-    const count = fallbackCards.length;
-    const fallback = yield* api.wait(api.messages, (messages) => messages.filter((message) => message.kind === "clarify-card").length > count);
-    fallbackCards.push(fallback.filter((message) => message.kind === "clarify-card").at(-1)!);
+    const noticeId = `inbound-failure:message:${id}`;
+    const messages = yield* api.wait(api.messages, (rows) => rows.some(row => row.id === noticeId && row.kind === "notice"));
+    failureNotices.push(messages.find(row => row.id === noticeId)!);
   }
   yield* assert((yield* api.tasks).length === taskCount, "Unavailable classification dispatched an unconfirmed task");
   yield* api.request("/v1/config", ConfigResponse, "PUT", settings);
   const logs = yield* api.logs;
   const inbound = logs.filter((log) => log.tree === "inbound" && !log.input.eventRef.startsWith("route-test:"));
-  yield* assert(inbound.length === 5 && inbound.every((log) => log.execution.ok), "Inbound routing is missing a successful decision log");
-  const unavailable = inbound.filter((log) => log.path.includes("unavailable"));
-  yield* assert(unavailable.length === 2 && unavailable.every((log) => log.classifierCalls.some((call) => call.error)), "Classifier failures did not produce audited clarification without blocking later messages");
-  return { at: new Date().toISOString(), cliVersion, dataDirectory, model: bot.modelSelection.model, routing, admittedMs, acknowledgedMs, firstReply: first, followup, fast, fallbackCards, fullReport: report, submittedMessageId: submitted.message.id, decisionLogs: logs };
+  yield* assert(inbound.length === 5 && inbound.filter(log => log.execution.ok).length === 3, "Inbound routing is missing a decision log");
+  const failed = inbound.filter(log => !log.execution.ok);
+  yield* assert(failed.length === 2 && failed.every(log => !log.output && log.classifierCalls.some(call => call.error) && failureNotices.some(notice => notice.decisionLogId === log.id)), "Each failed message must have a notice and an audited failure");
+  return { at: new Date().toISOString(), cliVersion, dataDirectory, model: bot.modelSelection.model, routing, admittedMs, acknowledgedMs, firstReply: first, followup, fast, failureNotices, fullReport: report, submittedMessageId: submitted.message.id, decisionLogs: logs };
 })).pipe(Effect.timeout("8 minutes")));
 const output = process.env.AUT_E2E_RESULT ?? join(dataDirectory, "main-thread-result.json");
 await Effect.runPromise(writeEvidence(output, result));

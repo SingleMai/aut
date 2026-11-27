@@ -738,6 +738,18 @@ it("allows absent decision output only for failed or pending execution", () => {
   expect(Schema.is(Domain.DecisionLog)({ ...withoutOutput, execution: { ok: true } })).toBe(false);
 });
 
+it("records a terminal classifier error only when no decision was produced", () => {
+  const { output: _output, ...withoutOutput } = log;
+  const execution = { ok: false, classifierFailure: "Timeout" };
+  const valid = Schema.is(Domain.DecisionLog);
+  expect(valid({ ...withoutOutput, execution })).toBe(true);
+  expect(valid({ ...log, execution })).toBe(false);
+  expect(valid({ ...withoutOutput, execution: { ...execution, ok: true } })).toBe(false);
+  expect(
+    valid({ ...withoutOutput, execution: { ...execution, classifierFailure: "unknown" } }),
+  ).toBe(false);
+});
+
 describe("cross-field and serialization constraints", () => {
   it.each([undefined, NaN, Infinity, 1n, () => 1, new Date(), { key: undefined }, new Array(2)])(
     "rejects non-JSON values: %s",

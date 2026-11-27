@@ -39,7 +39,7 @@ export const RouteTestLive = Layer.effect(
               );
             const configTree: TreeConfig = {
               name: "inbound",
-              version: "route-test-1.1.0",
+              version: "route-test-1.2.0",
               entry: "classify",
               thresholds: {},
               nodes: {
@@ -48,7 +48,7 @@ export const RouteTestLive = Layer.effect(
                   state: { kind: "ref", path: ["state"] },
                   questions: [botChoiceQuestion],
                   next: "selected",
-                  onError: "unavailable",
+                  onError: null,
                 },
                 selected: {
                   type: "action",
@@ -58,23 +58,6 @@ export const RouteTestLive = Layer.effect(
                       op: { kind: "literal", value: "new" },
                       botId: { kind: "ref", path: ["answers", "bot", "choice"] },
                       requestMessageIds: { kind: "literal", value: [] },
-                    },
-                  },
-                },
-                unavailable: {
-                  type: "action",
-                  output: {
-                    kind: "literal",
-                    value: {
-                      op: "clarify",
-                      card: {
-                        id: `route-test:${id}`,
-                        prompt: "分类服务暂时不可用",
-                        options: [],
-                        multiSelect: false,
-                        allowFreeText: false,
-                        state: "open",
-                      },
                     },
                   },
                 },
@@ -119,13 +102,15 @@ export const RouteTestLive = Layer.effect(
               Effect.gen(function* () {
                 const previous = yield* logs.get(id);
                 const execution = { ok: false, error: "The routing test could not be completed" };
-                if (Option.isSome(previous)) yield* logs.complete(id, execution);
-                else
+                if (Option.isSome(previous)) {
+                  if (previous.value.execution.error === "Execution pending")
+                    yield* logs.complete(id, execution);
+                } else
                   yield* logs.write({
                     id,
                     at,
                     tree: "inbound",
-                    treeVersion: "route-test-1.1.0",
+                    treeVersion: "route-test-1.2.0",
                     input: {
                       eventRef: `route-test:${id}`,
                       state: { message: args.text },

@@ -183,75 +183,147 @@
 .computer-rename button {
   margin-bottom: 1px;
 }
-.settings-overview .settings-form {
-  max-width: none;
+.fast-brain-settings {
+  margin-top: 22px;
 }
-.settings-overview :where(.advanced-settings) summary {
-  font-size: 12px;
-  font-weight: 400;
-}
-.settings-advanced {
-  margin-top: 18px;
-}
-.settings-advanced > summary {
+.fast-brain-heading {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 3px;
-  list-style: none;
+  gap: 10px;
   cursor: pointer;
+  list-style: none;
+  padding: 16px 18px;
+  font-size: 13px;
+}
+.fast-brain-heading strong {
+  font-weight: 550;
+}
+.fast-brain-heading > span {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--secondary);
+  overflow-wrap: anywhere;
+}
+.fast-brain-heading > .ui-icon,
+.fast-brain-key-options :where(summary) .ui-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: var(--secondary);
+}
+.fast-brain-heading::-webkit-details-marker,
+.fast-brain-key-options summary::-webkit-details-marker {
+  display: none;
+}
+:where(details[open]) > .fast-brain-heading > .ui-icon,
+.fast-brain-key-options:where([open]) > :where(summary) .ui-icon {
+  transform: rotate(90deg);
+}
+.fast-brain-body {
+  border-top: 1px solid var(--edge);
+  padding: 16px 18px 0;
+}
+.fast-brain-note {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--secondary);
+  margin: 0 0 12px;
+}
+.fast-brain-source {
+  border: 0;
+  margin: 0 0 14px;
+  padding: 0;
+  min-width: 0;
+}
+.fast-brain-source legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+.fast-brain-choices {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: var(--canvas);
+}
+.fast-brain-choices label {
+  position: relative;
+  cursor: pointer;
+}
+.fast-brain-choices input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+}
+.fast-brain-choices span {
+  display: block;
+  padding: 5px 12px;
+  border-radius: 5px;
+  color: var(--secondary);
   font-size: 12px;
 }
-.settings-advanced > summary > span:nth-child(2) {
-  margin-left: auto;
+.fast-brain-choices :where(input:checked) + span {
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--edge);
+  font-weight: 600;
+}
+.fast-brain-choices :where(input:focus-visible) + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.fast-brain-choices :where(input[aria-invalid="true"]) + span {
+  outline: 1px solid var(--danger);
+}
+.fast-brain-service :where(.form-grid) .field {
+  margin-bottom: 12px;
+}
+.fast-brain-key-options {
+  margin: 10px 0;
+}
+.fast-brain-key-options summary {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: 3px;
+  cursor: pointer;
   color: var(--secondary);
   font-size: 11px;
 }
-.settings-advanced > :where(summary) > .ui-icon {
-  width: 12px;
-  height: 12px;
-  color: var(--secondary);
+.fast-brain-key-options .field {
+  margin-top: 8px;
 }
-.settings-advanced:where([open]) > :where(summary) > .ui-icon {
-  transform: rotate(90deg);
+.fast-brain-backup {
+  border-top: 1px solid var(--edge);
+  margin-top: 14px;
 }
-.advanced-services {
-  margin-top: 10px;
-}
-.advanced-services > h3 {
-  font-size: 14px;
-  margin: 12px 0 6px;
-}
-.advanced-services > .settings-section {
-  padding: 20px;
-  margin: 16px 0;
-}
-.advanced-services .settings-section h2 {
-  font-size: 13px;
-}
-.optional-service > summary {
-  color: var(--secondary);
+.fast-brain-backup-add,
+.fast-brain-backup-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-block: 13px;
   font-size: 12px;
-  cursor: pointer;
 }
-.settings-overview summary::-webkit-details-marker {
-  display: none;
+.fast-brain-backup-add {
+  color: var(--accent);
 }
-.settings-overview .advanced-settings.field-wide {
-  padding-bottom: 12px;
+.fast-brain-backup-add .ui-icon {
+  width: 14px;
+  height: 14px;
 }
-.service-privacy {
-  display: none;
+.fast-brain-backup-header {
+  justify-content: space-between;
 }
-.settings-form:has(details[open]) .service-privacy {
-  display: block;
+.fast-brain-actions {
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
 }
-
-.settings-overview .settings-actions {
-  bottom: -28px;
-  padding: 14px 0;
-}
-.settings-overview .settings-actions p {
+.fast-brain-actions p {
   font-size: 11px;
 }
 .settings-empty {
@@ -395,8 +467,4 @@
   .settings-item {
     padding-inline: 16px;
   }
-}
-
-.settings-form:not(.is-editing):not(:has(details[open])) > .settings-actions {
-  display: none;
 }

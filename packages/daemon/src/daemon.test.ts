@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -33,12 +34,14 @@ import {
   TaskListResponse,
   TaskSessionResponse,
 } from "@aut/protocol";
-import { Context, Effect, Either, Exit, Layer, Option, Schema, Scope } from "effect";
+import { Context, Effect, Either, Exit, Layer, Option, Redacted, Schema, Scope } from "effect";
 import { afterEach, describe, expect, it } from "vitest";
 import { WebSocket } from "ws";
 import { Administration } from "./admin.js";
 import { HttpServer } from "./http.js";
+import { InboundGateway } from "./inbound.js";
 import { DaemonApiLive, DaemonLive } from "./index.js";
+import { SecretStore } from "./secret-store.js";
 
 const directories: string[] = [];
 const closes: Array<() => Promise<void>> = [];
@@ -115,6 +118,105 @@ const task = (id: string, status: Task["status"]) =>
   });
 
 describe("local HTTP API", () => {
+  it("keeps failed messages and reports each routing failure once without asking the user to dispatch", async () => {
+    const path = directory();
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const configs = yield* ConfigStore;
+        yield* configs.writeConfig(config);
+        yield* configs.writeBots([{ ...bot, system: "primary" }]);
+      }).pipe(Effect.provide(CoreLive({ dataDirectory: path }))),
+    );
+    const calls: string[] = [];
+    let rejectCredentials = true;
+    const classifier = createServer((request, response) => {
+      calls.push(request.url ?? "");
+      request.resume();
+      if (rejectCredentials) response.writeHead(401).end();
+      else response.destroy();
+    });
+    await new Promise<void>((resolve) => classifier.listen(0, "127.0.0.1", resolve));
+    closes.push(() => new Promise<void>((resolve) => classifier.close(() => resolve())));
+    const address = classifier.address();
+    if (!address || typeof address === "string") throw new Error("Missing test server address");
+    const scope = await Effect.runPromise(Scope.make());
+    closes.push(() => Effect.runPromise(Scope.close(scope, Exit.succeed(undefined))));
+    const context = await Effect.runPromise(
+      Layer.buildWithScope(DaemonLive({ dataDirectory: path, port: 0 }), scope),
+    );
+    const gateway = Context.get(context, InboundGateway);
+    const main = Context.get(context, MainThread);
+    const send = (id: string) =>
+      Effect.runPromise(gateway.message({ id: MessageId.make(id), text: "Continue the task" }));
+    const expectFailure = async (id: string, detail: string) =>
+      expect
+        .poll(async () =>
+          (await Effect.runPromise(main.page())).find(
+            (m) => m.id === `inbound-failure:message:${id}`,
+          ),
+        )
+        .toMatchObject({
+          kind: "notice",
+          author: "chief",
+          text: expect.stringContaining(detail),
+          decisionLogId: expect.any(String),
+        });
+    await send("unconfigured");
+    await expectFailure("unconfigured", "设置 → 快脑模型");
+    await Effect.runPromise(
+      Context.get(context, SecretStore).save("fixture", Redacted.make("synthetic-key")),
+    );
+    const service = (route: string) => ({
+      backend: "jev",
+      model: "jev-1.14.0",
+      endpoint: `http://127.0.0.1:${address.port}/${route}`,
+      apiKeyRef: "secret:fixture",
+    });
+    const services = { primary: service("primary"), fallback: service("backup") };
+    await Effect.runPromise(
+      Context.get(context, Administration).setConfig({ ...config, classifier: services }),
+    );
+    await send("invalid-key");
+    await expectFailure("invalid-key", "设置 → 快脑模型");
+    expect(calls).toEqual(["/primary", "/backup"]);
+    rejectCredentials = false;
+    await send("outage");
+    await expectFailure("outage", "快脑服务暂时不可用");
+    expect((await send("outage")).created).toBe(false);
+    expect(calls).toEqual(["/primary", "/backup", "/primary", "/backup"]);
+    const saved = await Effect.runPromise(Context.get(context, ConfigStore).readConfig);
+    expect(saved.classifier).toEqual(services);
+    const messages = await Effect.runPromise(main.page());
+    expect(messages.map((m) => m.kind).sort()).toEqual([
+      "notice",
+      "notice",
+      "notice",
+      "text",
+      "text",
+      "text",
+    ]);
+    const logs = await Effect.runPromise(
+      Context.get(context, Store).transaction((tx) => tx.list("decision_logs")),
+    );
+    const inbound = logs.filter((log) =>
+      ["message:unconfigured", "message:invalid-key", "message:outage"].includes(
+        log.input.eventRef,
+      ),
+    );
+    expect(inbound).toHaveLength(3);
+    for (const log of inbound) {
+      expect(log.execution.ok).toBe(false);
+      expect(log.execution.classifierFailure).toBe(
+        log.input.eventRef === "message:outage" ? "TransportError" : "NotConfigured",
+      );
+      expect(log.output).toBeUndefined();
+      expect(messages.some((m) => m.kind === "notice" && m.decisionLogId === log.id)).toBe(true);
+    }
+    expect(
+      await Effect.runPromise(Context.get(context, Store).transaction((tx) => tx.list("tasks"))),
+    ).toEqual([]);
+  });
+
   it("reuses Bot connections and isolates changed connections without replacing existing configuration", async () => {
     const server = await start();
     const classifier = {
@@ -140,6 +242,11 @@ describe("local HTTP API", () => {
     expect(results[0].instance.id).toBe(results[1].instance.id);
     const stored = await (await server.request("/v1/config")).json();
     expect(stored.classifier).toEqual(classifier);
+    const resaved = await server.request("/v1/config", "PUT", {
+      harnessInstances: stored.harnessInstances,
+    });
+    expect(await resaved.json()).toEqual(stored);
+    expect(await (await server.request("/v1/config")).json()).toEqual(stored);
     expect(stored.harnessInstances).toHaveLength(2);
     expect(stored.harnessInstances[0]).toEqual(existing);
     expect((await (await server.request("/v1/bots")).json()).bots[0]).toEqual(bot);

@@ -14,9 +14,9 @@
 | `request` | 一个 `SessionRequest` | 自动放行 / 转问题卡片 |
 | `handoff-prune` | 交接时的候选 main thread 消息 | 选中的片段列表 |
 
-桌面的“路由试验”使用独立 `inbound` 配置版本 `route-test-1.1.0`（ADR-0027）：
+桌面的“路由试验”使用独立 `inbound` 配置版本 `route-test-1.2.0`（ADR-0027、0080）：
 一个 classify 节点只询问 bot choice（state 中可路由 Bot 的专长与英文候选判据），成功输出诊断用 new Op，
-失败输出不可用 clarify。调用方只返回日志中的概率，不调用 OpExecutor，也不显示这张卡或创建任务。
+失败时结束决策并保存调用记录。诊断成功时只返回日志中的概率。
 试验 eventRef 以 `route-test:` 开头；完整日志仍保留，失败返回 503，不能填充虚构概率。
 
 ## 2. 节点类型
@@ -33,7 +33,7 @@
 除 `classify` / `slow` / `rewrite` 外，任何节点不得调用模型。新增节点类型需要 ADR。
 
 配置的精确字段、纯数据 Expr/Predicate AST、节点引用校验与执行预算见 `protocol.md` §12（ADR-0016）。
-`classify` 必须声明 `onError`；`slow` 仅用于 inbound，`rewrite` 仅用于 reply-gate。
+`classify` 必须声明 `onError`。节点名指定失败后的分支，`null` 指定结束本次决策并返回分类错误（ADR-0080）。`slow` 仅用于 inbound，`rewrite` 仅用于 reply-gate。
 
 ## 3. classify 节点
 
@@ -54,7 +54,7 @@
 - 所有阈值写在树配置里，不得硬编码。
 - Classifier 调用失败/超时（默认 1.5s）/限流：
   1. 若用户配置了备用 Classifier 后端 → 重试一次备用；
-  2. 否则该节点结果视为"全部低置信度" → 走 `clarify`（确定性卡片，列出可选动作）。
+  2. 调用最终失败时执行该节点声明的 `onError`。入站消息记录失败、结束本次分配，并在主会话显示通知。
 - 主后端和最多一次备用调用共享单节点总预算；主调用耗尽预算后不再追加一份备用预算。
   总预算可配置，默认1500ms。两次调用分别保留响应/错误及延迟，不把失败伪装为零概率响应。
 - 永远不允许因为 Classifier 不可用而阻塞 main thread。
@@ -66,7 +66,7 @@
 
 ---
 
-## 6. `inbound` 树（当前版本 1.3.0）
+## 6. `inbound` 树（当前版本 1.4.0）
 
 ### 6.1 state
 ```
@@ -89,7 +89,7 @@ R0 rule  uiAction 是卡片动作?
          └─ 任务面板按钮 → action: control(taskId, action)
 R1 rule  uiAction 是引用回复某条 task 消息? → 固定 target = 该 task（C1 跳过 target 问题）
 
-C1 classify（一次调用）
+C1 classify（一次调用，最终失败时结束本次决策）
   op:            choice { answer_pending*, new_work, ask_progress, talk_to_task, control_task, other }
                  *仅当 pendingRequests 非空时出现
   pending:       choice <pendingRequests>            （仅当非空）
@@ -130,8 +130,7 @@ B6 target.confidence ≥ 0.85 且 control.confidence ≥ 0.8（破坏性操作�
 - target 为 none 或置信度不足时，只列真实任务的候选；older_task 时列旧任务。任务操作门槛不足时要求用户确认完整操作。
 - B2 仅在所选 request 恰好一题且 allowFreeText 时将原文绑定到该题。多题或禁自由文本时，
   卡片绑定 requestId，由客户端读取原请求题组并提交 question-answer；不复制同一句到每题。
-- 后端全部失败的卡片明确提供“交给主助手创建新任务”、引用所指任务的继续操作（普通消息使用最近真实任务，若存在）、“都不是”；
-  没有概率时不伪造概率排序，也不自动执行推测动作。
+- 服务调用失败时，普通消息与引用回复都保留原文，生成一条关联决策日志的失败通知。配置缺失或无效时提示检查快脑设置，其他故障提示稍后重新发送。队列继续处理后续消息。澄清卡使用成功分类得到的真实候选。
 
 ### 6.4 slow
 - 模板回复"我想想"，在同一个主助手上创建 `origin.kind = "coordination"` 的协调 task，交接包附本次决策日志摘要。

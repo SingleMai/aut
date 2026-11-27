@@ -57,7 +57,7 @@ Bot 文件记忆（ADR-0069，Schema 位于 `protocol/src/memory.ts`）：`GET /
 | GET | `/v1/bot-models/options` | — | `BotModelOptionsResponse`；已有接入与已登记程序候选，不写配置或启动进程 |
 | POST | `/v1/bot-models/discover` | `BotModelDiscoveryInput` | `BotModelsResponse`；在执行主机读取原生模型和思考/速度选项（ADR-0077），不发送工作回合；ACP 会打开空的原生会话，读取预算 15 秒，进程清理另计（ADR-0076） |
 | POST | `/v1/bot-models/connection` | `HarnessInstanceConfig` | `{ instance }`；加锁复用相同接入或追加新引用，不覆盖已有实例，供 Bot 编辑器保存使用（ADR-0075） |
-| PUT | `/v1/config` | `AutConfig` | `AutConfig`；不能删除仍被 bot 使用的 harness 实例 |
+| PUT | `/v1/config` | `AutConfig` | 返回实际保存的配置。省略 classifier 时保留现有快脑配置。仍被 bot 使用的 harness 实例受引用保护 |
 | GET / upgrade | `/v1/events` | WebSocket 握手 | 实时 `DaemonEvent` JSON；初始数据从读取接口获取 |
 
 HTTP 鉴权头：`Authorization: Bearer <token>`。WebSocket 可使用同一 header，或子协议

@@ -1,5 +1,5 @@
-import { Chief, Store, type StoredEvent } from "@aut/core";
-import { MessageId } from "@aut/protocol";
+import { Chief, Store, type StoredEvent, type StoreTransaction } from "@aut/core";
+import { type ClassifierErrorCode, MessageId } from "@aut/protocol";
 import { Cause, Clock, Context, Effect, Layer, Option, Queue } from "effect";
 import { Recovery } from "./recovery.js";
 
@@ -27,6 +27,30 @@ export class ChiefIngress extends Context.Tag("aut/ChiefIngress")<
   { readonly recovered: number }
 >() {}
 
+const failureNotice = (
+  tx: StoreTransaction,
+  eventId: string,
+  decisionLogId?: string,
+  classifierFailure?: ClassifierErrorCode,
+) =>
+  Effect.gen(function* () {
+    const id = MessageId.make(`inbound-failure:${eventId}`);
+    if (Option.isSome(yield* tx.get("main_thread_messages", id))) return;
+    yield* tx.insert("main_thread_messages", {
+      id,
+      at: yield* Clock.currentTimeMillis,
+      author: "chief",
+      kind: "notice",
+      text:
+        classifierFailure === "NotConfigured"
+          ? "消息分配失败。请在「设置 → 快脑模型」检查服务和密钥，然后重新发送。"
+          : classifierFailure
+            ? "消息分配失败。快脑服务暂时不可用，请稍后重新发送。"
+            : "这条消息暂时未能处理。请检查任务或设置后重试；详情见决策日志。",
+      ...(decisionLogId ? { decisionLogId } : {}),
+    });
+  });
+
 export const ChiefIngressLive = Layer.scoped(
   ChiefIngress,
   Effect.gen(function* () {
@@ -47,6 +71,10 @@ export const ChiefIngressLive = Layer.scoped(
             continue;
           }
           const log = decision.value;
+          if (log.execution.classifierFailure) {
+            yield* failureNotice(tx, event.id, log.id, log.execution.classifierFailure);
+            continue;
+          }
           const acknowledgement = yield* tx.get("main_thread_messages", `chief:${log.id}`);
           const failed = yield* tx.get("main_thread_messages", `inbound-failure:${event.id}`);
           const progressMissing =
@@ -83,21 +111,6 @@ export const ChiefIngressLive = Layer.scoped(
       }),
     );
     for (const event of pending) yield* inbox.offer(event);
-    const failureNotice = (record: StoredEvent, decisionLogId?: string) =>
-      store.transaction((tx) =>
-        Effect.gen(function* () {
-          const id = MessageId.make(`inbound-failure:${record.id}`);
-          if (Option.isSome(yield* tx.get("main_thread_messages", id))) return;
-          yield* tx.insert("main_thread_messages", {
-            id,
-            at: yield* Clock.currentTimeMillis,
-            author: "chief",
-            kind: "notice",
-            text: "这条消息暂时未能处理。请检查任务或设置后重试；详情见决策日志。",
-            ...(decisionLogId ? { decisionLogId } : {}),
-          });
-        }),
-      );
     // Retain only work awaiting a receipt. Completed IDs are deduplicated by their durable log.
     const seen = new Set<string>();
     yield* Effect.forever(
@@ -111,7 +124,16 @@ export const ChiefIngressLive = Layer.scoped(
             const receipt = yield* chief.submit(record.event, record.id);
             yield* receipt.awaitResult.pipe(
               Effect.flatMap((result) =>
-                result.execution.ok ? Effect.void : failureNotice(record, result.decisionLogId),
+                result.execution.ok
+                  ? Effect.void
+                  : store.transaction((tx) =>
+                      failureNotice(
+                        tx,
+                        record.id,
+                        result.decisionLogId,
+                        result.execution.classifierFailure,
+                      ),
+                    ),
               ),
               Effect.catchAllCause((cause) =>
                 Cause.isInterruptedOnly(cause)
@@ -126,11 +148,13 @@ export const ChiefIngressLive = Layer.scoped(
               seen.delete(record.id);
               return Cause.isInterruptedOnly(cause)
                 ? Effect.failCause(cause)
-                : failureNotice(record).pipe(
-                    Effect.catchAll(() =>
-                      Effect.logError("Failed to persist inbound admission failure"),
-                    ),
-                  );
+                : store
+                    .transaction((tx) => failureNotice(tx, record.id))
+                    .pipe(
+                      Effect.catchAll(() =>
+                        Effect.logError("Failed to persist inbound admission failure"),
+                      ),
+                    );
             }),
           ),
         ),

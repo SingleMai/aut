@@ -227,8 +227,11 @@ export const AdministrationLive = Layer.scoped(
                   message: "Harness instance is still referenced by a bot",
                 }),
               );
-            yield* config.updateConfig(() => next);
-            return next;
+            return yield* config.updateConfig((current) =>
+              current.classifier && !next.classifier
+                ? { ...next, classifier: current.classifier }
+                : next,
+            );
           }),
         ),
     };

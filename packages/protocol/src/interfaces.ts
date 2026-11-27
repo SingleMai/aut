@@ -1,4 +1,4 @@
-import { Data, type Effect, type Scope, type Stream } from "effect";
+import { Data, type Effect, Schema, type Scope, type Stream } from "effect";
 import type { JsonValue, RequestId } from "./common.js";
 import type {
   AdapterCapabilities,
@@ -29,12 +29,14 @@ export class AdapterError extends Data.TaggedError("AdapterError")<{
   readonly detail?: JsonValue;
 }> {}
 
-export type ClassifierErrorCode =
-  | "NotConfigured"
-  | "Timeout"
-  | "RateLimited"
-  | "TransportError"
-  | "InvalidResponse";
+export const ClassifierErrorCode = Schema.Literal(
+  "NotConfigured",
+  "Timeout",
+  "RateLimited",
+  "TransportError",
+  "InvalidResponse",
+);
+export type ClassifierErrorCode = typeof ClassifierErrorCode.Type;
 
 export class ClassifierError extends Data.TaggedError("ClassifierError")<{
   readonly code: ClassifierErrorCode;

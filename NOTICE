@@ -68,7 +68,8 @@ Jev response validation and HTTP hygiene:
   Source: server/decider/jev.ts, types.ts and room-routing.ts
   Commit: 738ec88472a3b888ff7b7793755d89da613ed301
   https://github.com/milind-soni/OpenMausBot
-  Licensed under Apache License 2.0; adapted in packages/classifier/src/jev.ts.
+  Licensed under Apache License 2.0; adapted in packages/classifier/src/jev.ts
+  and packages/protocol/src/jev.ts.
   No enterprise-directory code is included.
 
 Agent-created bot receipt and conditional undo design reference:

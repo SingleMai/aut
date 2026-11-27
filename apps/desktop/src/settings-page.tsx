@@ -19,7 +19,7 @@ export function SettingsPage({
   return (
     <div className="settings-overview">
       {window.aut.connection && <DeviceSettings status={status} flash={flash} />}
-      <section className="coordination-settings" aria-label={t.routingService}>
+      <section aria-label={t.fastBrain}>
         {config ? (
           <RoutingSettings config={config} data={data} flash={flash} />
         ) : (

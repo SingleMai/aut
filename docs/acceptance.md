@@ -12,11 +12,11 @@
 | 单一内置主助手 | 空目录只创建 aut。它直接算出 37 + 48 = 85，随后在独立协调会话中通过 MCP 把验证任务交给手动创建的回声助手。三个任务最终均为 idle | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json) |
 | 手动与 Agent 创建专长助手 | 桌面表单创建成功。工作会话和主助手协调会话分别通过原生 `create_bot` 建立星表助手和潮汐助手，按中文专长的路由试验选中了星表助手 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json)、[桌面表单](../spikes/e2e/results/finder-inbound-1.1.2.json) |
 | 创建回执与重启 | 已使用的星表助手有任务引用，潮汐助手可撤销。用同一目录重启 daemon 后，四份任务执行登记、Bot 列表和两张回执的状态均正确 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json)、[事务测试](../packages/daemon/src/daemon.test.ts) |
-| 引用、改派及撤销 | 分类器不可用时继续选项绑定被引用的任务。改派使用原请求新建任务，原任务保留。撤销在原日志留下纠正决策 ID。重复提交与已确认派发的后续状态有事务回归测试 | [决策记录](../spikes/e2e/results/bot-dispatch-0.169.0.json)、[事务回归](../packages/core/src/session-manager/manager.test.ts) |
-| 两个并行任务、自然语言澄清与取消 | 两个 worker 同时待答时，在线分类为指代不明的取消请求列出两个任务。「取消刚才新建的那个任务」只取消了较新的任务。另一次分类超出 1.5 秒预算，显示降级卡 | [并发与澄清](../spikes/e2e/results/concurrent-delivery-0.169.0.json) |
+| 引用、改派及撤销 | 改派使用原请求新建任务，原任务保留。撤销在原日志留下纠正决策 ID。重复提交与已确认派发的后续状态有事务回归测试 | [决策记录](../spikes/e2e/results/bot-dispatch-0.169.0.json)、[事务回归](../packages/core/src/session-manager/manager.test.ts) |
+| 两个并行任务、自然语言澄清与取消 | 两个 worker 同时待答时，在线分类为指代不明的取消请求列出两个任务。「取消刚才新建的那个任务」只取消了较新的任务 | [并发与澄清](../spikes/e2e/results/concurrent-delivery-0.169.0.json) |
 | 排出合并与运行中 restart | 两条排队消息进入同一后续原生回合，报告顺序一致。运行中要求重做时，用户点击重做选项，原生历史记录同会话一轮中断、下一轮完成，队列清空 | [排队](../spikes/e2e/results/concurrent-delivery-0.169.0.json)、[重做](../spikes/e2e/results/restart-0.169.0.json) |
 | macOS 启动与重开 | 当前 arm64 开发包启动了内置 daemon，Bot 页只显示一张 aut 主助手卡片，关闭窗口后服务仍健康。桌面重开后的回包与纠正状态另有 LaunchServices 实测 | [发布前复验](../spikes/e2e/results/pre-release-baseline-0.169.0.json)、[桌面重开](../spikes/e2e/results/finder-inbound-1.1.2.json) |
-| Bot、路由、新任务与引用续聊 | 通过；降级场景生成澄清卡，不派发未确认任务 | [主链路](../spikes/e2e/results/main-thread-0.169.0.json) |
+| Bot、路由、新任务与引用续聊 | 原生主链路通过。当前入站快脑失败行为另由隔离测试覆盖普通消息、引用回复、备用调用、日志和失败通知 | [原生主链路](../spikes/e2e/results/main-thread-0.169.0.json)、[决策树 fixture](../packages/core/src/decision-tree/inbound.test.ts)、[daemon 回归](../packages/daemon/src/daemon.test.ts) |
 | 原生 RPC 题组、异步提问与回答 | 通过；默认模式非阻塞，答案确认送达 | [问答](../spikes/e2e/results/questions-main-thread-0.169.0.json) |
 | fast / deep 进度与回包门槛 | 通过；隔离查询和改写不污染原任务、报告或会话 | [主链路](../spikes/e2e/results/main-thread-0.169.0.json)、[进度](../spikes/e2e/results/progress-0.169.0.json) |
 | queue / steer | 通过；同任务同会话投递，等待问题时追加指令保持排队 | [投递](../spikes/e2e/results/delivery-0.169.0.json) |

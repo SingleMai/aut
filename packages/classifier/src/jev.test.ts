@@ -294,16 +294,22 @@ describe("Effect HTTP lifecycle", () => {
     expect(init?.signal?.aborted).toBe(true);
   });
 
-  it.each([400, 401, 403, 413, 422])(
-    "does not retry HTTP %s or retain its sensitive body",
-    async (status) => {
+  it.each([
+    [400, "TransportError"],
+    [401, "NotConfigured"],
+    [403, "NotConfigured"],
+    [413, "TransportError"],
+    [422, "TransportError"],
+  ] as const)(
+    "reports HTTP %s as %s without retrying or retaining the sensitive body",
+    async (status, code) => {
       const json = vi.fn();
       const response = new Response("unit-test-secret user message", { status });
       Object.defineProperty(response, "json", { value: json });
       const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(response);
       const classifier = await Effect.runPromise(makeJev({ apiKey, fetch }));
       const result = await Effect.runPromise(Effect.either(classifier.decide(request)));
-      expect(errorCode(result)).toBe("TransportError");
+      expect(errorCode(result)).toBe(code);
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(json).not.toHaveBeenCalled();
       expect(JSON.stringify(result)).not.toContain("unit-test-secret");

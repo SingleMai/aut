@@ -193,7 +193,7 @@ export const TreeNode = Schema.Union(
     state: Expr,
     questions: Schema.Array(QuestionBinding),
     next: SafeKey,
-    onError: SafeKey,
+    onError: Schema.NullOr(SafeKey),
   }),
   Schema.Struct({ type: Schema.Literal("action"), output: Expr }),
   Schema.Struct({ type: Schema.Literal("slow"), reason: Expr, messageIds: Expr }),
@@ -276,7 +276,7 @@ const nodeReferences = (
       };
     case "classify":
       return {
-        edges: [node.next, node.onError],
+        edges: node.onError === null ? [node.next] : [node.next, node.onError],
         expressions: [
           node.state,
           ...node.questions.flatMap((binding) => [

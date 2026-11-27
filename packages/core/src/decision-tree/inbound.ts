@@ -368,7 +368,7 @@ const intentCriteria = {
 };
 export const inboundV1: TreeConfig = {
   name: "inbound",
-  version: "1.3.0",
+  version: "1.4.0",
   entry: "ui",
   thresholds: {
     multiIntent: 0.5,
@@ -533,7 +533,7 @@ export const inboundV1: TreeConfig = {
         },
       ],
       next: "intent",
-      onError: "unavailable",
+      onError: null,
     },
     intent: {
       type: "branch",
@@ -561,45 +561,6 @@ export const inboundV1: TreeConfig = {
     ask_progress: { type: "action", output: askAction },
     talk_to_task: { type: "action", output: sendAction },
     control_task: { type: "action", output: controlAction },
-    unavailable: {
-      type: "action",
-      output: card(
-        "unavailable",
-        "暂时无法判断，请选择如何处理。",
-        concat(
-          array(
-            object({
-              id: literal("new"),
-              label: literal("交给主助手创建新任务"),
-              op: newWork(ref("state", "primaryBotId")),
-            }),
-          ),
-          map(
-            choose(
-              exists(ref("state", "fixedTargetId")),
-              {
-                kind: "filter",
-                from: ref("state", "taskCandidates"),
-                as: "task",
-                where: compare(ref("vars", "task", "id"), "eq", ref("state", "fixedTargetId")),
-              },
-              { kind: "take", from: ref("state", "taskCandidates"), count: literal(1) },
-            ),
-            "task",
-            object({
-              id: ref("vars", "task", "id"),
-              label: template("继续任务：{title}", { title: ref("vars", "task", "title") }),
-              op: object({
-                op: literal("send"),
-                taskId: ref("vars", "task", "id"),
-                delivery: literal("queue"),
-                messageIds: ref("state", "messageIds"),
-              }),
-            }),
-          ),
-        ),
-      ),
-    },
     slow: {
       type: "slow",
       reason: literal("The deterministic inbound tree requires the slow brain"),

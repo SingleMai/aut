@@ -5,6 +5,7 @@ export * from "./config.js";
 export * from "./domain.js";
 export * from "./files.js";
 export * from "./interfaces.js";
+export * from "./jev.js";
 export * from "./mcp.js";
 export * from "./memory.js";
 export * from "./remote.js";

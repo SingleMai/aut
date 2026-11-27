@@ -189,7 +189,15 @@ export const ChiefLive = Layer.scoped(
                 failure._tag === "Some"
                   ? `${failure.value._tag}: ${failure.value.message}`
                   : "Chief execution failed unexpectedly.";
-              const execution: ExecutionResult = { ok: false, error };
+              const classifierFailure =
+                failure._tag === "Some" && failure.value._tag === "TreeError"
+                  ? failure.value.classifierCode
+                  : undefined;
+              const execution: ExecutionResult = {
+                ok: false,
+                error,
+                ...(classifierFailure && { classifierFailure }),
+              };
               // A tree failure may already have written its diagnostic log before returning the error.
               const existing = yield* logs.get(pending.decisionLogId);
               if (logged || existing._tag === "Some")

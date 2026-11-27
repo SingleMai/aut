@@ -21,7 +21,7 @@
 ## P3 Classifier + 决策树执行器
 - `packages/classifier`：`Classifier` 接口 + Jev 后端（参考 OMB `server/decider/jev.ts`），固定模型版本，超时与重试。
 - 决策树配置 Schema、通用执行器、`inbound` v1 树、clarify 卡片、决策日志。
-- **DoD**：`decision-tree.md` §6 每个分支有 fixture；Classifier 不可用时降级到 clarify 的用例通过。
+- **DoD**：`decision-tree.md` §6 每个分支有 fixture，覆盖快脑调用失败和成功分类后需要澄清的场景。
 
 ## P4 端到端主链路
 - new / send（immediate、queue、steer、restart、排出合并）/ control / answer。

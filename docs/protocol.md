@@ -354,7 +354,7 @@ interface DecisionLog {
   classifierCalls: Array<{ backend: string; model: string; request: DecisionRequest; response?: DecisionResponse; error?: string; latencyMs: number }>
   path: string[]                     // 经过的节点 ID
   output?: Op | { gate: "deliver" | "rewrite" | "truncate" } | { request: "allow" | "relay" } | { excerpts: MessageId[] } // 缺失仅允许 execution.ok=false
-  execution: { ok: boolean; error?: string; degraded?: string[] }   // 如 steer→queue
+  execution: { ok: boolean; error?: string; degraded?: string[]; classifierFailure?: ClassifierErrorCode }
   correction?: { at: Timestamp; kind: "clarify-none" | "undo" | "reroute" | "manual"; detail?: string; decisionLogId?: string }
 }
 ```
@@ -539,7 +539,7 @@ interface QuestionBinding {
 type TreeNode =
   | { type: "rule"; when: Predicate; then: string; else: string }
   | { type: "branch"; cases: Array<{ when: Predicate; next: string }>; otherwise: string }
-  | { type: "classify"; state: Expr; questions: QuestionBinding[]; next: string; onError: string }
+  | { type: "classify"; state: Expr; questions: QuestionBinding[]; next: string; onError: string | null }
   | { type: "action"; output: Expr }
   | { type: "slow"; reason: Expr; messageIds: Expr }
   | { type: "rewrite"; instructions: string; next: string; onError: string }
@@ -548,6 +548,7 @@ type TreeNode =
 - 所有 ID、节点名、绑定名非空。路径与动态 lookup 只读自身属性，不允许 `__proto__`、`prototype`、`constructor`。
 - Schema 静态检查 entry、全部边、thresholds 引用；不接受指向不存在字段的 threshold 引用。
 - branch 按 cases 顺序首次命中；classify 展开 when/repeat 后的所有问题只发一次请求，结果放 answers。
+  分类最终失败且 `onError` 为 `null` 时，以分类错误结束并写入无输出的失败日志（ADR-0080）。
   动态 criteria 使用 state 的预计算候选描述；question ID 展开后不得重复，request/response 都须验证。
 - action 结果必须通过 `DecisionOutput` Schema，且不得输出 escalate；slow 生成 escalate 并绑定当前日志 ID。
   inbound 输出 Op；reply-gate 输出 gate；request 输出 allow/relay；handoff-prune 输出 excerpts。

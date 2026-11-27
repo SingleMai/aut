@@ -165,30 +165,32 @@ const result = await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
   yield* assert(savedPrimary?.system === "primary" && savedPrimary.soul === soulDraft &&
     savedPrimary.modelSelection.instanceId === "local" && savedPrimary.modelSelection.effort === undefined,
     "Saving the Bot editor changed identity, whitespace, the selected instance or empty effort");
-  yield* evaluate("[...document.querySelectorAll('button')].find(button=>button.textContent==='设置').click(); true");
+  yield* jsonFetch(`http://127.0.0.1:${port}/v1/messages`, token, { id: "packaged-no-classifier", text: "合成测试：确认完整 chief 已启动。" });
+  const failureId = "inbound-failure:message:packaged-no-classifier";
+  const thread = yield* until(jsonFetch(`http://127.0.0.1:${port}/v1/messages`, token), (response) =>
+    response.messages.some((message: any) => message.id === failureId && message.kind === "notice"));
+  yield* evaluate("document.querySelector('button[aria-label=设置]').click(); true");
+  yield* until(evaluate("!!document.querySelector('.fast-brain-settings > summary')"), Boolean);
+  yield* evaluate("document.querySelector('.fast-brain-settings > summary').click(); document.querySelector('[name=\"primary.source\"][value=official]').click(); true");
+  yield* until(evaluate("!!document.querySelector('[data-field=\"primary.credential\"] input')"), Boolean);
   const settings = yield* evaluate("({password:!!document.querySelector('input[type=password]'),save:[...document.querySelectorAll('button')].some(button=>button.textContent==='保存密钥')})");
   yield* assert(settings.password && settings.save, "The packaged settings do not include local secret controls");
-  yield* evaluate("document.querySelector('input[aria-label=\"主分类服务密钥\"]').focus(); true");
+  yield* evaluate("document.querySelector('[data-field=\"primary.credential\"] input').focus(); true");
   yield* cdp("Input.insertText", { text: "packaged-synthetic-key" });
   yield* evaluate("[...document.querySelectorAll('button')].find(button=>button.textContent==='保存密钥').click(); true");
-  yield* until(evaluate("document.querySelector('input[aria-label=\"主分类服务密钥\"]').value===''"), Boolean);
-  const keyStatus = yield* evaluate("window.aut.request({method:'GET',path:'/v1/secrets/status?ref=secret:primary'})");
+  yield* until(evaluate("document.querySelector('[name=\"primary.key\"]').value.startsWith('secret:') && document.querySelector('[data-field=\"primary.credential\"] input').value===''"), Boolean);
+  const keyStatus = yield* evaluate("window.aut.request({method:'GET',path:'/v1/secrets/status?ref='+encodeURIComponent(document.querySelector('[name=\"primary.key\"]').value)})");
   yield* assert(keyStatus.ok && keyStatus.data.configured, "The packaged credential IPC path failed");
-  yield* evaluate(`const settingsForm = document.querySelector('.settings-form');
-    settingsForm.querySelector('[name$=".name"]').value = 'Edited CLI';
-    settingsForm.querySelector('[name$=".env"]').value = JSON.stringify({ AUT_SMOKE: '1' });
-    settingsForm.requestSubmit(); true`);
+  yield* evaluate("document.querySelector('.fast-brain-form').requestSubmit(); true");
   const savedConfig = yield* until(jsonFetch(`http://127.0.0.1:${port}/v1/config`, token),
-    (config) => config.harnessInstances[0]?.name === "Edited CLI");
+    (config) => config.classifier?.primary.apiKeyRef === keyStatus.data.apiKeyRef);
   const [savedInstance] = savedConfig.harnessInstances;
   yield* assert(savedInstance.id === "local" && savedInstance.command === "codex" &&
-    savedInstance.env?.AUT_SMOKE === "1" && savedConfig.classifier === undefined,
-    "Saving settings did not round-trip the harness fields or the optional classifier");
+    savedInstance.name === "Existing CLI" && savedConfig.classifier.primary.backend === "jev",
+    "Saving the fast brain changed the existing harness connection");
   const screenshot = yield* cdp("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(evidenceDirectory, "desktop-packaged.png"), Buffer.from(screenshot.data, "base64"));
-  yield* jsonFetch(`http://127.0.0.1:${port}/v1/messages`, token, { id: "packaged-no-classifier", text: "合成测试：确认完整 chief 已启动。" });
-  const thread = yield* until(jsonFetch(`http://127.0.0.1:${port}/v1/messages`, token), (response) => response.messages.some((message: any) => message.kind === "clarify-card"));
-  yield* evaluate("document.querySelector('button[data-view=conversation]').click(); true");
+  yield* evaluate("document.querySelector('button[aria-label=主会话]').click(); true");
   yield* until(evaluate("!!document.querySelector('.message-more')"), Boolean);
   yield* evaluate(`document.querySelector('.message:has(.message-more) [data-chat-bubble]')
     .dispatchEvent(new MouseEvent('contextmenu', {bubbles:true, cancelable:true, clientX:innerWidth-2, clientY:innerHeight-2})); true`);
@@ -208,7 +210,7 @@ const result = await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
   yield* until(Effect.sync(() => appExited), Boolean);
   const afterClose = yield* jsonFetch(`http://127.0.0.1:${port}/v1/health`, token);
   yield* assert(afterClose.status === "ok" && running(ownedDaemon), "Closing the desktop also stopped the daemon");
-  const result = { at: new Date().toISOString(), architecture: process.arch, appPath: app, isolatedDataAndProfile: true, modelSource: "Reused model from successful live acceptance; no discovery or model task was launched", renderer: initial, appearance, overlays: { viewportCollision: true, restoredFocus: true, styleViolations }, primaryCard, secretControls: settings, secretSavedThroughPackagedIpc: true, chiefFallbackCard: thread.messages.find((message: any) => message.kind === "clarify-card").text, bundledMcpStdio: true, windowClosed: true, daemonHealthyAfterWindowClose: true, daemonPid: ownedDaemon, uiPid: child.pid };
+  const result = { at: new Date().toISOString(), architecture: process.arch, appPath: app, isolatedDataAndProfile: true, modelSource: "Reused model from successful live acceptance; no discovery or model task was launched", renderer: initial, appearance, overlays: { viewportCollision: true, restoredFocus: true, styleViolations }, primaryCard, secretControls: settings, secretSavedThroughPackagedIpc: true, routingFailure: thread.messages.find((message: any) => message.id === failureId).text, bundledMcpStdio: true, windowClosed: true, daemonHealthyAfterWindowClose: true, daemonPid: ownedDaemon, uiPid: child.pid };
   return { ...result, creationUndo: creationReceipt.botCreation, botEditSaved: true, settingsSaved: true };
 })).pipe(Effect.timeout("2 minutes")));
 if (ownedDaemon) await Effect.runPromise(until(Effect.sync(() => !running(ownedDaemon!)), Boolean));

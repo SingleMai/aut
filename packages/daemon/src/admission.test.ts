@@ -120,6 +120,21 @@ it("replays only unclassified events and gives an idempotent notice for uncertai
               event: { source: "user", kind: "message", messageId: MessageId.make("b") },
             });
             yield* tx.insert("decision_logs", pending);
+            yield* tx.insert("events", {
+              id: "classified-failure",
+              at: 15,
+              event: { source: "user", kind: "message", messageId: MessageId.make("c") },
+            });
+            yield* tx.insert("decision_logs", {
+              ...pending,
+              id: "failed-decision",
+              input: { ...pending.input, eventRef: "classified-failure" },
+              execution: {
+                ok: false,
+                error: "Classification failed (Timeout).",
+                classifierFailure: "Timeout",
+              },
+            });
           }),
         );
         const chief = Layer.succeed(Chief, {
@@ -170,8 +185,14 @@ it("replays only unclassified events and gives an idempotent notice for uncertai
         const messages = yield* store.transaction((tx) => tx.list("main_thread_messages"));
         expect(submitted).toEqual(["unclassified"]);
         expect(
-          messages.filter((message) => message.kind === "notice").map((message) => message.id),
-        ).toEqual(["inbound-recovery:classified"]);
+          messages
+            .filter((message) => message.kind === "notice")
+            .map((message) => message.id)
+            .sort(),
+        ).toEqual(["inbound-failure:classified-failure", "inbound-recovery:classified"]);
+        expect(
+          messages.find((message) => message.decisionLogId === "failed-decision")?.text,
+        ).toContain("快脑服务暂时不可用");
         const log = yield* store.transaction((tx) => tx.get("decision_logs", "old-decision"));
         expect(log._tag === "Some" && log.value.execution.error).toContain("Interrupted");
       }).pipe(Effect.provide(services)),
