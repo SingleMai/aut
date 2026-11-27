@@ -522,7 +522,6 @@ export const zhCN = {
     endpoint: "请填写完整的 HTTP 或 HTTPS 地址。",
     model: "请填写固定的模型名，避免使用 latest。",
   },
-  secretPending: "可先通过环境变量配置密钥，并在上方填写 env:变量名。",
 } as const;
 export const t = zhCN;
 

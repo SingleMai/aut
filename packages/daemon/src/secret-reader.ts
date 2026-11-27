@@ -1,3 +1,4 @@
+import { JEV_DEFAULT_KEY_REF } from "@aut/protocol";
 import { Context, Effect, Layer, Redacted } from "effect";
 import { DaemonError } from "./errors.js";
 import { SecretStore } from "./secret-store.js";
@@ -11,7 +12,7 @@ export class SecretReader extends Context.Tag("aut/SecretReader")<
 
 /** Existing environment credentials remain available without changing shell or provider files. */
 export const EnvironmentSecretReaderLive = Layer.succeed(SecretReader, {
-  resolve: (reference = "env:TYPESAFE_API_KEY") =>
+  resolve: (reference = JEV_DEFAULT_KEY_REF) =>
     Effect.suspend(() => {
       const name = reference.startsWith("env:") ? reference.slice(4) : reference;
       if (!/^[A-Z_][A-Z0-9_]*$/.test(name))

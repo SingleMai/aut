@@ -5,6 +5,7 @@ import { NonEmptyString } from "./common.js";
 
 export const JEV_MODEL = "jev-1.14.0";
 export const JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone";
+export const JEV_DEFAULT_KEY_REF = "env:TYPESAFE_API_KEY";
 
 export const JevServiceConfig = Schema.Struct({
   model: Schema.String.pipe(Schema.pattern(/^jev-\d+\.\d+\.\d+$/)),

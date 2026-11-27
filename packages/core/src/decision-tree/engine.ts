@@ -90,8 +90,15 @@ const sameKeys = (left: object, right: object) => {
   );
 };
 
+const invalidClassifierResponse = () =>
+  new ClassifierError({
+    code: "InvalidResponse",
+    message: "Classifier response does not match its questions.",
+  });
+
 const validateResponse = (request: DecisionRequest, response: DecisionResponse) =>
   Schema.decodeUnknown(DecisionResponse)(response).pipe(
+    Effect.mapError(invalidClassifierResponse),
     Effect.filterOrFail(
       (value) =>
         sameKeys(value.answers, request.questions) &&
@@ -106,18 +113,7 @@ const validateResponse = (request: DecisionRequest, response: DecisionResponse) 
             );
           return true;
         }),
-      () =>
-        new ClassifierError({
-          code: "InvalidResponse",
-          message: "Classifier response does not match its questions.",
-        }),
-    ),
-    Effect.mapError(
-      () =>
-        new ClassifierError({
-          code: "InvalidResponse",
-          message: "Classifier response does not match its questions.",
-        }),
+      invalidClassifierResponse,
     ),
   );
 
@@ -225,39 +221,39 @@ export const DecisionTreeLive = (options: TreeOptions = {}) =>
                           ),
                         );
                         const latencyMs = (yield* Clock.currentTimeMillis) - started;
-                        let error: string | undefined;
-                        if (Exit.isFailure(exit)) {
-                          const failure = Cause.failureOption(exit.cause);
-                          lastError =
-                            failure._tag === "Some" ? failure.value.code : "InvalidResponse";
-                          error = Cause.isInterrupted(exit.cause)
-                            ? "Interrupted: Classification was cancelled."
-                            : failure._tag === "Some"
-                              ? `${lastError}: ${failure.value.message}`
-                              : "InvalidResponse: Classifier failed unexpectedly.";
-                        }
-                        calls.push({
+                        const call = {
                           backend: backend.backend,
                           model: backend.model,
                           request,
                           latencyMs,
-                          ...(Exit.isSuccess(exit)
-                            ? { response: exit.value }
-                            : { error: error ?? "Classifier failed." }),
-                        });
-                        if (Exit.isFailure(exit) && Cause.isInterrupted(exit.cause)) {
-                          // Preserve cancellation exactly; it is not a typed classifier failure or a fallback instruction.
+                        };
+                        if (Exit.isSuccess(exit)) {
+                          calls.push({ ...call, response: exit.value });
+                          return exit.value;
+                        }
+                        if (Cause.isInterrupted(exit.cause)) {
+                          calls.push({
+                            ...call,
+                            error: "Interrupted: Classification was cancelled.",
+                          });
+                          // Propagate the original interruption after its audit entry is recorded.
                           return yield* Effect.failCause(exit.cause as Cause.Cause<never>);
                         }
-                        return exit;
+                        const failure = Option.getOrUndefined(Cause.failureOption(exit.cause));
+                        lastError = failure?.code ?? "InvalidResponse";
+                        calls.push({
+                          ...call,
+                          error: `${lastError}: ${failure?.message ?? "Classifier failed unexpectedly."}`,
+                        });
+                        return undefined;
                       }),
                     );
-                    if (Exit.isSuccess(response)) {
+                    if (response) {
                       context = {
                         ...context,
                         answers: {
                           ...(context.answers as Record<string, JsonValue>),
-                          ...response.value.answers,
+                          ...response.answers,
                         },
                       };
                       return node.next;
